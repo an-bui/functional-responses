@@ -26,21 +26,10 @@ packageID <- "knb-lter-sbc.119.10"
 # downloads zipped file
 read_data_package_archive(packageID, path = here("data", "SBC-LTE"))
 
-# creates an intermediate object
-LTE_All_Species_Biomass_at_transect_20230530 <- read_csv(
-  here("data", 
-       "SBC-LTE", 
-       "raw-data", 
-       "knb-lter-sbc.119.10", 
-       "LTE_All_Species_Biomass_at_transect_20230530.csv")
-)
+# unzips file
+unzip(zipfile = here("data", "SBC-LTE", "knb-lter-sbc.119.10.zip"),
+      exdir = here("data", "SBC-LTE", "knb-lter-sbc.119.10"))
 
-# creates an RDS file
-saveRDS(object = LTE_All_Species_Biomass_at_transect_20230530,
-        file = here("data",
-                    "SBC-LTE",
-                    "rds",
-                    "LTE_All_Species_Biomass_at_transect_20230530.rds"))
 
 
 

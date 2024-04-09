@@ -1,0 +1,1125 @@
+
+  
+    
+      uid=SBC,o=EDI,dc=ecoinformatics,dc=org
+      all
+    
+    
+      uid=lkui,o=EDI,dc=ecoinformatics,dc=org
+      all
+    
+    
+      public
+      read
+    
+  
+  
+    doi:10.6073/pasta/84e2768790791a94eb73f66320cd09b1LTE KR - Biomass of algae, invertebrates and fish
+    SBC LTER: Reef: Long-term experiment: biomass of kelp forest species, ongoing since 2008
+    
+      Daniel C Reed
+      			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+      805-893-8363
+      danreed@ucsb.edu
+      https://orcid.org/0000-0003-3015-8717
+    
+    
+      Robert J Miller
+      			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+      805-893-6174
+      rjmiller@ucsb.edu
+      https://orcid.org/0000-0002-8350-3759
+    
+    
+      Santa Barbara Coastal LTER
+      			Marine Science Institute University of California
+			Santa Barbara, CA 93106  USA
+      sbclter@msi.ucsb.edu
+      publisher, curator
+    
+    2023-09-05
+    English
+    
+      
+        
+      These data represent values of biomass density for more than 200
+      species of macroalgae, invertebrates and fish measured in fixed
+      plots at five reefs as part of a long-term experiment designed to
+      evaluate the effects of disturbance to giant kelp on the structure
+      and productivity of the benthic community. Taxon-specific
+      relationships between size and mass were applied to field
+      measurements of species abundance to estimate biomass density of
+      each species. The five reefs (Arroyo Quemado 34°28.048’N,
+      120°07.031’W; Carpinteria 34°23.474’N, 119°32.510’W; Isla Vista
+      34°23.275’N, 119°32.792’W; Mohawk 34°23.649’N, 119°43.762’W; and
+      Naples 34° 25.342’N, 119° 57.102’W) ranged in depth from 5.8 m to
+      8.9 m (MLLW) and were chosen to represent a range of physical and
+      biological characteristics known to influence subtidal macroalgal
+      assemblages in the region. A common (but not always persistent)
+      feature on these reefs was the presence of the giant kelp, which
+      forms a dense canopy at the sea surface that suppresses
+      recruitment and growth of understory algae below it.
+    
+        
+      See Methods for more information.  
+    
+      
+    
+    
+      Disturbance Patterns
+      populations
+      LTER Core Research Areas
+    
+    
+      abundance
+      aquatic invertebrates
+      biomass
+      gastropods
+      invertebrates
+      long term
+      long term ecological research
+      LTER
+      macroinvertebrates
+      marine
+      measurements
+      mollusks
+      organism
+      populations
+      Santa Barbara Coastal
+      species
+      transects
+      LTER Controlled Vocabulary v1
+    
+    
+      Community Structure
+      Kelp Forest
+      populations
+      Reef
+      SBC-LTER Controlled Vocabulary
+    
+    
+      Arroyo Quemado Reef
+      Carpinteria Reef
+      Mohawk Reef
+      Naples Reef
+      Santa Barbara Coastal LTER Places
+    
+    
+      Cover
+      Estimation
+      Live Weight
+      Reefs
+      Species
+      NBII Biocomplexity
+    
+    
+      biomass
+      core
+      crustaceans
+      LTER
+      ongoing
+      none
+    
+    
+      
+    This data package is released under the Creative Commons License
+    Attribution 4.0 International (CC BY 4.0, see
+    https://creativecommons.org/licenses/by/4.0/). This license states
+    that consumers ("Data Users" herein) may distribute,
+    adapt, reuse, remix, and build upon this work, as long as they give
+    appropriate credit, provide a link to the license, and indicate if
+    changes were made. If redistributed, a Data User may not apply
+    additional restrictions or technological measures that prevent
+    access.
+  
+      
+    The Data User has an ethical obligation to cite the data source
+    appropriately in any publication or product that results from its
+    use, and notify the data contact or creator. Communication,
+    collaboration, or co-authorship (as appropriate) with the creators
+    of this data package is encouraged to prevent duplicate research or
+    publication. The Data User is urged to contact the authors of these
+    data if any questions about methodology or results occur. The Data
+    User should realize that these data may be actively used by others
+    for ongoing research and that coordination may be necessary to
+    prevent duplication or inappropriate use. The Data User should
+    realize that misinterpretation may occur if data are used outside of
+    the context of the original study. The Data User should be aware
+    that data are updated periodically and it is the responsibility of
+    the Data User to check for new versions of the data.
+  
+      
+    While substantial efforts are made to ensure the accuracy of data
+    and associated documentation, complete accuracy of data sets cannot
+    be guaranteed. This data package (with its components) is made
+    available “as is” and with no warranty of accuracy or fitness for
+    use. The creators of this data package and the repository where
+    these data were obtained shall not be liable for any damages
+    resulting from misinterpretation, use or misuse of the data package
+    or its components.
+  
+    
+    
+      
+        https://sbclter.msi.ucsb.edu/
+      
+    
+    https://doi.org/10.6073/pasta/84e2768790791a94eb73f66320cd09b1
+      
+        AQUE: Arroyo Quemado Reef: Arroyo Quemado Reef depth range from 5.4 m to 10.7 m. Reference on Land is close to US101/Arroyo Quemada Ln.
+        
+          -120.11905
+          -120.11905
+          34.46774988
+          34.46774988
+        
+      
+      
+        CARP: Carpinteria Reef is located on the Santa Barbara Channel offshore of the Carpinteria Salt Marsh. Depth range is from -2.2 to -8.8 meters
+        
+          -119.5416933
+          -119.5416933
+          34.3916319
+          34.3916319
+        
+      
+      
+        MOHK: Mohawk Reef: Mohawk Reef depth ranges from 4.5m to 6.0 m. Reference on land is Mohawk Rd / Edgewater Way.
+        
+          -119.72957
+          -119.72957
+          34.3940708
+          34.3940708
+        
+      
+      
+        NAPL: Naples Reef is located on the Santa Barbara Channel near the community of Naples and Dos Pueblos Canyon, Santa Barbara County, CA. Depth ranges from -5.9 to -13.4 meters.
+        
+          -119.95154
+          -119.95154
+          34.4221216
+          34.4221216
+        
+      
+      
+        IVEE: Isla Vista (IV) Reef is located on the Santa Barbara Channel near the University of California Santa Barbara, CA. Depth range is from -8.2 to -8.8 meters.
+        
+          -119.85755
+          -119.85755
+          34.402783
+          34.402783
+        
+      
+      
+        
+          
+            2008-01-01
+          
+          
+            2023-05-23
+          
+        
+      
+    
+    
+      http://purl.obolibrary.org/obo/IAO_000136
+      http://purl.obolibrary.org/obo/ENVO_01000050
+    
+    
+      http://purl.obolibrary.org/obo/IAO_000136
+      http://purl.obolibrary.org/obo/ENVO_01000058
+    
+    
+      http://purl.obolibrary.org/obo/IAO_000136
+      http://purl.obolibrary.org/obo/ENVO_01000155
+    
+    
+      Santa Barbara Coastal LTER
+      			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+      sbclter@msi.ucsb.edu
+      https://sbclter.msi.ucsb.edu/
+      https://ror.org/05hnkta08
+    
+    
+    Environmental Data Initiativeinfo@edirepository.orghttps://edirepository.org0330j0z60Environmental Data Initiative
+      
+        
+          
+            
+      Field measurements of percent cover or size specific density were
+      converted to biomass for each species of algae, invertebrate, and
+      fish recorded using taxon specific relationships
+      “https://portal.edirepository.org/nis/mapbrowse?scope=knb-lter-sbc&identifier=127”.
+      Percent cover or size specific density of rare species was
+      converted to biomass using relationships derived for
+      morphologically similar taxa. Please see the protocol below for
+      details of how biomass was calculated.
+    
+          
+        
+        
+          SBC LTER Long Term Experiment Protocol - all species biomass calculation
+          
+             Reed
+          
+          
+            
+              https://sbclter.msi.ucsb.edu/external/Reef/Protocols/Long_Term_Kelp_Removal/Long_Term_Experiment_Protocol_Biomass_invert_algae_fish_calculation.pdf
+            
+          
+        
+      
+      
+        This method step describes provenance-based metadata as specified in the LTER EML Best Practices.
+                                   This provenance metadata does not contain entity specific information.
+        
+          SBC LTER: Reef: Long-term experiment: Kelp removal: Invertebrate and algal density
+          
+            Daniel C Reed
+            			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+            805-893-8363
+            danreed@ucsb.edu
+            https://orcid.org/0000-0003-3015-8717
+          
+          
+            Robert J Miller
+            			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+            805-893-6174
+            rjmiller@ucsb.edu
+            https://orcid.org/0000-0002-8350-3759
+          
+          
+            
+              This online link references an EML document that describes data used in the creation of this derivative data package.
+              https://pasta.lternet.edu/package/metadata/eml/knb-lter-sbc/34/21
+            
+          
+          
+            Santa Barbara Coastal LTER
+            			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+            sbclter@msi.ucsb.edu
+            https://sbclter.msi.ucsb.edu/
+            https://ror.org/05hnkta08
+          
+        
+        
+          SBC LTER: Reef: Long-term experiment: Kelp removal: Cover of sessile organisms, Uniform Point Contact
+          
+            Daniel C Reed
+            			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+            805-893-8363
+            danreed@ucsb.edu
+            https://orcid.org/0000-0003-3015-8717
+          
+          
+            Robert J Miller
+            			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+            805-893-6174
+            rjmiller@ucsb.edu
+            https://orcid.org/0000-0002-8350-3759
+          
+          
+            
+              This online link references an EML document that describes data used in the creation of this derivative data package.
+              https://pasta.lternet.edu/package/metadata/eml/knb-lter-sbc/28/32
+            
+          
+          
+            Santa Barbara Coastal LTER
+            			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+            sbclter@msi.ucsb.edu
+            https://sbclter.msi.ucsb.edu/
+            https://ror.org/05hnkta08
+          
+        
+        
+          SBC LTER: Reef: Long-term experiment: Kelp removal: Fish abundance
+          
+            Daniel C Reed
+            			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+            805-893-8363
+            danreed@ucsb.edu
+            https://orcid.org/0000-0003-3015-8717
+          
+          
+            Robert J Miller
+            			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+            805-893-6174
+            rjmiller@ucsb.edu
+            https://orcid.org/0000-0002-8350-3759
+          
+          
+            
+              This online link references an EML document that describes data used in the creation of this derivative data package.
+              https://pasta.lternet.edu/package/metadata/eml/knb-lter-sbc/30/23
+            
+          
+          
+            Santa Barbara Coastal LTER
+            			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+            sbclter@msi.ucsb.edu
+            https://sbclter.msi.ucsb.edu/
+            https://ror.org/05hnkta08
+          
+        
+        
+          SBC LTER: Reef: Long-term experiment: Kelp removal: Abundance and size of Giant Kelp
+          
+            Daniel C Reed
+            			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+            805-893-8363
+            danreed@ucsb.edu
+            https://orcid.org/0000-0003-3015-8717
+          
+          
+            Robert J Miller
+            			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+            805-893-6174
+            rjmiller@ucsb.edu
+            https://orcid.org/0000-0002-8350-3759
+          
+          
+            
+              This online link references an EML document that describes data used in the creation of this derivative data package.
+              https://pasta.lternet.edu/package/metadata/eml/knb-lter-sbc/29/23
+            
+          
+          
+            Santa Barbara Coastal LTER
+            			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+            sbclter@msi.ucsb.edu
+            https://sbclter.msi.ucsb.edu/
+            https://ror.org/05hnkta08
+          
+        
+        
+          SBC LTER: Reef: Long-term experiment: Kelp removal: Urchin size frequency distribution
+          
+            Daniel C Reed
+            			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+            805-893-8363
+            danreed@ucsb.edu
+            https://orcid.org/0000-0003-3015-8717
+          
+          
+            Robert J Miller
+            			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+            805-893-6174
+            rjmiller@ucsb.edu
+            https://orcid.org/0000-0002-8350-3759
+          
+          
+            
+              This online link references an EML document that describes data used in the creation of this derivative data package.
+              https://pasta.lternet.edu/package/metadata/eml/knb-lter-sbc/26/24
+            
+          
+          
+            Santa Barbara Coastal LTER
+            			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+            sbclter@msi.ucsb.edu
+            https://sbclter.msi.ucsb.edu/
+            https://ror.org/05hnkta08
+          
+        
+        
+          SBC LTER: Reef: Coefficients for estimating biomass from body size or percent cover for kelp forest species
+          
+            Santa Barbara Coastal LTER
+            			Marine Science Institute University of California
+			Santa Barbara, CA 93106  USA
+            sbclter@msi.ucsb.edu
+          
+          
+            Clint J Nelson
+            			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+            805-893-7295
+            clint.nelson@lifesci.ucsb.edu
+          
+          
+            Daniel C Reed
+            			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+            805-893-8363
+            dan.reed@lifesci.ucsb.edu
+            https://orcid.org/0000-0003-3015-8717
+          
+          
+            Shannon Harrer
+            			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+            805-893-7295
+            harrer@msi.ucsb.edu
+          
+          
+            Robert J Miller
+            			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+            805-893-6174
+            rjmiller@ucsb.edu
+            https://orcid.org/0000-0002-8350-3759
+          
+          
+            
+              This online link references an EML document that describes data used in the creation of this derivative data package.
+              https://pasta.lternet.edu/package/metadata/eml/knb-lter-sbc/127/3
+            
+          
+          
+            Information Manager, Santa Barbara Coastal LTER
+            			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+            805 893 2071
+            sbclter@msi.ucsb.edu
+            https://sbclter.msi.ucsb.edu/
+          
+        
+      
+    
+    
+      Santa Barbara Coastal Long Term Ecological Research Project
+      
+        Dr. Robert Miller
+        			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+        miller@msi.ucsb.edu
+        Principal Investigator
+      
+      
+        Dr. Dan Reed
+        			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+        dan.reed@lifesci.ucsb.edu
+        Co-principal Investigator
+      
+      
+        Dr. Adrian Stier
+        			Department of Ecology, Evolution and Marine Biology
+			University of California
+			Santa Barbara, California 93106-9260  United States
+        adrian.stier@lifesci.ucsb.edu
+        Co-principal Investigator
+      
+      
+        Dr. Gretchen Hoffman
+        			Department of Ecology, Evolution and Marine Biology
+			University of California
+			Santa Barbara, California 93106-9620  United States
+        hofmann@lifesci.ucsb.edu
+        Co-principal Investigator
+      
+      
+        Dr. David Siegel
+        			Institute for Computational Earth System Science
+			University of California
+			Santa Barbara, California 93106-3060  United States
+        davey@icess.ucsb.edu
+        Co-principal Investigator
+      
+      
+        
+          The Santa Barbara Coastal LTER (SBC LTER) is an interdisciplinary research and education program
+established in April 2000 with the goal of developing a predictive understanding of how environmental
+drivers interact with terrestrial and oceanic processes to alter material flows and influence the ecology of
+coastal ecosystems. SBC LTER's principal study domain is the semi-arid coast and nearshore waters of
+the Santa Barbara Channel in southern California, and its diverse and productive marine forests of giant
+kelp (Macrocystis pyrifera) serve as the focal study ecosystem. Analyses of our long-term data have
+identified many of the environmental drivers and ecological processes underlying the production and
+community dynamics of kelp forests. The research proposed to address this question is integrated in a conceptual framework
+that focuses on the causes and ecological consequences of the dynamics of a relatively short-lived
+foundation species in a setting of long-term climate change and human use.
+        
+      
+      
+        SBC LTER is supported by the National Science Foundation.
+      
+      
+        National Science Foundation
+        https://dx.doi.org/10.13039/100000001
+        1831937
+        LTER: Environmental drivers and ecological consequences of kelp forest dynamics (SBV IV)
+        https://www.nsf.gov/awardsearch/showAward?AWD_ID=1831937
+      
+      
+        National Science Foundation
+        https://dx.doi.org/10.13039/100000001
+        1232779
+        LTER: Land/Ocean Interactions and the Dynamics of Kelp Forest Ecosystems (SBC III)
+        https://www.nsf.gov/awardsearch/showAward?AWD_ID=1232779
+      
+      
+        National Science Foundation
+        https://dx.doi.org/10.13039/100000001
+        0620276
+        LTER: Land/Ocean Interactions and the Dynamics of Kelp Forest Communities
+        https://www.nsf.gov/awardsearch/showAward?AWD_ID=0620276
+      
+      
+        National Science Foundation
+        https://dx.doi.org/10.13039/100000001
+        9982105
+        LTER: Land/Ocean Interactions and the Dynamics of Kelp Forest Ecosystems
+        https://www.nsf.gov/awardsearch/showAward?AWD_ID=9982105
+      
+    
+    
+      SBC LTER LTE time series of biomass for kelp forest species
+      The biomass of kelp forest species in fixed plots along permanent transects in kelp removal experiment
+      
+        LTE_All_Species_Biomass_at_transect_20230530.csv
+        49542403
+        065525e24c694de0869ecbf7cebe6c94
+        
+          
+            1
+            \r\n
+            column
+            
+              ,
+              no
+              "
+            
+          
+        
+        
+          
+            https://pasta.lternet.edu/package/data/eml/knb-lter-sbc/119/10/020f9b0e507561cb49fc8fd122da0a29
+          
+        
+      
+      
+        
+          YEAR
+          Year
+          Calendar year
+          integer
+          
+            
+              YYYY
+              1
+              
+            
+          
+        
+        
+          MONTH
+          Month
+          calendar month
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          DATE
+          Date
+          Date of data collection
+          string
+          
+            
+              YYYY-MM-DD
+              1
+              
+            
+          
+        
+        
+          SITE
+          Site Name
+          Physical location of field site
+          string
+          
+            
+              
+                
+                  
+                    AQUE
+                    Arroyo Quemado
+                  
+                  
+                    CARP
+                    Carpinteria
+                  
+                  
+                    MOHK
+                    Mohawk
+                  
+                  
+                    NAPL
+                    Naples
+                  
+                
+              
+            
+          
+        
+        
+          TRANSECT
+          Transect Name
+          40m transects defined by six permanent markers (stainless steel eyebolts or rebar stakes) at 0, 8, 16, 24, 32, and 40m
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          VIS
+          Visibilty
+          Approximate horizontal visibility at the beginning of the tansect
+          float
+          
+            
+              
+                meter
+              
+              0.1
+              
+                real
+              
+            
+          
+          
+            -99999
+            value not recorded or not available
+          
+        
+        
+          TREATMENT
+          Treatment
+          Describes the manipulation assigned to each transect
+          string
+          
+            
+              
+                
+                  
+                    ANNUAL REMOVAL
+                    Giant kelp is removed in Feb of every year
+                  
+                  
+                    CONTINUOUS REMOVAL
+                    Giant kelp is removed seasonally
+                  
+                  
+                    CONTROL
+                    Giant kelp is left intact.
+                  
+                
+              
+            
+          
+        
+        
+          SP_CODE
+          Species Code
+          Two to six letter species code assigned to a species, species subset (e.g., a size, age group, or structural feature like holdfast) or a taxonomic group (e.g., compound tunicates)
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          PERCENT_COVER
+          Percent cover
+          Percent cover estimate from the UPC survey
+          float
+          
+            
+              
+                dimensionless
+              
+              1e-08
+              
+                real
+              
+            
+          
+          
+            -99999
+            value not recorded or not available
+          
+          
+            http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType
+            http://purl.dataone.org/odo/ECSO_00001195
+          
+        
+        
+          DENSITY
+          Density
+          Density estimated from the count survey
+          float
+          
+            
+              
+                dimensionless
+              
+              1e-10
+              
+                real
+              
+            
+          
+          
+            -99999
+            value not recorded or not available
+          
+        
+        
+          WM_GM2
+          Wet Mass
+          Dry mass density derived from estimates of density or percent cover and laboratory estimates of taxa dry mass
+          float
+          
+            
+              
+                gramPerMeterSquared
+              
+              1e-08
+              
+                real
+              
+            
+          
+          
+            -99999
+            value not recorded or not available
+          
+          
+            http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType
+            http://purl.dataone.org/odo/ECSO_00000552
+          
+        
+        
+          DRY_GM2
+          Dry Mass
+          Dry mass density derived from estimates of density or percent cover and laboratory estimates of taxa dry mass
+          float
+          
+            
+              
+                gramPerMeterSquared
+              
+              1e-08
+              
+                real
+              
+            
+          
+          
+            -99999
+            value not recorded or not available
+          
+          
+            http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType
+            http://purl.dataone.org/odo/ECSO_00001184
+          
+        
+        
+          SFDM
+          Shell-Free Dry Mass
+          Shell-free dry mass. These estimates were converted to shell-free dry mass using taxon specific ratios of wet mass to shell-free dry mass described in Reed et al 2016
+          float
+          
+            
+              
+                gramPerMeterSquared
+              
+              1e-08
+              
+                real
+              
+            
+          
+          
+            -99999
+            value not recorded or not available
+          
+          
+            http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType
+            http://purl.dataone.org/odo/ECSO_00001184
+          
+        
+        
+          AFDM
+          Ash-Free Dry Mass
+          Areal ash-free dry mass. These estimates were converted to ash-free dry mass using taxon specific ratios of wet mass to ash-free dry mass described in Reed et al 2016
+          float
+          
+            
+              
+                gramPerMeterSquared
+              
+              1e-08
+              
+                real
+              
+            
+          
+          
+            -99999
+            value not recorded or not available
+          
+          
+            http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType
+            http://purl.dataone.org/odo/ECSO_00001184
+          
+        
+        
+          SCIENTIFIC_NAME
+          Scientific name
+          Taxonomic scientific name
+          string
+          
+            
+              
+                
+                  text
+                
+              
+            
+          
+          
+            -99999
+            value not recorded or not available
+          
+        
+        
+          COMMON_NAME
+          Common Name
+          common name of the organism
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          TAXON_KINGDOM
+          Kindom
+          Taxonomic kingdom
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          TAXON_CLASS
+          Class
+          Taxonominc class
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          TAXON_PHYLUM
+          Phylum
+          Taxonomic phylum
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          TAXON_ORDER
+          Order
+          Taxonomic order
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          TAXON_FAMILY
+          Family
+          taxonomic family
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          TAXON_GENUS
+          Genus
+          Taxonomic genus
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          GROUP
+          Organism Group
+          Functional grouping term for observed species.
+          string
+          
+            
+              
+                
+                  
+                    ALGAE
+                    Functional Group is algae.
+                  
+                  
+                    FISH
+                    Functional Group is fish.
+                  
+                  
+                    INVERT
+                    Functional Group is invert.
+                  
+                
+              
+            
+          
+        
+        
+          MOBILITY
+          Mobility
+          Either Sessile or Mobile depending on the animals locomotive schemea.
+          string
+          
+            
+              
+                
+                  
+                    MOBILE
+                    Organism is mobile.
+                  
+                  
+                    SESSILE
+                    Organism is sessile.
+                  
+                
+              
+            
+          
+        
+        
+          GROWTH_MORPH
+          Growth Morphology
+          Whether or not the organism in question is an aggregate or solitary individual.
+          string
+          
+            
+              
+                
+                  
+                    AGGREGATED
+                    Growth morphology is aggregated.
+                  
+                  
+                    SOLITARY
+                    Growth morphology is solitary.
+                  
+                
+              
+            
+          
+        
+      
+      218632
+    
+  
+  
+    
+      
+        
+          a designation asserting the absence of an associated unit
+        
+        
+          grams per square meter
+        
+        
+          SI unit of length
+        
+      
+    
+  
