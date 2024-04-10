@@ -38,7 +38,8 @@ traits_clean <- traits %>%
 # turns the cleaned trait data frame into a matrix for dissimilarity stuff
 trait_matrix <- traits_clean %>% 
   filter(scientific_name != "Macrocystis pyrifera") %>% 
-  column_to_rownames("scientific_name") 
+  column_to_rownames("scientific_name") %>% 
+  mutate(across(.cols = thickness:calcification, as_factor))
 
 ##########################################################################-
 # 3. community matrices ---------------------------------------------------
@@ -108,6 +109,7 @@ comm_mat_algae <- comm_df %>%
   # algae only
   filter(new_group == "algae" & sp_code != "MAPY") %>% 
   left_join(., algae_spp, by = "sp_code") %>% 
+  filter(exp_dates == "during") %>% 
   select(sample_ID, scientific_name, dry_gm2) %>% 
   filter(!(scientific_name %in% excluded_spp)) %>% 
   # get into wide format for community analysis

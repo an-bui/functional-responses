@@ -20,12 +20,19 @@ source(here::here("code", "02_data-cleaning.R"))
 
 # creating gower dissimilarity matrix
 trait_gower <- gowdis(trait_matrix)
+trait_gower_daisy <- daisy(trait_matrix,
+                           metric = "gower") # outputs are the same
 
 # doing PCoA to get dimensions
 trait_pcoa <- wcmdscale(d = trait_gower)
+trait_nmds <- metaMDS(trait_gower_daisy)
 
 # extracting scores
 trait_pcoa_scores <- scores(trait_pcoa, choices = c(1, 2)) %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("scientific_name") %>% 
+  left_join(., algae_taxa, by = "scientific_name")
+trait_nmds_scores <- scores(trait_nmds, choices = c(1, 2)) %>% 
   as_tibble(rownames = NA) %>% 
   rownames_to_column("scientific_name") %>% 
   left_join(., algae_taxa, by = "scientific_name")
@@ -49,6 +56,25 @@ trait_pcoa_plot <- ggplot(trait_pcoa_scores,
 
 trait_pcoa_plot
 
+# plotting NMDS axes
+trait_nmds_plot <- ggplot(trait_nmds_scores,
+                          aes(x = NMDS1, y = NMDS2)) +
+  geom_point(aes(color = taxon_phylum, shape = taxon_phylum),
+             size = 3,
+             alpha = 0.9) +
+  scale_color_manual(values = c("Chlorophyta" = chloro_col,
+                                "Ochrophyta" = ochro_col,
+                                "Rhodophyta" = rhodo_col)) +
+  scale_x_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +
+  theme(
+    legend.title = element_blank(),
+    plot.margin = unit(c(1, 1, 1, 1), "cm"),
+    panel.grid = element_blank()
+  )
+
+trait_nmds_plot
+
 # ggsave(filename = here("figures", 
 #                        "trait-ordination", 
 #                        paste0("gower-traits_", today(), ".jpg")),
@@ -57,12 +83,20 @@ trait_pcoa_plot
 #        width = 6, 
 #        height = 6)
 
+# ggsave(filename = here("figures",
+#                        "trait-ordination",
+#                        paste0("gower-traits_nmds_", today(), ".jpg")),
+#        plot = trait_nmds_plot,
+#        dpi = 300,
+#        width = 8,
+#        height = 6)
+
 ##########################################################################-
 # 3. creating site x trait matrix -----------------------------------------
 ##########################################################################-
 
 # creating species x trait data
-spp_trait_data <- scores(trait_pcoa, choices = c(1, 2)) %>% 
+spp_trait_data <- scores(trait_nmds, choices = c(1, 2), display = "sites") %>% 
   as_tibble(rownames = NA) %>% 
   # mutate(Dim1_new = Dim1 + 1,
   #        Dim2_new = Dim2 + 2) %>% 
@@ -86,7 +120,7 @@ site_by_trait <- comm_mat_algae_matrix %*% spp_trait_data
 # 4. doing an NMDS --------------------------------------------------------
 ##########################################################################-
 
-site_trait_nmds <- metaMDS(comm = site_by_trait, distance = "gower")
+site_trait_nmds <- metaMDS(comm = site_by_trait)
 
 site_trait_scores <- scores(site_trait_nmds, choices = c(1, 2), display = "sites") %>% 
   as_tibble(rownames = NA) %>% 
@@ -97,9 +131,14 @@ site_trait_scores <- scores(site_trait_nmds, choices = c(1, 2), display = "sites
 
 ggplot(site_trait_scores,
        aes(x = NMDS1, y = NMDS2)) +
-  geom_point(aes(color = treatment))
+  geom_point(aes(color = site, shape = treatment))
 
-
+# ggsave(filename = here("figures",
+#                        "trait-ordination",
+#                        paste0("site-trait_nmds_", today(), ".jpg")),
+#        dpi = 300,
+#        width = 8,
+#        height = 6)
 
 
 
