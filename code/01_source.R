@@ -1,6 +1,7 @@
 ##########################################################################-
 # Source script
 # last modified: 2024-04-09
+
 # This script contains all packages, data, and other objects for
 # downstream use.
 ##########################################################################-
@@ -542,8 +543,7 @@ algae_spp <- biomass %>%
   select(scientific_name, sp_code) %>% 
   unique()
 
-excluded_spp <- algae_spp %>% 
-  filter(scientific_name %in% c(
+excluded_spp <- c(
     "Halymenia spp.; Schizymenia pacifica",
     "crustose coralline algae spp.",
     "Ectocarpaceae spp.",
@@ -555,8 +555,7 @@ excluded_spp <- algae_spp %>%
     "small Ceramiaceae spp.",
     "Unidentifiable small brown blade",
     "Unidentified erect coralline spp."
-  )) %>% 
-  pull(scientific_name)
+  )
 
 algae_taxa <- biomass %>% 
   filter(new_group == "algae") %>% 

@@ -1,0 +1,91 @@
+---
+title: "SBC long term experiment trait analysis"
+date: 2024-04-09
+format: pdf
+---
+
+
+```{r set-up}
+#| echo: false
+#| message: false
+#| warning: false
+
+source(here::here("code", "02_data-cleaning.R"))
+```
+
+Preview of trait data:
+
+```{r traits}
+head(trait_matrix)
+```
+
+# 1. Gower dissimilarity on categorical and continuous traits
+
+```{r gower-spp-traits}
+# creating gower dissimilarity matrix
+trait_gower <- gowdis(trait_matrix)
+
+# doing PCoA to get dimensions
+trait_pcoa <- wcmdscale(d = trait_gower)
+
+# just as a preview of the data
+head(trait_pcoa)
+
+# extracting scores
+trait_pcoa_scores <- scores(trait_pcoa, choices = c(1, 2)) %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("scientific_name") %>% 
+  left_join(., algae_taxa, by = "scientific_name")
+
+head(trait_pcoa_scores)
+```
+
+# 2. Creating site by trait data
+
+```{r species-by-trait}
+# creating species x trait data
+spp_trait_data <- scores(trait_pcoa, choices = c(1, 2)) %>% 
+  as_tibble(rownames = NA) %>% 
+  # mutate(Dim1_new = Dim1 + 1,
+  #        Dim2_new = Dim2 + 2) %>% 
+  # select(scientific_name, Dim1_new, Dim2_new) %>% 
+  # column_to_rownames("scientific_name") %>% 
+  as.matrix()
+
+# monitoring data
+comm_mat_algae_matrix <- comm_mat_algae %>% 
+  # putting the columns in the right order
+  select(rownames(spp_trait_data)) %>% 
+  as.matrix()
+
+# double checking that species are in the right order
+# rownames(spp_trait_data) == colnames(comm_mat_algae_matrix)
+
+# site x trait data
+site_by_trait <- comm_mat_algae_matrix %*% spp_trait_data
+
+head(site_by_trait)
+
+```
+
+# 3. Doing NMDS
+
+```{r NMDS}
+site_trait_nmds <- metaMDS(comm = site_by_trait, distance = "gower")
+
+site_trait_nmds
+
+site_trait_scores <- scores(site_trait_nmds, choices = c(1, 2), display = "sites") %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("sample_ID") %>% 
+  left_join(., comm_meta_algae, by = "sample_ID") %>% 
+  # taking out weird points for now
+  filter(!(sample_ID %in% c("napl_control_2023-05-18", "mohk_continual_2012-11-15")))
+
+ggplot(site_trait_scores,
+       aes(x = NMDS1, y = NMDS2)) +
+  geom_point(aes(color = treatment))
+
+```
+
+
