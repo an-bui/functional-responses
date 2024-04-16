@@ -18,8 +18,13 @@ library(readxl)
 
 # analysis
 library(vegan)
+library(ade4)
 library(FD)
 library(cluster)
+library(NbClust)
+
+# visualization
+library(factoextra)
 
 ##########################################################################-
 # 2. start and end dates --------------------------------------------------
@@ -506,7 +511,7 @@ biomass <- read_csv(
 
 traits <- read_csv(here("data", 
                          "functional-traits",
-                         "joe-traits-lter_2024-04-09.csv"))
+                         "joe-traits-lter_2024-04-16.csv"))
 
 
 ##########################################################################-

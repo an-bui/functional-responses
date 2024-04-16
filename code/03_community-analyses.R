@@ -15,13 +15,49 @@
 source(here::here("code", "02_data-cleaning.R"))
 
 ##########################################################################-
-# 2. getting species x trait matrix using Gower dissimilarity -------------
+# 2. Gower dissimilarity --------------------------------------------------
 ##########################################################################-
 
 # creating gower dissimilarity matrix
 trait_gower <- gowdis(trait_matrix)
 trait_gower_daisy <- daisy(trait_matrix,
                            metric = "gower") # outputs are the same
+
+##########################################################################-
+# 2. trait clustering -----------------------------------------------------
+##########################################################################-
+
+# Darling et al: gower dist, then wards clustering
+# create clusters using Ward clustering using gower distance
+trait_clust <- hclust(d = trait_gower_daisy, 
+                      method = "ward.D2") 
+
+# determine the best number of clusters
+trait_groups <- NbClust(diss = trait_gower_daisy, 
+                        distance = NULL, 
+                        min.nc = 2,
+                        max.nc = 45, 
+                        method = "ward.D2", 
+                        index = "silhouette")
+
+trait_groups
+trait_groups$All.index
+plot(trait_groups$All.index)
+# 9 groups, though not sure if the "max" number should be different
+
+# vlsualizing the histogram
+fviz_dend(trait_clust, k = 35)
+
+# extract clusters
+groups <- cutree(trait_clust, k = 9) %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("scientific_name") %>% 
+  rename(cluster = value)
+
+##########################################################################-
+# 2. getting species x trait matrix using Gower dissimilarity -------------
+##########################################################################-
+
 
 # doing PCoA to get dimensions
 trait_pcoa <- wcmdscale(d = trait_gower)
@@ -75,12 +111,12 @@ trait_nmds_plot <- ggplot(trait_nmds_scores,
 
 trait_nmds_plot
 
-# ggsave(filename = here("figures", 
-#                        "trait-ordination", 
+# ggsave(filename = here("figures",
+#                        "trait-ordination",
 #                        paste0("gower-traits_", today(), ".jpg")),
 #        plot = trait_pcoa_plot,
 #        dpi = 300,
-#        width = 6, 
+#        width = 6,
 #        height = 6)
 
 # ggsave(filename = here("figures",
@@ -92,7 +128,42 @@ trait_nmds_plot
 #        height = 6)
 
 ##########################################################################-
-# 3. creating site x trait matrix -----------------------------------------
+# 3. site species ordination ----------------------------------------------
+##########################################################################-
+
+# Note: this is already in the LTE paper. Just recreating it here for reference
+
+spp_nmds <- metaMDS(comm_mat_algae, distance = "altGower")
+
+stressplot(spp_nmds)
+
+adonis2(comm_mat_algae ~ time_since_end*treatment, 
+        data = comm_meta_algae %>% mutate(time_since_end = as_factor(time_since_end)), 
+        method = "altGower")
+
+spp_gower_dist <- vegdist(comm_mat_algae, method = "altGower")
+
+spp_disper_treatment <- betadisper(spp_gower_dist, comm_meta_algae$treatment)
+
+anova(spp_disper_treatment)
+
+spp_nmds_scores <- scores(spp_nmds, choices = c(1, 2), display = "sites") %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("sample_ID") %>% 
+  left_join(comm_meta_algae, by = "sample_ID")
+
+ggplot(data = spp_nmds_scores,
+       aes(x = NMDS1,
+           y = NMDS2,
+           color = treatment,
+           shape = site_full)) +
+  geom_point(size = 2)
+
+
+
+
+##########################################################################-
+# 5. creating site x trait matrix -----------------------------------------
 ##########################################################################-
 
 # creating species x trait data
@@ -117,7 +188,7 @@ rownames(spp_trait_data) == colnames(comm_mat_algae_matrix)
 site_by_trait <- comm_mat_algae_matrix %*% spp_trait_data
 
 ##########################################################################-
-# 4. doing an NMDS --------------------------------------------------------
+# 6. doing an NMDS --------------------------------------------------------
 ##########################################################################-
 
 site_trait_nmds <- metaMDS(comm = site_by_trait)

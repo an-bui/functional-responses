@@ -17,10 +17,15 @@ source(here::here("code", "01_source.R"))
 ##########################################################################-
 
 traits_clean <- traits %>% 
-  select(scientific_name, 
-         size_cm, thickness, position_to_benthos, articulated, stipe, 
-         midrib, branching, branch_shape, blades, blade_category,
-         coenocyte, attachment, tissue_complexity, growth, calcification) %>% 
+  # subset of traits
+  select(scientific_name,
+         thickness, position_to_benthos, stipe, branching, 
+         blades, blade_category, attachment, calcification) %>% 
+  # all traits
+  # select(scientific_name, 
+  #        size_cm, thickness, position_to_benthos, articulated, stipe, 
+  #        midrib, branching, branch_shape, blades, blade_category,
+  #        coenocyte, attachment, tissue_complexity, growth, calcification) %>% 
   filter(!(scientific_name %in% c(
     "Halymenia spp.; Schizymenia pacifica",
     "crustose coralline algae spp.",
