@@ -451,6 +451,32 @@ comparison_column_continual_new <- function(df) {
     unite("sample_ID_short", site, date, remove = FALSE)
 }
 
+# from AlexisW: https://forum.posit.co/t/rstudio-error-with-fviz-nbclust-for-nbclust-results/176083
+my_fviz_nbclust <- function(x, print.summary = TRUE, barfill = "steelblue", barcolor = "steelblue"){
+  best_nc <- x$Best.nc
+  best_nc <- as.data.frame(t(best_nc), stringsAsFactors = TRUE)
+  best_nc$Number_clusters <- as.factor(best_nc$Number_clusters)
+  
+  ss <- summary(best_nc$Number_clusters)
+  cat("Among all indices: \n===================\n")
+  for (i in 1:length(ss)) {
+    cat("*", ss[i], "proposed ", names(ss)[i], "as the best number of clusters\n")
+  }
+  cat("\nConclusion\n=========================\n")
+  cat("* According to the majority rule, the best number of clusters is ", 
+      names(which.max(ss)), ".\n\n")
+  
+  df <- data.frame(Number_clusters = names(ss), freq = ss, 
+                   stringsAsFactors = TRUE)
+  p <- ggpubr::ggbarplot(df, x = "Number_clusters", y = "freq", 
+                         fill = "steelblue", color = "steelblue") +
+    ggplot2::labs(x = "Number of clusters k", 
+                  y = "Frequency among all indices",
+                  title = paste0("Optimal number of clusters - k = ", 
+                                 names(which.max(ss))))
+  p
+}
+
 ##########################################################################-
 # 3. data -----------------------------------------------------------------
 ##########################################################################-

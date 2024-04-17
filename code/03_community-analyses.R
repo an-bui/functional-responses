@@ -33,23 +33,88 @@ trait_clust <- hclust(d = trait_gower_daisy,
                       method = "ward.D2") 
 
 # determine the best number of clusters
-trait_groups <- NbClust(diss = trait_gower_daisy, 
-                        distance = NULL, 
+trait_groups <- NbClust(trait_gower_daisy,
                         min.nc = 2,
                         max.nc = 45, 
                         method = "ward.D2", 
-                        index = "silhouette")
+                        index = "gap")
 
 trait_groups
-trait_groups$All.index
-plot(trait_groups$All.index)
-# 9 groups, though not sure if the "max" number should be different
 
-# vlsualizing the histogram
-fviz_dend(trait_clust, k = 35)
+# new function
+my_fviz_nbclust(trait_groups)
+
+# vlsualizing the dendrogram
+trait_dendro <- fviz_dend(trait_clust, 
+                          k = 2,
+                          k_colors = c(chloro_col, ochro_col)) +
+  theme(text = element_text(size = 12),
+        axis.title = element_blank()) +
+  coord_flip()
+
+trait_clusters <- cutree(trait_clust, 
+                         k = 2) %>% 
+  enframe(name = "label",
+          value = "cluster") %>% 
+  mutate(cluster = fct_relevel(as_factor(cluster), "1", "2"))
+
+trait_dendro <- dendro_data(trait_clust, 
+                            type = "rectangle")
+
+trait_dendro_segments <- segment(trait_dendro) %>% 
+  select(x, xend, y, yend) %>% 
+  rownames_to_column("segment_num") %>% 
+  mutate(cluster = case_when(
+    x > 17.5 ~ 2,
+    x < 17.5 ~ 1,
+  )) %>% 
+  mutate(cluster = case_when(
+    segment_num == 3 ~ 2,
+    segment_num == 1 ~ 1,
+    TRUE ~ cluster
+  ),
+  cluster = fct_relevel(as_factor(cluster), "1", "2"))
+
+trait_dendro_labels <- label(trait_dendro) %>% 
+  left_join(., trait_clusters, by = "label")
+
+
+trait_dendro_plot <- ggplot() + 
+  geom_segment(data = trait_dendro_segments, 
+               aes(x = x, 
+                   y = y, 
+                   xend = xend, 
+                   yend = yend,
+                   color = cluster),
+               linewidth = 1) +
+  geom_text(data = trait_dendro_labels,
+            aes(x = x, 
+                y = y, 
+                label = label,
+                hjust = 0,
+                color = cluster),
+            size = 12) +
+  coord_flip() +
+  scale_color_manual(values = c("1" = chloro_col, "2" = ochro_col)) +
+  scale_y_reverse(expand = c(0.2, 0), 
+                  labels = scales::wrap_format(10)) +
+  theme(axis.line.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_blank(),
+        panel.grid = element_blank(),
+        legend.position = "none")
+
+
+# ggsave(here("figures", "trait-ordination", paste0("dendrogram_", today(), ".jpg")),
+#        trait_dendro_plot,
+#        height = 20,
+#        width = 30)
 
 # extract clusters
-groups <- cutree(trait_clust, k = 9) %>% 
+groups <- cutree(trait_clust, k = 2) %>% 
   as_tibble(rownames = NA) %>% 
   rownames_to_column("scientific_name") %>% 
   rename(cluster = value)
@@ -57,7 +122,6 @@ groups <- cutree(trait_clust, k = 9) %>%
 ##########################################################################-
 # 2. getting species x trait matrix using Gower dissimilarity -------------
 ##########################################################################-
-
 
 # doing PCoA to get dimensions
 trait_pcoa <- wcmdscale(d = trait_gower)
@@ -68,10 +132,20 @@ trait_pcoa_scores <- scores(trait_pcoa, choices = c(1, 2)) %>%
   as_tibble(rownames = NA) %>% 
   rownames_to_column("scientific_name") %>% 
   left_join(., algae_taxa, by = "scientific_name")
-trait_nmds_scores <- scores(trait_nmds, choices = c(1, 2)) %>% 
+
+trait_pcoa_scores_only <- scores(trait_pcoa, choices = c(1, 2, 3)) %>% 
+  as_tibble(rownames = NA)
+trait_nmds_scores <- scores(trait_nmds, 
+                            choices = c(1, 2),
+                            tidy = TRUE) %>% 
   as_tibble(rownames = NA) %>% 
   rownames_to_column("scientific_name") %>% 
-  left_join(., algae_taxa, by = "scientific_name")
+  left_join(., algae_taxa, by = "scientific_name") %>% 
+  left_join(., trait_clusters, by = c("scientific_name" = "label"))
+trait_nmds_scores_only <- scores(trait_nmds, 
+                                 choices = c(1, 2)) %>% 
+  as_tibble(rownames = NA)
+  
 
 # plotting PCoA axes
 trait_pcoa_plot <- ggplot(trait_pcoa_scores,
@@ -95,16 +169,17 @@ trait_pcoa_plot
 # plotting NMDS axes
 trait_nmds_plot <- ggplot(trait_nmds_scores,
                           aes(x = NMDS1, y = NMDS2)) +
-  geom_point(aes(color = taxon_phylum, shape = taxon_phylum),
+  geom_point(aes(color = cluster, shape = taxon_phylum),
              size = 3,
              alpha = 0.9) +
-  scale_color_manual(values = c("Chlorophyta" = chloro_col,
-                                "Ochrophyta" = ochro_col,
-                                "Rhodophyta" = rhodo_col)) +
+  scale_color_manual(values = c("1" = chloro_col, "2" = ochro_col),
+                     name = "Cluster") +
+  scale_shape_manual(values = c(16, 15, 17),
+                     name = "Phylum") +
   scale_x_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +
   scale_y_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +
   theme(
-    legend.title = element_blank(),
+    # legend.title = element_blank(),
     plot.margin = unit(c(1, 1, 1, 1), "cm"),
     panel.grid = element_blank()
   )
