@@ -1,6 +1,6 @@
 ##########################################################################-
 # Community analyses
-# last modified: 2024-04-09
+# last modified: 2024-04-16
 
 # This is a script to get the LTE community data and trait data together
 # into a site by trait matrix, then do PERMANOVA to determine effect of
@@ -40,6 +40,12 @@ trait_groups <- NbClust(trait_gower_daisy,
                         index = "gap")
 
 trait_groups
+
+trait_groups_pam <- cluster::pam(x = trait_gower_daisy,
+                                 k = 2,
+                                 metric = "euclidean")
+
+trait_groups_pam
 
 # new function
 my_fviz_nbclust(trait_groups)
