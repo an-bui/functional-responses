@@ -1,6 +1,6 @@
 ##########################################################################-
 # Source script
-# last modified: 2024-04-09
+# last modified: 2024-04-23
 
 # This script contains all packages, data, and other objects for
 # downstream use.
@@ -22,9 +22,12 @@ library(ade4)
 library(FD)
 library(cluster)
 library(NbClust)
+library(glmmTMB)
+library(DHARMa)
 
 # visualization
 library(factoextra)
+library(ggdendro)
 
 ##########################################################################-
 # 2. start and end dates --------------------------------------------------
@@ -494,8 +497,6 @@ biomass <- read_csv(
        "LTE_All_Species_Biomass_at_transect_20230530.csv")
 ) %>% 
   clean_names() %>%
-  # ANOB is incorrectly coded as having "SESSILE" mobility
-  mutate(mobility = replace(mobility, sp_code == "ANOB", "MOBILE")) %>%
   # UEC is incorrectly coded as Amphiroa beauvoisii
   mutate(scientific_name = replace(scientific_name, sp_code == "UEC", "Unidentified erect coralline spp.")) %>%
   # replace NA sp_code with Nandersoniana
@@ -592,7 +593,7 @@ excluded_spp <- c(
 algae_taxa <- biomass %>% 
   filter(new_group == "algae") %>% 
   filter(!(scientific_name %in% excluded_spp)) %>% 
-  select(scientific_name, taxon_phylum:taxon_genus) %>% 
+  select(sp_code, scientific_name, taxon_phylum:taxon_genus) %>% 
   unique()
 
 ##########################################################################-
@@ -604,6 +605,10 @@ chloro_col <- "#8AA789"
 ochro_col <- "#985E5C"
 
 rhodo_col <- "#4CA2B0"
+
+continual_col <- "#CC7540"
+
+control_col <- "#6D5A18"
 
 theme_set(theme_bw() +
             theme(axis.text = element_text(size = 10),
