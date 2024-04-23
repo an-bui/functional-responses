@@ -16,6 +16,9 @@ library(tidyverse)
 library(janitor)
 library(readxl)
 
+# tables
+library(flextable)
+
 # analysis
 library(vegan)
 library(ade4)
@@ -24,6 +27,7 @@ library(cluster)
 library(NbClust)
 library(glmmTMB)
 library(DHARMa)
+library(RVAideMemoire)
 
 # visualization
 library(factoextra)

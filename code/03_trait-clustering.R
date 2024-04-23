@@ -44,10 +44,38 @@ trait_groups <- NbClust(trait_gower_daisy,
 trait_groups
 
 trait_groups_pam <- cluster::pam(x = trait_gower_daisy,
-                                 k = 2,
+                                 k = 4,
                                  metric = "euclidean")
 
-trait_groups_pam
+pairwise.perm.manova(trait_gower_daisy, fact = trait_groups_pam$clustering)
+
+pam_clusters_4 <- trait_groups_pam$clustering %>% 
+  enframe() %>% 
+  rename(cluster = value,
+         scientific_name = name) %>% 
+  mutate(cluster = factor(cluster)) %>% 
+  left_join(., algae_taxa, by = "scientific_name")
+
+pam_clusters_4_table <- pam_clusters_4 %>% 
+  select(scientific_name, cluster) %>% 
+  arrange(cluster) %>% 
+  flextable() %>% 
+  autofit()
+pam_clusters_4_table
+
+# save_as_docx(pam_clusters_4_table,
+#              path = here::here("tables", "cluster-tables", paste0("pam-clusters-4_", today(), ".docx")))
+
+trait_groups_pam <- cluster::pam(x = trait_gower_daisy,
+                                 k = 5,
+                                 metric = "euclidean")
+
+pam_clusters <- trait_groups_pam$clustering %>% 
+  enframe() %>% 
+  rename(cluster = value) %>% 
+  mutate(cluster = factor(cluster))
+
+pairwise.perm.manova(trait_gower_daisy, fact = trait_groups_pam$clustering)
 
 # new function
 my_fviz_nbclust(trait_groups)
@@ -152,7 +180,7 @@ trait_nmds_scores <- scores(trait_nmds,
   as_tibble(rownames = NA) %>% 
   rownames_to_column("scientific_name") %>% 
   left_join(., algae_taxa, by = "scientific_name") %>% 
-  left_join(., trait_clusters, by = c("scientific_name" = "label"))
+  left_join(., pam_clusters_4, by = c("scientific_name" = "name"))
 trait_nmds_scores_only <- scores(trait_nmds, 
                                  choices = c(1, 2)) %>% 
   as_tibble(rownames = NA)
@@ -183,8 +211,8 @@ trait_nmds_plot <- ggplot(trait_nmds_scores,
   geom_point(aes(color = cluster, shape = taxon_phylum),
              size = 3,
              alpha = 0.9) +
-  scale_color_manual(values = c("1" = chloro_col, "2" = ochro_col),
-                     name = "Cluster") +
+  # scale_color_manual(values = c("1" = chloro_col, "2" = ochro_col),
+  #                    name = "Cluster") +
   scale_shape_manual(values = c(16, 15, 17),
                      name = "Phylum") +
   scale_x_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +

@@ -1,0 +1,40 @@
+---
+title: "clustering-update"
+format: pdf
+---
+
+```{r message = FALSE}
+#| message: false
+#| echo: false
+#| output: false
+
+source(here::here("code", "03_trait-clustering.R"))
+```
+
+
+```{r message = FALSE}
+#| message: false
+
+trait_groups_pam <- cluster::pam(x = trait_gower_daisy,
+                                 k = 4,
+                                 metric = "euclidean")
+
+pam_clusters <- trait_groups_pam$clustering %>% 
+  enframe() %>% 
+  rename(cluster = value) %>% 
+  mutate(cluster = factor(cluster))
+
+pairwise.perm.manova(trait_gower_daisy, fact = pam_clusters$cluster)
+
+trait_groups_pam <- cluster::pam(x = trait_gower_daisy,
+                                 k = 5,
+                                 metric = "euclidean")
+
+pam_clusters <- trait_groups_pam$clustering %>% 
+  enframe() %>% 
+  rename(cluster = value) %>% 
+  mutate(cluster = factor(cluster))
+
+pairwise.perm.manova(trait_gower_daisy, fact = pam_clusters$cluster)
+```
+

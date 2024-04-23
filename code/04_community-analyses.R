@@ -54,7 +54,7 @@ cluster_match <- comm_df %>%
   # only include algae
   filter(new_group == "algae") %>% 
   # join with clusters
-  left_join(., groups, by = "sp_code")
+  left_join(., pam_clusters_4, by = "sp_code")
 
 # find the taxa that are not included in the clustering
 cluster_missing <- cluster_match %>% 
@@ -95,8 +95,8 @@ cluster_prop_timeseries <- ggplot(cluster_biomass,
   geom_point() +
   geom_line() +
   geom_vline(xintercept = 0) +
-  scale_color_manual(values = c("1" = chloro_col, "2" = ochro_col),
-                     name = "Cluster") +
+  # scale_color_manual(values = c("1" = chloro_col, "2" = ochro_col),
+  #                    name = "Cluster") +
   scale_alpha_manual(values = c("control" = 0.4, continual = 1)) +
   facet_grid(rows = vars(site)) +
   theme(panel.grid = element_blank())
@@ -117,15 +117,15 @@ cluster_total_timeseries <- ggplot(cluster_biomass %>%
   geom_point() +
   geom_line() +
   geom_vline(xintercept = 0) +
-  scale_color_manual(values = c("1" = chloro_col, "2" = ochro_col),
-                     name = "Cluster") +
+  # scale_color_manual(values = c("1" = chloro_col, "2" = ochro_col),
+  #                    name = "Cluster") +
   scale_alpha_manual(values = c("control" = 0.4, continual = 1)) +
-  facet_wrap(~site, ncol = 1, scales = "free") +
+  facet_wrap(~site, ncol = 1, scales = "free_y") +
   theme(panel.grid = element_blank())
 
 cluster_total_timeseries
 
-# ggsave(here("figures", "community-timeseries", paste0("cluster-total-timeseries_", today(), ".jpg")),
+# ggsave(here("figures", "community-timeseries", paste0("cluster-pam-total-timeseries_", today(), ".jpg")),
 #        cluster_total_timeseries,
 #        height = 12,
 #        width = 8)
