@@ -81,49 +81,84 @@ cluster_biomass <- cluster_match %>%
                        cols_remove = FALSE) %>% 
   mutate(date = as_date(date)) %>% 
   select(!c(site, treatment, date)) %>% 
-  left_join(., comm_meta, by = "sample_ID") 
-
-cluster_biomass_during <- cluster_biomass %>% 
-  filter(exp_dates == "during") %>% 
+  left_join(., comm_meta, by = "sample_ID") %>% 
   filter(site == "aque" & date > "2010-04-26" |
-         site == "napl" & date > "2010-04-27" |
-         site == "mohk" & date > "2010-05-05" |
-         site == "carp" & date > "2010-04-23")
+           site == "napl" & date > "2010-04-27" |
+           site == "mohk" & date > "2010-05-05" |
+           site == "carp" & date > "2010-04-23")
 
-cluster_timeseries <- ggplot(cluster_biomass_during,
+cluster_prop_timeseries <- ggplot(cluster_biomass,
        aes(x = time_since_end,
            y = prop,
            color = cluster,
            alpha = treatment)) +
   geom_point() +
   geom_line() +
+  geom_vline(xintercept = 0) +
   scale_color_manual(values = c("1" = chloro_col, "2" = ochro_col),
                      name = "Cluster") +
   scale_alpha_manual(values = c("control" = 0.4, continual = 1)) +
   facet_grid(rows = vars(site)) +
   theme(panel.grid = element_blank())
 
-cluster_timeseries
+cluster_prop_timeseries
 
-# ggsave(here("figures", "community-timeseries", paste0("cluster-timeseries_", today(), ".jpg")),
-#        cluster_timeseries,
+# ggsave(here("figures", "community-timeseries", paste0("cluster-prop-timeseries_", today(), ".jpg")),
+#        cluster_prop_timeseries,
 #        height = 12,
 #        width = 8)
+
+cluster_total_timeseries <- ggplot(cluster_biomass %>% 
+         filter(sample_ID != "napl_control_2023-05-18"),
+       aes(x = time_since_end,
+           y = cluster_total,
+           color = cluster,
+           alpha = treatment)) +
+  geom_point() +
+  geom_line() +
+  geom_vline(xintercept = 0) +
+  scale_color_manual(values = c("1" = chloro_col, "2" = ochro_col),
+                     name = "Cluster") +
+  scale_alpha_manual(values = c("control" = 0.4, continual = 1)) +
+  facet_wrap(~site, ncol = 1, scales = "free") +
+  theme(panel.grid = element_blank())
+
+cluster_total_timeseries
+
+# ggsave(here("figures", "community-timeseries", paste0("cluster-total-timeseries_", today(), ".jpg")),
+#        cluster_total_timeseries,
+#        height = 12,
+#        width = 8)
+
 
 ##########################################################################-
 # 4. proportion biomass model ---------------------------------------------
 ##########################################################################-
 
-cluster_biomass_model <- glmmTMB(prop ~ time_since_end*cluster*treatment,
-                                 data = cluster_biomass_during,
+cluster_biomass_during_model <- glmmTMB(prop ~ time_since_end*cluster*treatment,
+                                 data = cluster_biomass %>% filter(exp_dates == "during"),
                                  family = nbinom2)
 
 # very weird residuals
-simulateResiduals(cluster_biomass_model, plot = TRUE)
+simulateResiduals(cluster_biomass_during_model, plot = TRUE)
 
-summary(cluster_biomass_model)
+summary(cluster_biomass_during_model)
 
+cluster_biomass_after_model <- glmmTMB(prop ~ time_since_end*cluster*treatment,
+                                        data = cluster_biomass %>% filter(exp_dates == "after"),
+                                        family = nbinom2)
 
+# very weird residuals
+simulateResiduals(cluster_biomass_after_model, plot = TRUE)
 
+summary(cluster_biomass_after_model)
 
+cluster_total_biomass_during_model <- glmmTMB(cluster_total ~ time_since_end*cluster*treatment,
+                                              data = cluster_biomass %>% filter(exp_dates == "during"),
+                                              family = ziGamma(link = "log"),
+                                              ziformula = ~1)
+
+simulateResiduals(cluster_total_biomass_during_model, plot = TRUE)
+
+summary(cluster_total_biomass_during_model)
 
