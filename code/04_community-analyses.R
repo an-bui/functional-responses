@@ -54,7 +54,7 @@ cluster_match <- comm_df %>%
   # only include algae
   filter(new_group == "algae") %>% 
   # join with clusters
-  left_join(., pam_clusters_4, by = "sp_code")
+  left_join(., pam_clusters_7, by = "sp_code")
 
 # find the taxa that are not included in the clustering
 cluster_missing <- cluster_match %>% 
@@ -125,7 +125,7 @@ cluster_total_timeseries <- ggplot(cluster_biomass %>%
 
 cluster_total_timeseries
 
-# ggsave(here("figures", "community-timeseries", paste0("cluster-pam-total-timeseries_", today(), ".jpg")),
+# ggsave(here("figures", "community-timeseries", paste0("cluster4-pam-total-timeseries_", today(), ".jpg")),
 #        cluster_total_timeseries,
 #        height = 12,
 #        width = 8)
@@ -161,4 +161,102 @@ cluster_total_biomass_during_model <- glmmTMB(cluster_total ~ time_since_end*clu
 simulateResiduals(cluster_total_biomass_during_model, plot = TRUE)
 
 summary(cluster_total_biomass_during_model)
+
+cluster_total_biomass_after_model <- glmmTMB(cluster_total ~ time_since_end*cluster*treatment,
+                                              data = cluster_biomass %>% filter(exp_dates == "after"),
+                                              family = ziGamma(link = "log"),
+                                              ziformula = ~1)
+
+simulateResiduals(cluster_total_biomass_after_model, plot = TRUE)
+
+testOutliers(cluster_total_biomass_after_model)
+
+summary(cluster_total_biomass_after_model)
+
+cluster_during_model_preds <- ggpredict(cluster_total_biomass_during_model, terms = c("time_since_end", "cluster", "treatment")) %>% 
+  rename(time_since_end = x,
+         cluster = group,
+         treatment = facet)
+
+cluster_after_model_preds <- ggpredict(cluster_total_biomass_after_model, terms = c("time_since_end", "cluster", "treatment")) %>% 
+  rename(time_since_end = x,
+         cluster = group,
+         treatment = facet)
+
+ggplot() +
+  geom_ribbon(data = cluster_during_model_preds %>% filter(treatment == "continual"),
+            aes(x = time_since_end,
+                y = predicted, 
+                ymin = conf.low,
+                ymax = conf.high,
+                # alpha = treatment,
+                fill = cluster,
+                group = cluster),
+            alpha = 0.1) +
+  geom_line(data = cluster_during_model_preds %>% filter(treatment == "continual"),
+             aes(x = time_since_end,
+                 y = predicted, 
+                 # alpha = treatment,
+                 color = cluster,
+                 group = cluster)) +
+  geom_ribbon(data = cluster_after_model_preds %>% filter(treatment == "continual"),
+              aes(x = time_since_end,
+                  y = predicted, 
+                  ymin = conf.low,
+                  ymax = conf.high,
+                  # alpha = treatment,
+                  fill = cluster,
+                  group = cluster),
+              alpha = 0.1) +
+  geom_line(data = cluster_after_model_preds %>% filter(treatment == "continual"),
+            aes(x = time_since_end,
+                y = predicted, 
+                # alpha = treatment,
+                color = cluster,
+                group = cluster)) +
+  geom_point(data = cluster_biomass %>% filter(treatment == "continual"),
+             aes(x = time_since_end,
+                 y = cluster_total,
+                 color = cluster),
+             alpha = 0.4) +
+  geom_vline(xintercept = 0)
+
+ggplot() +
+  geom_ribbon(data = cluster_during_model_preds %>% filter(treatment == "control"),
+              aes(x = time_since_end,
+                  y = predicted, 
+                  ymin = conf.low,
+                  ymax = conf.high,
+                  # alpha = treatment,
+                  fill = cluster,
+                  group = cluster),
+              alpha = 0.1) +
+  geom_line(data = cluster_during_model_preds %>% filter(treatment == "control"),
+            aes(x = time_since_end,
+                y = predicted, 
+                # alpha = treatment,
+                color = cluster,
+                group = cluster)) +
+  geom_ribbon(data = cluster_after_model_preds %>% filter(treatment == "control"),
+              aes(x = time_since_end,
+                  y = predicted, 
+                  ymin = conf.low,
+                  ymax = conf.high,
+                  # alpha = treatment,
+                  fill = cluster,
+                  group = cluster),
+              alpha = 0.1) +
+  geom_line(data = cluster_after_model_preds %>% filter(treatment == "control"),
+            aes(x = time_since_end,
+                y = predicted, 
+                # alpha = treatment,
+                color = cluster,
+                group = cluster)) +
+  geom_point(data = cluster_biomass %>% filter(treatment == "control"),
+             aes(x = time_since_end,
+                 y = cluster_total,
+                 color = cluster),
+             alpha = 0.4) +
+  geom_vline(xintercept = 0)
+
 

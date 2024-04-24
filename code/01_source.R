@@ -27,11 +27,13 @@ library(cluster)
 library(NbClust)
 library(glmmTMB)
 library(DHARMa)
+library(performance)
 library(RVAideMemoire)
 
 # visualization
 library(factoextra)
 library(ggdendro)
+library(ggeffects)
 
 ##########################################################################-
 # 2. start and end dates --------------------------------------------------

@@ -26,7 +26,51 @@ trait_gower_daisy <- daisy(trait_matrix,
                            metric = "gower") # outputs are the same
 
 ##########################################################################-
-# 3. trait clustering -----------------------------------------------------
+# 3. PAM trait clustering -------------------------------------------------
+##########################################################################-
+
+# cluster using k medoids
+trait_groups_pam <- cluster::pam(x = trait_gower_daisy,
+                                 k = 7,
+                                 metric = "euclidean")
+
+# test pairwise comparisons between clusters 
+pairwise.perm.manova(trait_gower_daisy, 
+                     fact = trait_groups_pam$clustering, 
+                     p.method = "none")
+# all significant differences between clusters
+
+# cluster using k medoids, k = 8
+trait_groups_pam <- cluster::pam(x = trait_gower_daisy,
+                                 k = 8,
+                                 metric = "euclidean")
+
+pairwise.perm.manova(trait_gower_daisy, 
+                     fact = trait_groups_pam$clustering, 
+                     p.method = "none")
+# too many clusters - no differences between clusters 5 and 8, 7 and 8
+
+# extract clusters for further analysis
+pam_clusters_7 <- trait_groups_pam$clustering %>% 
+  enframe() %>% 
+  rename(cluster = value,
+         scientific_name = name) %>% 
+  mutate(cluster = factor(cluster)) %>% 
+  left_join(., algae_taxa, by = "scientific_name")
+
+# put species in clusters into table
+pam_clusters_7_table <- pam_clusters_7 %>% 
+  select(scientific_name, cluster) %>% 
+  arrange(cluster) %>% 
+  flextable() %>% 
+  autofit()
+pam_clusters_7_table
+
+# save_as_docx(pam_clusters_7_table,
+#              path = here::here("tables", "cluster-tables", paste0("pam-clusters-7_", today(), ".docx")))
+
+##########################################################################-
+# 4. trait clustering using hierarchical clustering -----------------------
 ##########################################################################-
 
 # Darling et al: gower dist, then wards clustering
@@ -42,40 +86,6 @@ trait_groups <- NbClust(trait_gower_daisy,
                         index = "gap")
 
 trait_groups
-
-trait_groups_pam <- cluster::pam(x = trait_gower_daisy,
-                                 k = 4,
-                                 metric = "euclidean")
-
-pairwise.perm.manova(trait_gower_daisy, fact = trait_groups_pam$clustering)
-
-pam_clusters_4 <- trait_groups_pam$clustering %>% 
-  enframe() %>% 
-  rename(cluster = value,
-         scientific_name = name) %>% 
-  mutate(cluster = factor(cluster)) %>% 
-  left_join(., algae_taxa, by = "scientific_name")
-
-pam_clusters_4_table <- pam_clusters_4 %>% 
-  select(scientific_name, cluster) %>% 
-  arrange(cluster) %>% 
-  flextable() %>% 
-  autofit()
-pam_clusters_4_table
-
-# save_as_docx(pam_clusters_4_table,
-#              path = here::here("tables", "cluster-tables", paste0("pam-clusters-4_", today(), ".docx")))
-
-trait_groups_pam <- cluster::pam(x = trait_gower_daisy,
-                                 k = 5,
-                                 metric = "euclidean")
-
-pam_clusters <- trait_groups_pam$clustering %>% 
-  enframe() %>% 
-  rename(cluster = value) %>% 
-  mutate(cluster = factor(cluster))
-
-pairwise.perm.manova(trait_gower_daisy, fact = trait_groups_pam$clustering)
 
 # new function
 my_fviz_nbclust(trait_groups)
@@ -179,8 +189,8 @@ trait_nmds_scores <- scores(trait_nmds,
                             tidy = TRUE) %>% 
   as_tibble(rownames = NA) %>% 
   rownames_to_column("scientific_name") %>% 
-  left_join(., algae_taxa, by = "scientific_name") %>% 
-  left_join(., pam_clusters_4, by = c("scientific_name" = "name"))
+  # left_join(., algae_taxa, by = "scientific_name") %>% 
+  left_join(., pam_clusters_7, by = "scientific_name")
 trait_nmds_scores_only <- scores(trait_nmds, 
                                  choices = c(1, 2)) %>% 
   as_tibble(rownames = NA)
@@ -235,7 +245,7 @@ trait_nmds_plot
 
 # ggsave(filename = here("figures",
 #                        "trait-ordination",
-#                        paste0("gower-traits_nmds_", today(), ".jpg")),
+#                        paste0("gower-traits_7clusters_nmds_", today(), ".jpg")),
 #        plot = trait_nmds_plot,
 #        dpi = 300,
 #        width = 8,
