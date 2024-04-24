@@ -1,6 +1,6 @@
 ##########################################################################-
 # Source script
-# last modified: 2024-04-23
+# last modified: 2024-04-24
 
 # This script contains all packages, data, and other objects for
 # downstream use.
@@ -29,11 +29,13 @@ library(glmmTMB)
 library(DHARMa)
 library(performance)
 library(RVAideMemoire)
+library(modelsummary)
 
 # visualization
 library(factoextra)
 library(ggdendro)
 library(ggeffects)
+library(funspace)
 
 ##########################################################################-
 # 2. start and end dates --------------------------------------------------
@@ -615,6 +617,16 @@ rhodo_col <- "#4CA2B0"
 continual_col <- "#CC7540"
 
 control_col <- "#6D5A18"
+
+cluster1 <- "#DE7424" 
+cluster2 <- "#EDAD30" 
+cluster3 <- "#DDB531" 
+cluster4 <- "#AD8D26" 
+cluster5 <- "#6A743D" 
+cluster6 <- "#525D5C" 
+cluster7 <- "#654783"
+
+cluster_cols <- calecopal::cal_palette(name = "superbloom2", n = 7, type = "continuous")
 
 theme_set(theme_bw() +
             theme(axis.text = element_text(size = 10),

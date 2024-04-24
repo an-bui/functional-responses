@@ -1,6 +1,6 @@
 ##########################################################################-
 # Community analyses
-# last modified: 2024-04-23
+# last modified: 2024-04-24
 
 # This is a script to use the clusters from `03_trait-clustering.R` to 
 # attache the clusters to biomass data from LTE surveys.
@@ -95,8 +95,8 @@ cluster_prop_timeseries <- ggplot(cluster_biomass,
   geom_point() +
   geom_line() +
   geom_vline(xintercept = 0) +
-  # scale_color_manual(values = c("1" = chloro_col, "2" = ochro_col),
-  #                    name = "Cluster") +
+  scale_color_manual(values = cluster_cols,
+                     name = "Cluster") +
   scale_alpha_manual(values = c("control" = 0.4, continual = 1)) +
   facet_grid(rows = vars(site)) +
   theme(panel.grid = element_blank())
@@ -117,15 +117,15 @@ cluster_total_timeseries <- ggplot(cluster_biomass %>%
   geom_point() +
   geom_line() +
   geom_vline(xintercept = 0) +
-  # scale_color_manual(values = c("1" = chloro_col, "2" = ochro_col),
-  #                    name = "Cluster") +
+  scale_color_manual(values = cluster_cols,
+                     name = "Cluster") +
   scale_alpha_manual(values = c("control" = 0.4, continual = 1)) +
   facet_wrap(~site, ncol = 1, scales = "free_y") +
   theme(panel.grid = element_blank())
 
 cluster_total_timeseries
 
-# ggsave(here("figures", "community-timeseries", paste0("cluster4-pam-total-timeseries_", today(), ".jpg")),
+# ggsave(here("figures", "community-timeseries", paste0("cluster7-pam-total-timeseries_", today(), ".jpg")),
 #        cluster_total_timeseries,
 #        height = 12,
 #        width = 8)
@@ -153,16 +153,32 @@ simulateResiduals(cluster_biomass_after_model, plot = TRUE)
 
 summary(cluster_biomass_after_model)
 
-cluster_total_biomass_during_model <- glmmTMB(cluster_total ~ time_since_end*cluster*treatment,
+cluster_total_biomass_during_model_1 <- glmmTMB(cluster_total ~ time_since_end*cluster*treatment + (1|site) + (1|year),
                                               data = cluster_biomass %>% filter(exp_dates == "during"),
                                               family = ziGamma(link = "log"),
                                               ziformula = ~1)
+cluster_total_biomass_during_model_2 <- glmmTMB(cluster_total ~ time_since_end*cluster*treatment + (1|site),
+                                                data = cluster_biomass %>% filter(exp_dates == "during"),
+                                                family = ziGamma(link = "log"),
+                                                ziformula = ~1)
+cluster_total_biomass_during_model_3 <- glmmTMB(cluster_total ~ time_since_end*cluster*treatment,
+                                                data = cluster_biomass %>% filter(exp_dates == "during"),
+                                                family = ziGamma(link = "log"),
+                                                ziformula = ~1)
+
+AICcmodavg::AICc(cluster_total_biomass_during_model_1)
+AICcmodavg::AICc(cluster_total_biomass_during_model_2)
+AICcmodavg::AICc(cluster_total_biomass_during_model_3)
 
 simulateResiduals(cluster_total_biomass_during_model, plot = TRUE)
 
 summary(cluster_total_biomass_during_model)
 
-cluster_total_biomass_after_model <- glmmTMB(cluster_total ~ time_since_end*cluster*treatment,
+modelsummary(cluster_total_biomass_during_model)
+
+
+
+cluster_total_biomass_after_model <- glmmTMB(cluster_total ~ time_since_end*cluster*treatment + (1|site),
                                               data = cluster_biomass %>% filter(exp_dates == "after"),
                                               family = ziGamma(link = "log"),
                                               ziformula = ~1)
@@ -183,7 +199,7 @@ cluster_after_model_preds <- ggpredict(cluster_total_biomass_after_model, terms 
          cluster = group,
          treatment = facet)
 
-ggplot() +
+cluster_biomass_continual_plot <- ggplot() +
   geom_ribbon(data = cluster_during_model_preds %>% filter(treatment == "continual"),
             aes(x = time_since_end,
                 y = predicted, 
@@ -195,10 +211,10 @@ ggplot() +
             alpha = 0.1) +
   geom_line(data = cluster_during_model_preds %>% filter(treatment == "continual"),
              aes(x = time_since_end,
-                 y = predicted, 
-                 # alpha = treatment,
+                 y = predicted,
                  color = cluster,
-                 group = cluster)) +
+                 group = cluster),
+            linewidth = 1) +
   geom_ribbon(data = cluster_after_model_preds %>% filter(treatment == "continual"),
               aes(x = time_since_end,
                   y = predicted, 
@@ -213,13 +229,22 @@ ggplot() +
                 y = predicted, 
                 # alpha = treatment,
                 color = cluster,
-                group = cluster)) +
+                group = cluster),
+            linewidth = 1) +
   geom_point(data = cluster_biomass %>% filter(treatment == "continual"),
              aes(x = time_since_end,
                  y = cluster_total,
                  color = cluster),
              alpha = 0.4) +
-  geom_vline(xintercept = 0)
+  scale_color_manual(values = cluster_cols) +
+  scale_fill_manual(values = cluster_cols) +
+  geom_vline(xintercept = 0) +
+  scale_y_continuous(expand = c(0, 0), limits = c(-2, 700)) +
+  labs(x = "Time since end",
+       y = "Cluster biomass (dry g/m\U00B2)") +
+  theme(panel.grid = element_blank())
+
+cluster_biomass_continual_plot
 
 ggplot() +
   geom_ribbon(data = cluster_during_model_preds %>% filter(treatment == "control"),

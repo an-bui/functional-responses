@@ -1,6 +1,6 @@
 ##########################################################################-
 # Trait clustering
-# last modified: 2024-04-23
+# last modified: 2024-04-24
 
 # This is a script to cluster categorical and continuous traits based on 
 # Gower dissimilarity. It depends on `02_data-cleaning.R`, which
@@ -41,13 +41,13 @@ pairwise.perm.manova(trait_gower_daisy,
 # all significant differences between clusters
 
 # cluster using k medoids, k = 8
-trait_groups_pam <- cluster::pam(x = trait_gower_daisy,
-                                 k = 8,
-                                 metric = "euclidean")
-
-pairwise.perm.manova(trait_gower_daisy, 
-                     fact = trait_groups_pam$clustering, 
-                     p.method = "none")
+# trait_groups_pam <- cluster::pam(x = trait_gower_daisy,
+#                                  k = 8,
+#                                  metric = "euclidean")
+# 
+# pairwise.perm.manova(trait_gower_daisy, 
+#                      fact = trait_groups_pam$clustering, 
+#                      p.method = "none")
 # too many clusters - no differences between clusters 5 and 8, 7 and 8
 
 # extract clusters for further analysis
@@ -61,8 +61,17 @@ pam_clusters_7 <- trait_groups_pam$clustering %>%
 # put species in clusters into table
 pam_clusters_7_table <- pam_clusters_7 %>% 
   select(scientific_name, cluster) %>% 
+  left_join(., traits_clean, by = "scientific_name") %>% 
   arrange(cluster) %>% 
+  mutate(size_cm = round(size_cm)) %>% 
   flextable() %>% 
+  bg(i = ~ cluster == 1, j = c("scientific_name", "cluster"), bg = cluster1) %>% 
+  bg(i = ~ cluster == 2, j = c("scientific_name", "cluster"), bg = cluster2) %>% 
+  bg(i = ~ cluster == 3, j = c("scientific_name", "cluster"), bg = cluster3) %>% 
+  bg(i = ~ cluster == 4, j = c("scientific_name", "cluster"), bg = cluster4) %>% 
+  bg(i = ~ cluster == 5, j = c("scientific_name", "cluster"), bg = cluster5) %>% 
+  bg(i = ~ cluster == 6, j = c("scientific_name", "cluster"), bg = cluster6) %>% 
+  bg(i = ~ cluster == 7, j = c("scientific_name", "cluster"), bg = cluster7) %>% 
   autofit()
 pam_clusters_7_table
 
@@ -180,17 +189,19 @@ trait_nmds <- metaMDS(trait_gower_daisy)
 trait_pcoa_scores <- scores(trait_pcoa, choices = c(1, 2)) %>% 
   as_tibble(rownames = NA) %>% 
   rownames_to_column("scientific_name") %>% 
-  left_join(., algae_taxa, by = "scientific_name")
+  left_join(., pam_clusters_7, by = "scientific_name")
 
 trait_pcoa_scores_only <- scores(trait_pcoa, choices = c(1, 2, 3)) %>% 
   as_tibble(rownames = NA)
+
 trait_nmds_scores <- scores(trait_nmds, 
                             choices = c(1, 2),
+                            display = c("sites", "species"),
                             tidy = TRUE) %>% 
   as_tibble(rownames = NA) %>% 
   rownames_to_column("scientific_name") %>% 
-  # left_join(., algae_taxa, by = "scientific_name") %>% 
   left_join(., pam_clusters_7, by = "scientific_name")
+
 trait_nmds_scores_only <- scores(trait_nmds, 
                                  choices = c(1, 2)) %>% 
   as_tibble(rownames = NA)
@@ -199,15 +210,15 @@ trait_nmds_scores_only <- scores(trait_nmds,
 # plotting PCoA axes
 trait_pcoa_plot <- ggplot(trait_pcoa_scores,
        aes(x = Dim1, y = Dim2)) +
-  geom_point(aes(color = taxon_phylum, shape = taxon_phylum),
+  geom_point(aes(color = cluster, shape = taxon_phylum),
              size = 3,
              alpha = 0.9) +
-  scale_color_manual(values = c("Chlorophyta" = chloro_col,
-                                "Ochrophyta" = ochro_col,
-                                "Rhodophyta" = rhodo_col)) +
+  # scale_color_manual(values = c("Chlorophyta" = chloro_col,
+  #                               "Ochrophyta" = ochro_col,
+  #                               "Rhodophyta" = rhodo_col)) +
   scale_x_continuous(expand = c(0, 0), limits = c(-0.4, 0.5)) +
   scale_y_continuous(expand = c(0, 0), limits = c(-0.4, 0.5)) +
-  guides(color = guide_legend(position = "inside")) +
+  # guides(color = guide_legend(position = "inside")) +
   theme(legend.title = element_blank(),
         legend.position.inside = c(0.85, 0.1),
         plot.margin = unit(c(1, 1, 1, 1), "cm"),
@@ -221,14 +232,26 @@ trait_nmds_plot <- ggplot(trait_nmds_scores,
   geom_point(aes(color = cluster, shape = taxon_phylum),
              size = 3,
              alpha = 0.9) +
-  # scale_color_manual(values = c("1" = chloro_col, "2" = ochro_col),
-  #                    name = "Cluster") +
+  geom_convexhull(alpha = 0.2, 
+                  aes(fill = cluster)) +
+  scale_fill_manual(values = cluster_cols,
+                    guide = "none") +
+  scale_color_manual(values = cluster_cols,
+                     guide = "none") +
   scale_shape_manual(values = c(16, 15, 17),
                      name = "Phylum") +
+  annotate(geom = "text", x = -0.35, y = -0.27, size = 8, label = "1", color = cluster1) +
+  annotate(geom = "text", x = 0, y = -0.3, size = 8, label = "2", color = cluster2) +
+  annotate(geom = "text", x = -0.3, y = 0.45, size = 8, label = "3", color = cluster3) +
+  annotate(geom = "text", x = 0.1, y = 0.27, size = 8, label = "4", color = cluster4) +
+  annotate(geom = "text", x = 0.26, y = 0.29, size = 8, label = "5", color = cluster5) +
+  annotate(geom = "text", x = 0.2, y = -0.1, size = 8, label = "6", color = cluster6) +
+  annotate(geom = "text", x = 0.42, y = 0.15, size = 8, label = "7", color = cluster7) +
   scale_x_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +
   scale_y_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +
+  guides(shape = guide_legend(position = "inside")) +
   theme(
-    # legend.title = element_blank(),
+    legend.position.inside = c(0.85, 0.15),
     plot.margin = unit(c(1, 1, 1, 1), "cm"),
     panel.grid = element_blank()
   )
@@ -249,5 +272,30 @@ trait_nmds_plot
 #        plot = trait_nmds_plot,
 #        dpi = 300,
 #        width = 8,
-#        height = 6)
+#        height = 8)
+
+##########################################################################-
+# 5. visualizing functional space -----------------------------------------
+##########################################################################-
+
+# trying funspace
+funspace_obj <- funspace(trait_nmds,
+                         group.vec = pam_clusters_7$cluster)
+
+summary(funspace_obj)
+
+# plotting
+par(mfcol = c(4, 2))
+
+plot(x = funspace_obj,
+     type = "groups",
+     pnt = TRUE,
+     globalContour = TRUE,
+     quant.plot = TRUE)
+
+dev.off()
+
+
+
+
 
