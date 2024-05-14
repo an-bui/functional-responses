@@ -1,6 +1,6 @@
 ##########################################################################-
 # Trait clustering
-# last modified: 2024-04-24
+# last modified: 2024-05-14
 
 # This is a script to cluster categorical and continuous traits based on 
 # Gower dissimilarity. It depends on `02_data-cleaning.R`, which
@@ -55,8 +55,16 @@ pam_clusters_7 <- trait_groups_pam$clustering %>%
   enframe() %>% 
   rename(cluster = value,
          scientific_name = name) %>% 
+  # make sure clusters are factors
   mutate(cluster = factor(cluster)) %>% 
-  left_join(., algae_taxa, by = "scientific_name")
+  # join with taxa df
+  left_join(algae_taxa, by = "scientific_name") %>% 
+  # join with coarse_traits df
+  left_join(coarse_traits, by = "scientific_name") 
+
+# saving pam clusters so that the whole cluster thing doesn't have to be run
+# write_csv(pam_clusters_7,
+#           file = here("data", "functional-traits", paste0("pam-clusters-7_", today(), ".csv")))
 
 # put species in clusters into table
 pam_clusters_7_table <- pam_clusters_7 %>% 
@@ -174,8 +182,7 @@ groups <- cutree(trait_clust, k = 2) %>%
   as_tibble(rownames = NA) %>% 
   rownames_to_column("scientific_name") %>% 
   rename(cluster = value) %>% 
-  mutate(cluster = as_factor(cluster)) %>% 
-  left_join(., algae_taxa, by = c("scientific_name"))
+  mutate(cluster = as_factor(cluster)) 
 
 ##########################################################################-
 # 4. visualizing Gower dissimilarity with clusters ------------------------
