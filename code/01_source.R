@@ -1,6 +1,6 @@
 ##########################################################################-
 # Source script
-# last modified: 2024-04-24
+# last modified: 2024-05-14
 
 # This script contains all packages, data, and other objects for
 # downstream use.
@@ -15,9 +15,11 @@ library(here)
 library(tidyverse)
 library(janitor)
 library(readxl)
+library(repmis)
 
 # tables
 library(flextable)
+library(gtsummary)
 
 # analysis
 library(vegan)
@@ -36,6 +38,8 @@ library(factoextra)
 library(ggdendro)
 library(ggeffects)
 library(funspace)
+library(ggdist)
+library(ggConvexHull)
 
 ##########################################################################-
 # 2. start and end dates --------------------------------------------------
@@ -543,10 +547,15 @@ biomass <- read_csv(
   # take out extraneous columns from time_since_columns_continual()
   select(!quarter:test_min_time_yrs)
 
-
+# categorical traits 
 traits <- read_csv(here("data", 
                          "functional-traits",
                          "joe-traits-lter_2024-04-16.csv"))
+
+# Steneck and Dethier and Littler and Littler traits
+coarse_traits <- repmis::source_data("https://www.dropbox.com/scl/fi/s1gb2f3f13ry1oqtzoyyj/00-coarse_traits.csv?rlkey=tgd6j5q3y7bfsdxz7sgs77klb&st=moyfpk93&dl=1") %>% 
+  mutate(scientific_name = str_replace(scientific_name, "_", " ")) %>% 
+  select(scientific_name, sd_growth_form, ll_func_form)
 
 
 ##########################################################################-
@@ -618,6 +627,7 @@ continual_col <- "#CC7540"
 
 control_col <- "#6D5A18"
 
+# cluster colors
 cluster1 <- "#DE7424" 
 cluster2 <- "#EDAD30" 
 cluster3 <- "#DDB531" 
@@ -626,7 +636,16 @@ cluster5 <- "#6A743D"
 cluster6 <- "#525D5C" 
 cluster7 <- "#654783"
 
+# Littler & Litter functional form colors
+coa_bra_col <- "#C70000"
+cru_col <- "#FFBF00"
+fil_col <- "#BE8333"
+joi_cal_col <- "#54662C"
+sheet_col <- "#009BB0"
+thi_lea_col <- "#114C54"
+
 cluster_cols <- calecopal::cal_palette(name = "superbloom2", n = 7, type = "continuous")
+ff_cols <- calecopal::cal_palette(name = "kelp1", n = 6, type = "continuous")
 
 theme_set(theme_bw() +
             theme(axis.text = element_text(size = 10),
