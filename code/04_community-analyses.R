@@ -1,6 +1,6 @@
 ##########################################################################-
 # Community analyses
-# last modified: 2024-04-24
+# last modified: 2024-05-14
 
 # This is a script to use the clusters from `03_trait-clustering.R` to 
 # attache the clusters to biomass data from LTE surveys.
@@ -125,7 +125,9 @@ ff_prop_timeseries <- group_timeseries(
   df = ff_biomass,
   grouping = ll_func_form,
   y = prop
-)
+) +
+  scale_color_manual(values = ff_cols,
+                     name = "L&L functional form")
 
 ff_prop_timeseries
 
@@ -133,7 +135,9 @@ gf_prop_timeseries <- group_timeseries(
   df = gf_biomass,
   grouping = sd_growth_form,
   y = prop
-)
+) +
+  scale_color_manual(values = gf_cols,
+                     name = "S&D growth form")
 
 gf_prop_timeseries
 
@@ -158,7 +162,9 @@ ff_total_timeseries <- group_timeseries(
     filter(sample_ID != "napl_control_2023-05-18"),
   grouping = ll_func_form,
   y = group_total
-) 
+) +
+  scale_color_manual(values = ff_cols,
+                     name = "L&L functional form")
 
 ff_total_timeseries
 
@@ -167,7 +173,9 @@ gf_total_timeseries <- group_timeseries(
     filter(sample_ID != "napl_control_2023-05-18"),
   grouping = sd_growth_form,
   y = group_total
-) 
+) +
+  scale_color_manual(values = gf_cols,
+                     name = "S&D growth form")
 
 gf_total_timeseries
 
@@ -260,6 +268,16 @@ cluster_after_model_preds <- ggpredict(cluster_total_biomass_after_model, terms 
          treatment = facet)
 
 cluster_biomass_continual_plot <- ggplot() +
+  # actual data 
+  geom_point(data = cluster_biomass %>% 
+               filter(treatment == "continual") %>% 
+               filter(!(sample_ID %in% c("mohk_continual_2012-11-15",
+                                         "napl_control_2023-05-18"))),
+             aes(x = time_since_end,
+                 y = group_total,
+                 color = cluster),
+             alpha = 0.2,
+             shape = 21) +
   # during removal 
   # 95% CI ribbons
   geom_ribbon(data = cluster_during_model_preds %>% filter(treatment == "continual"),
@@ -298,23 +316,27 @@ cluster_biomass_continual_plot <- ggplot() +
                 group = cluster),
             linewidth = 1) +
   
-  # actual data 
-  geom_point(data = cluster_biomass %>% filter(treatment == "continual"),
-             aes(x = time_since_end,
-                 y = group_total,
-                 color = cluster),
-             alpha = 0.4) +
-  
   # plot appearance 
   scale_color_manual(values = cluster_cols) +
   scale_fill_manual(values = cluster_cols) +
   geom_vline(xintercept = 0) +
-  scale_y_continuous(expand = c(0, 0), limits = c(-2, 700)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(-2, 420)) +
   labs(x = "Time since end",
-       y = "Cluster biomass (dry g/m\U00B2)") +
-  theme(panel.grid = element_blank())
+       y = "Biomass (dry g/m\U00B2)") +
+  theme(panel.grid = element_blank(),
+        legend.position = "bottom",
+        legend.text = element_text(size = 6))
 
 cluster_biomass_continual_plot
+# cluster 7 is eisenia, egregia, laminaria, pterygophora
+# cluster 2 includes coarsely branched (e.g. Anisocladella, Polyneura, Nienburgia) and thick leathery (e.g. Chondracanthus, Cryptopleura)
+
+# ggsave(here("figures", "model-predictions", paste0("cluster_total-biomass_", today(), ".jpg")),
+#        cluster_biomass_continual_plot,
+#        width = 16,
+#        height = 10,
+#        units = "cm",
+#        dpi = 300)
 
 ggplot() +
   geom_ribbon(data = cluster_during_model_preds %>% filter(treatment == "control"),
@@ -462,23 +484,13 @@ gf_biomass_continual_plot <- ggplot() +
                 # alpha = treatment,
                 color = sd_growth_form,
                 group = sd_growth_form),
-            linewidth = 1)
+            linewidth = 1) +
+  scale_color_manual(values = gf_cols,
+                     name = "S&D growth form") +
+  scale_fill_manual(values = gf_cols,
+                     name = "S&D growth form")
 
 gf_biomass_continual_plot
-   
-   +
-  geom_point(data = cluster_biomass %>% filter(treatment == "continual"),
-             aes(x = time_since_end,
-                 y = group_total,
-                 color = cluster),
-             alpha = 0.4) +
-  scale_color_manual(values = cluster_cols) +
-  scale_fill_manual(values = cluster_cols) +
-  geom_vline(xintercept = 0) +
-  scale_y_continuous(expand = c(0, 0), limits = c(-2, 700)) +
-  labs(x = "Time since end",
-       y = "Cluster biomass (dry g/m\U00B2)") +
-  theme(panel.grid = element_blank())
 
 ## c. functional forms ----------------------------------------------------
 
@@ -543,6 +555,16 @@ ff_after_model_preds <- ggpredict(ff_total_biomass_after_model, terms = c("time_
          treatment = facet)
 
 ff_biomass_continual_plot <- ggplot() +
+  geom_point(data = ff_biomass %>% 
+               # taking out super high points for visualization only (easier to see lines)
+               filter(!(sample_ID %in% c("mohk_continual_2012-11-15", 
+                                         "napl_control_2023-05-18"))),
+             aes(x = time_since_end,
+                 y = group_total,
+                 color = ll_func_form),
+             alpha = 0.2,
+             shape = 21) +
+  
   geom_ribbon(data = ff_during_model_preds %>% filter(treatment == "continual"),
               aes(x = time_since_end,
                   y = predicted,
@@ -567,17 +589,12 @@ ff_biomass_continual_plot <- ggplot() +
                 y = predicted,
                 color = ll_func_form),
             linewidth = 1) +
-  geom_point(data = ff_biomass %>% 
-               # taking out super high points for visualization only (easier to see lines)
-               filter(!(sample_ID %in% c("mohk_continual_2012-11-15", 
-                                         "napl_control_2023-05-18"))),
-             aes(x = time_since_end,
-                 y = group_total,
-                 color = ll_func_form),
-             alpha = 0.1,
-             shape = 21) +
+  
+  # plot appearance 
   scale_color_manual(values = ff_cols) +
   scale_fill_manual(values = ff_cols) +
+  geom_vline(xintercept = 0) +
+  scale_y_continuous(expand = c(0, 0), limits = c(-2, 420)) +
   labs(x = "Time since end (years)",
        y = "Biomass (dry g/m\U00B2)",
        fill = "Littler & Littler functional form",
@@ -587,6 +604,7 @@ ff_biomass_continual_plot <- ggplot() +
         legend.text = element_text(size = 6))
 
 ff_biomass_continual_plot 
+# thick leathery includes tall brown species and leathery reds
 
 # ggsave(here("figures", "model-predictions", paste0("ll-func-form_total-biomass_", today(), ".jpg")),
 #        ff_biomass_continual_plot,
