@@ -62,6 +62,9 @@ pam_clusters_7 <- trait_groups_pam$clustering %>%
   # join with coarse_traits df
   left_join(coarse_traits, by = "scientific_name") 
 
+# Lithothrix doesn't end up in the same cluster as other articulated corallines because it has
+# dichotomous branching and terete branches - this makes it more similar to those in cluster 3
+
 # saving pam clusters so that the whole cluster thing doesn't have to be run
 # write_csv(pam_clusters_7,
 #           file = here("data", "functional-traits", paste0("pam-clusters-7_", today(), ".csv")))
@@ -257,6 +260,7 @@ trait_nmds_plot <- ggplot(trait_nmds_scores,
   scale_x_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +
   scale_y_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +
   guides(shape = guide_legend(position = "inside")) +
+  labs(title = "PAM clusters") +
   theme(
     legend.position.inside = c(0.85, 0.15),
     plot.margin = unit(c(1, 1, 1, 1), "cm"),
@@ -264,6 +268,68 @@ trait_nmds_plot <- ggplot(trait_nmds_scores,
   )
 
 trait_nmds_plot
+
+ff_nmds_plot <- ggplot(trait_nmds_scores,
+                          aes(x = NMDS1, y = NMDS2)) +
+  geom_point(aes(color = ll_func_form, shape = taxon_phylum),
+             size = 3,
+             alpha = 0.9) +
+  geom_convexhull(alpha = 0.2, 
+                  aes(fill = ll_func_form)) +
+  scale_fill_manual(values = ff_cols,
+                    guide = "none") +
+  scale_color_manual(values = ff_cols,
+                     guide = "none") +
+  scale_shape_manual(values = c(16, 15, 17),
+                     name = "Phylum") +
+  annotate(geom = "text", x = -0.15, y = 0.4, size = 6, label = "coarsely \nbranched", color = coa_bra_col) +
+  annotate(geom = "text", x = -0.21, y = -0.25, size = 6, label = "jointed \ncalcareous", color = joi_cal_col) +
+  annotate(geom = "text", x = 0.2, y = 0.3, size = 6, label = "sheet-like", color = sheet_col) +
+  annotate(geom = "text", x = 0.45, y = 0.25, size = 6, label = "thick \nleathery", color = thi_lea_col) +
+  scale_x_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +
+  guides(shape = guide_legend(position = "inside")) +
+  labs(title = "Littler & Littler functional forms") +
+  theme(
+    legend.position.inside = c(0.85, 0.15),
+    plot.margin = unit(c(1, 1, 1, 1), "cm"),
+    panel.grid = element_blank()
+  )
+
+ff_nmds_plot 
+
+gf_nmds_plot <- ggplot(trait_nmds_scores,
+                       aes(x = NMDS1, y = NMDS2)) +
+  geom_point(aes(color = sd_growth_form, shape = taxon_phylum),
+             size = 3,
+             alpha = 0.9) +
+  geom_convexhull(alpha = 0.2, 
+                  aes(fill = sd_growth_form)) +
+  scale_fill_manual(values = gf_cols,
+                    guide = "none") +
+  scale_color_manual(values = gf_cols,
+                     guide = "none") +
+  scale_shape_manual(values = c(16, 15, 17),
+                     name = "Phylum") +
+  annotate(geom = "text", x = -0.2, y = 0.42, size = 6, label = "corticated \nfoliose", color = cor_fol_col) +
+  annotate(geom = "text", x = 0, y = 0.27, size = 6, label = "foliose", color = fol_col) +
+  annotate(geom = "text", x = -0.18, y = -0.25, size = 6, label = "articulated \ncalcareous", color = art_cal_col) +
+  annotate(geom = "text", x = 0.22, y = -0.3, size = 6, label = "corticated \nmacrophyte", color = cor_mac_col) +
+  annotate(geom = "text", x = 0.45, y = 0.25, size = 6, label = "leathery \nmacrophyte", color = lea_mac_col) +
+  scale_x_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +
+  guides(shape = guide_legend(position = "inside")) +
+  labs(title = "Steneck & Dethier growth forms") +
+  theme(
+    legend.position.inside = c(0.85, 0.15),
+    plot.margin = unit(c(1, 1, 1, 1), "cm"),
+    panel.grid = element_blank()
+  )
+
+gf_nmds_plot 
+
+# Hildenbrandia is crustose
+# Cladophora graminea is filamentous
 
 # ggsave(filename = here("figures",
 #                        "trait-ordination",
@@ -280,27 +346,41 @@ trait_nmds_plot
 #        dpi = 300,
 #        width = 8,
 #        height = 8)
+# ggsave(filename = here("figures",
+#                        "trait-ordination",
+#                        paste0("gower-traits_ff_nmds_", today(), ".jpg")),
+#        plot = ff_nmds_plot,
+#        dpi = 300,
+#        width = 8,
+#        height = 8)
+# ggsave(filename = here("figures",
+#                        "trait-ordination",
+#                        paste0("gower-traits_gf_nmds_", today(), ".jpg")),
+#        plot = gf_nmds_plot,
+#        dpi = 300,
+#        width = 8,
+#        height = 8)
 
 ##########################################################################-
 # 5. visualizing functional space -----------------------------------------
 ##########################################################################-
 
 # trying funspace
-funspace_obj <- funspace(trait_nmds,
-                         group.vec = pam_clusters_7$cluster)
-
-summary(funspace_obj)
+# funspace_obj <- funspace(trait_nmds,
+#                          group.vec = pam_clusters_7$cluster)
+# 
+# summary(funspace_obj)
 
 # plotting
-par(mfcol = c(4, 2))
-
-plot(x = funspace_obj,
-     type = "groups",
-     pnt = TRUE,
-     globalContour = TRUE,
-     quant.plot = TRUE)
-
-dev.off()
+# par(mfcol = c(4, 2))
+# 
+# plot(x = funspace_obj,
+#      type = "groups",
+#      pnt = TRUE,
+#      globalContour = TRUE,
+#      quant.plot = TRUE)
+# 
+# dev.off()
 
 
 
