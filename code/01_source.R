@@ -638,14 +638,44 @@ cluster7 <- "#654783"
 
 # Littler & Litter functional form colors
 coa_bra_col <- "#C70000"
-cru_col <- "#FFBF00"
-fil_col <- "#BE8333"
+cru_ff_col <- "#DDB531"
+fil_ff_col <- "#DDB531"
 joi_cal_col <- "#54662C"
 sheet_col <- "#009BB0"
 thi_lea_col <- "#114C54"
 
+# Steneck and Dethier growth form colors
+art_cal_col <- "#1D457F"
+cor_fol_col <- "#61599D"
+cor_mac_col <- "#C36377"
+lea_mac_col <- "#EB7F54"
+fol_col <- "#F2AF4A"
+
+art_cal_col <- "#84A6A2"
+cor_fol_col <- "#BE5A47"
+cor_mac_col <- "#604A76"
+lea_mac_col <- "#C2607F"
+fol_col <- "#5D8FBC"
+
+cru_col <- "#DDB531"
+fil_gf_col <- "#DDB531"
+
+
+
 cluster_cols <- calecopal::cal_palette(name = "superbloom2", n = 7, type = "continuous")
-ff_cols <- calecopal::cal_palette(name = "kelp1", n = 6, type = "continuous")
+ff_cols <- c("jointed_calcareous" = joi_cal_col,
+             "coarsely_branched" = coa_bra_col,
+             "thick_leathery" = thi_lea_col,
+             "filamentous" = fil_ff_col,
+             "sheet" = sheet_col,
+             "crustose" = cru_ff_col)
+gf_cols <- c("articulated_calcareous" = art_cal_col, 
+             "corticated_foliose" = cor_fol_col, 
+             "corticated_macrophytes" = cor_mac_col, 
+             "leathery_macrophyte" = lea_mac_col, 
+             "crustose" = cru_col,
+             "filamentous_algae" = fil_gf_col, 
+             "foliose" = fol_col)
 
 theme_set(theme_bw() +
             theme(axis.text = element_text(size = 10),
