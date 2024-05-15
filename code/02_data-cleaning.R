@@ -1,6 +1,6 @@
 ##########################################################################-
 # Data cleaning
-# last modified: 2024-04-09
+# last modified: 2024-05-14
 
 # This is a script to get data files in order for downstream analysis.
 ##########################################################################-
@@ -220,8 +220,18 @@ algae_continual_long <- delta_algae_biomass %>%
 #   # create a new sample ID that is site, year, quarter, treatment
 #   unite("sample_ID", site, date, quarter, treatment, remove = FALSE)
 
+##########################################################################-
+# 5. table of excluded sampling events ------------------------------------
+##########################################################################-
 
+zero_table <- enframe(sites_to_exclude) %>% 
+  separate_wider_delim(cols = value, 
+                       delim = "_",
+                       names = c("site", "treatment", "date")) %>% 
+  select(-name) %>% 
+  flextable() %>% 
+  autofit()
 
-
-
+save_as_docx(zero_table,
+             path = here("tables", "misc", "zero-sites.docx"))
 
