@@ -1,6 +1,6 @@
 ##########################################################################-
 # Community analyses
-# last modified: 2024-05-14
+# last modified: 2024-05-21
 
 # This is a script to use the clusters from `03_trait-clustering.R` to 
 # attache the clusters to biomass data from LTE surveys.
@@ -95,6 +95,21 @@ cluster_biomass <- calc_group_biomass(cluster)
 gf_biomass <- calc_group_biomass(sd_growth_form)
 ff_biomass <- calc_group_biomass(ll_func_form)
 
+# function to widen group biomass
+widen_group_biomass <- function(df) {
+  df %>% 
+    select(-prop) %>% 
+    pivot_wider(names_from = 2,
+                values_from = 3) %>% 
+    relocate(total, .after = last_col())
+}
+
+cluster_biomass_wide <- widen_group_biomass(cluster_biomass) %>% 
+  # renames cluster columns with cluster_ prefix
+  rename_with(.cols = `1`:`7`, ~ paste0("cluster_", .))
+gf_biomass_wide <- widen_group_biomass(gf_biomass)
+ff_biomass_wide <- widen_group_biomass(ff_biomass)
+
 # function to plot timeseries
 group_timeseries <- function(df, grouping, y) {
   df %>% 
@@ -185,13 +200,13 @@ gf_total_timeseries
 #        width = 8)
 
 ##########################################################################-
-# 4. total biomass model --------------------------------------------------
+# 4. group biomass model --------------------------------------------------
 ##########################################################################-
 
 ## a. clusters ------------------------------------------------------------
 
 # model 1: includes all predictors and random effects of site and year
-cluster_total_biomass_during_model_1 <- glmmTMB(
+cluster_group_biomass_during_model_1 <- glmmTMB(
   group_total ~ time_since_end*cluster*treatment + (1|site) + (1|year),
   data = cluster_biomass %>% filter(exp_dates == "during"),
   family = ziGamma(link = "log"),
@@ -199,7 +214,7 @@ cluster_total_biomass_during_model_1 <- glmmTMB(
   )
 
 # model 2: includes all predictors and random effect of site
-cluster_total_biomass_during_model_2 <- glmmTMB(
+cluster_group_biomass_during_model_2 <- glmmTMB(
   group_total ~ time_since_end*cluster*treatment + (1|site),
   data = cluster_biomass %>% filter(exp_dates == "during"),
   family = ziGamma(link = "log"),
@@ -207,62 +222,61 @@ cluster_total_biomass_during_model_2 <- glmmTMB(
   )
 
 # model 3: includes all predictors, no random effects
-cluster_total_biomass_during_model_3 <- glmmTMB(
+cluster_group_biomass_during_model_3 <- glmmTMB(
   group_total ~ time_since_end*cluster*treatment,
   data = cluster_biomass %>% filter(exp_dates == "during"),
   family = ziGamma(link = "log"),
   ziformula = ~1)
 
 # model 4: includes time since end and cluster as only predictors, no random effects
-cluster_total_biomass_during_model_4 <- glmmTMB(
+cluster_group_biomass_during_model_4 <- glmmTMB(
   group_total ~ time_since_end*cluster,
   data = cluster_biomass %>% filter(exp_dates == "after" & treatment == "continual"),
   family = ziGamma(link = "log"),
   ziformula = ~1)
 
 # best model is 1 with all predictors and random effect of site and year
-MuMIn::AICc(cluster_total_biomass_during_model_1,
-            cluster_total_biomass_during_model_2,
-            cluster_total_biomass_during_model_3) %>% 
-  arrange(AICc)
+model.sel(cluster_group_biomass_during_model_1,
+          cluster_group_biomass_during_model_2,
+          cluster_group_biomass_during_model_3)
 
 # looking at model residuals
-simulateResiduals(cluster_total_biomass_during_model_1, plot = TRUE)
+simulateResiduals(cluster_group_biomass_during_model_1, plot = TRUE)
 
 # model summary
-summary(cluster_total_biomass_during_model_1)
+summary(cluster_group_biomass_during_model_1)
 
-cluster_total_model_summary <- tbl_regression(
-  cluster_total_biomass_during_model_1,
+cluster_group_model_summary <- tbl_regression(
+  cluster_group_biomass_during_model_1,
   intercept = TRUE, 
   add_estimate_to_reference_rows = TRUE
   ) %>% 
   gtsummary::as_flex_table()
 
-cluster_total_model_summary
+cluster_group_model_summary
 
 # save table as doc
-# save_as_docx(cluster_total_model_summary,
+# save_as_docx(cluster_group_model_summary,
 #              path = here("tables", "model-summaries", paste0("cluster-total-model-summary_", today(), ".docx")))
 
-cluster_total_biomass_after_model <- glmmTMB(
+cluster_group_biomass_after_model <- glmmTMB(
   group_total ~ time_since_end*cluster*treatment + (1|site),
   data = cluster_biomass %>% filter(exp_dates == "after"),
   family = ziGamma(link = "log"),
   ziformula = ~1)
 
-simulateResiduals(cluster_total_biomass_after_model, plot = TRUE)
+simulateResiduals(cluster_group_biomass_after_model, plot = TRUE)
 
-testOutliers(cluster_total_biomass_after_model)
+testOutliers(cluster_group_biomass_after_model)
 
-summary(cluster_total_biomass_after_model)
+summary(cluster_group_biomass_after_model)
 
-cluster_during_model_preds <- ggpredict(cluster_total_biomass_during_model_1, terms = c("time_since_end", "cluster", "treatment")) %>% 
+cluster_during_model_preds <- ggpredict(cluster_group_biomass_during_model_1, terms = c("time_since_end", "cluster", "treatment")) %>% 
   rename(time_since_end = x,
          cluster = group,
          treatment = facet)
 
-cluster_after_model_preds <- ggpredict(cluster_total_biomass_after_model, terms = c("time_since_end", "cluster", "treatment")) %>% 
+cluster_after_model_preds <- ggpredict(cluster_group_biomass_after_model, terms = c("time_since_end", "cluster", "treatment")) %>% 
   rename(time_since_end = x,
          cluster = group,
          treatment = facet)
@@ -331,7 +345,7 @@ cluster_biomass_continual_plot
 # cluster 7 is eisenia, egregia, laminaria, pterygophora
 # cluster 2 includes coarsely branched (e.g. Anisocladella, Polyneura, Nienburgia) and thick leathery (e.g. Chondracanthus, Cryptopleura)
 
-# ggsave(here("figures", "model-predictions", paste0("cluster_total-biomass_", today(), ".jpg")),
+# ggsave(here("figures", "model-predictions", paste0("cluster_group-biomass_", today(), ".jpg")),
 #        cluster_biomass_continual_plot,
 #        width = 16,
 #        height = 10,
@@ -379,21 +393,21 @@ ggplot() +
 ## b. growth forms --------------------------------------------------------
 
 # model 1: all predictors and random effects of site and year
-gf_total_biomass_during_model_1 <- glmmTMB(
+gf_group_biomass_during_model_1 <- glmmTMB(
   group_total ~ time_since_end*sd_growth_form*treatment + (1|site) + (1|year),
   data = gf_biomass %>% filter(exp_dates == "during"),
   family = ziGamma(link = "log"),
   ziformula = ~1)
 
 # model 2: includes all predictors and random effect of site
-gf_total_biomass_during_model_2 <- glmmTMB(
+gf_group_biomass_during_model_2 <- glmmTMB(
   group_total ~ time_since_end*sd_growth_form*treatment + (1|site),
   data = gf_biomass %>% filter(exp_dates == "during"),
   family = ziGamma(link = "log"),
   ziformula = ~1)
 
 # model 3: includes all predictors, no random effects
-gf_total_biomass_during_model_3 <- glmmTMB(
+gf_group_biomass_during_model_3 <- glmmTMB(
   group_total ~ time_since_end*sd_growth_form*treatment,
   data = gf_biomass %>% filter(exp_dates == "during"),
   family = ziGamma(link = "log"),
@@ -401,7 +415,7 @@ gf_total_biomass_during_model_3 <- glmmTMB(
 
 # model 4: includes time since end and gf as only predictors, no random effects
 # continual removal only, no treatment
-gf_total_biomass_during_model_4 <- glmmTMB(
+gf_group_biomass_during_model_4 <- glmmTMB(
   group_total ~ time_since_end*sd_growth_form,
   data = gf_biomass %>% filter(exp_dates == "after" & treatment == "continual"),
   family = ziGamma(link = "log"),
@@ -409,45 +423,44 @@ gf_total_biomass_during_model_4 <- glmmTMB(
 
 # best model is 2 with all predictors and random effect of site only
 # delta AIC is less than 1 so just going with both random effects
-MuMIn::AICc(gf_total_biomass_during_model_1,
-            gf_total_biomass_during_model_2,
-            gf_total_biomass_during_model_3) %>% 
-  arrange(AICc)
+model.sel(gf_group_biomass_during_model_1,
+          gf_group_biomass_during_model_2,
+          gf_group_biomass_during_model_3) 
 
 # residuals
-simulateResiduals(gf_total_biomass_during_model_1,
+simulateResiduals(gf_group_biomass_during_model_1,
                   plot = TRUE)
 # larger residuals at higher values of model predictions?
 
-gf_total_biomass_after_model <- glmmTMB(
+gf_group_biomass_after_model <- glmmTMB(
   group_total ~ time_since_end*sd_growth_form*treatment + (1|site),
   data = gf_biomass %>% filter(exp_dates == "after" & sample_ID != "napl_control_2023-05-18"),
   family = ziGamma(link = "log"),
   ziformula = ~1)
 
-gf_total_biomass_after_model <- glmmTMB(
-  group_total ~ time_since_end*treatment + (1|site),
-  data = gf_biomass %>% filter(exp_dates == "after" & sample_ID != "napl_control_2023-05-18"),
-  family = ziGamma(link = "log"),
-  ziformula = ~1)
+# gf_group_biomass_after_model <- glmmTMB(
+#   group_total ~ time_since_end*treatment + (1|site),
+#   data = gf_biomass %>% filter(exp_dates == "after" & sample_ID != "napl_control_2023-05-18"),
+#   family = ziGamma(link = "log"),
+#   ziformula = ~1)
 
-parameters::standard_error(gf_total_biomass_after_model)
+parameters::standard_error(gf_group_biomass_after_model)
 
-simulateResiduals(gf_total_biomass_after_model, plot = TRUE)
+simulateResiduals(gf_group_biomass_after_model, plot = TRUE)
 
-summary(gf_total_biomass_after_model)
+summary(gf_group_biomass_after_model)
 
-ggpredict(gf_total_biomass_during_model_1,
+ggpredict(gf_group_biomass_during_model_1,
           terms = c("time_since_end", "sd_growth_form")) %>% 
   plot(show_data = TRUE)
 
-gf_during_model_preds <- ggpredict(gf_total_biomass_during_model_1,
+gf_during_model_preds <- ggpredict(gf_group_biomass_during_model_1,
                                    terms = c("time_since_end", "sd_growth_form", "treatment")) %>% 
   rename(time_since_end = x,
          sd_growth_form = group,
          treatment = facet)
 
-gf_after_model_preds <- ggpredict(gf_total_biomass_after_model,
+gf_after_model_preds <- ggpredict(gf_group_biomass_after_model,
                                    terms = c("time_since_end", "sd_growth_form", "treatment")) %>% 
   rename(time_since_end = x,
          sd_growth_form = group,
@@ -495,21 +508,21 @@ gf_biomass_continual_plot
 ## c. functional forms ----------------------------------------------------
 
 # model 1: all predictors and random effects of site and year
-ff_total_biomass_during_model_1 <- glmmTMB(
+ff_group_biomass_during_model_1 <- glmmTMB(
   group_total ~ time_since_end*ll_func_form*treatment + (1|site) + (1|year),
   data = ff_biomass %>% filter(exp_dates == "during"),
   family = ziGamma(link = "log"),
   ziformula = ~1)
 
 # model 2: includes all predictors and random effect of site
-ff_total_biomass_during_model_2 <- glmmTMB(
+ff_group_biomass_during_model_2 <- glmmTMB(
   group_total ~ time_since_end*ll_func_form*treatment + (1|site),
   data = ff_biomass %>% filter(exp_dates == "during"),
   family = ziGamma(link = "log"),
   ziformula = ~1)
 
 # model 3: includes all predictors, no random effects
-ff_total_biomass_during_model_3 <- glmmTMB(
+ff_group_biomass_during_model_3 <- glmmTMB(
   group_total ~ time_since_end*ll_func_form*treatment,
   data = ff_biomass %>% filter(exp_dates == "during"),
   family = ziGamma(link = "log"),
@@ -517,7 +530,7 @@ ff_total_biomass_during_model_3 <- glmmTMB(
 
 # model 4: includes time since end and gf as only predictors, no random effects
 # continual removal only, no treatment
-ff_total_biomass_during_model_4 <- glmmTMB(
+ff_group_biomass_during_model_4 <- glmmTMB(
   group_total ~ time_since_end*ll_func_form,
   data = ff_biomass %>% filter(exp_dates == "after" & treatment == "continual"),
   family = ziGamma(link = "log"),
@@ -525,31 +538,30 @@ ff_total_biomass_during_model_4 <- glmmTMB(
 
 # best model is 2 with all predictors and random effect of site only
 # delta AIC is less than 1 so just going with both random effects
-MuMIn::AICc(ff_total_biomass_during_model_1,
-            ff_total_biomass_during_model_2,
-            ff_total_biomass_during_model_3) %>% 
-  arrange(AICc)
+model.sel(ff_group_biomass_during_model_1,
+          ff_group_biomass_during_model_2,
+          ff_group_biomass_during_model_3)
 
 # residuals
-simulateResiduals(ff_total_biomass_during_model_1,
+simulateResiduals(ff_group_biomass_during_model_1,
                   plot = TRUE)
 # larger residuals at higher values of model predictions?
 
-ff_total_biomass_after_model <- glmmTMB(
+ff_group_biomass_after_model <- glmmTMB(
   group_total ~ time_since_end*ll_func_form*treatment + (1|site),
   data = ff_biomass %>% filter(exp_dates == "after" & sample_ID != "napl_control_2023-05-18"),
   family = ziGamma(link = "log"),
   ziformula = ~1)
 
-simulateResiduals(ff_total_biomass_after_model,
+simulateResiduals(ff_group_biomass_after_model,
                   plot = TRUE)
 
-ff_during_model_preds <- ggpredict(ff_total_biomass_during_model_1, terms = c("time_since_end", "ll_func_form", "treatment")) %>% 
+ff_during_model_preds <- ggpredict(ff_group_biomass_during_model_1, terms = c("time_since_end", "ll_func_form", "treatment")) %>% 
   rename(time_since_end = x,
          ll_func_form = group,
          treatment = facet)
 
-ff_after_model_preds <- ggpredict(ff_total_biomass_after_model, terms = c("time_since_end", "ll_func_form", "treatment")) %>% 
+ff_after_model_preds <- ggpredict(ff_group_biomass_after_model, terms = c("time_since_end", "ll_func_form", "treatment")) %>% 
   rename(time_since_end = x,
          ll_func_form = group,
          treatment = facet)
@@ -616,4 +628,156 @@ ff_biomass_continual_plot
 # coarsely branched above jointed calcareous during removal
 # coarsely branched below jointed calcareous after removal
 
+##########################################################################-
+# 5. total biomass model --------------------------------------------------
+##########################################################################-
 
+## a. clusters ------------------------------------------------------------
+
+ggplot(cluster_biomass_wide,
+       aes(x = log(total))) +
+  geom_histogram(bins = 15,
+                 color = "black",
+                 fill = "blue")
+
+ggplot(cluster_biomass_wide,
+       aes(x = total)) +
+  geom_histogram(bins = 15,
+                 color = "black",
+                 fill = "blue")
+
+data <- cluster_biomass_wide %>% 
+  filter(exp_dates == "during") %>% 
+  # scaling cluster biomasses
+  # mutate(across(18:24, ~ scale(.)[1:length(.), 1]))
+  mutate(total = scale(total))
+  # mutate(across(.cols = cluster_1:cluster_2, ~ scale)) %>% 
+  # rename_with(~str_remove_all(., fixed("[, 1]")))
+  # filter(!(sample_ID %in% c("mohk_continual_2012-11-15",
+  #                           "mohk_continual_2017-08-11",
+  #                           "napl_continual_2015-05-19",
+  #                           "napl_continual_2013-08-15", 
+  #                           "mohk_continual_2014-11-18", 
+  #                           "napl_continual_2014-05-21")))
+  # filter(total > 0) %>% 
+  # filter(!(sample_ID %in% outliers))
+
+ggplot(data,
+       aes(x = cluster_1,
+           y = total)) +
+  geom_point()
+
+ggplot(data,
+       aes(x = total)) +
+  geom_histogram()
+
+outliers <- c("carp_continual_2015-08-18", # 69
+              "carp_continual_2016-02-22", # 71
+              "carp_control_2011-01-25", # 80
+              "carp_control_2011-10-17", # 82
+              "carp_control_2013-08-16", # 86
+              "carp_control_2016-02-22" # 93
+              )
+
+# model 1: includes all predictors and random effects of site and year
+cluster_total_biomass_during_model_1 <- glmmTMB(
+  total ~ time_since_end + cluster_1 + cluster_2 + cluster_3 + cluster_4 + cluster_5 + cluster_6 + cluster_7 + treatment + (1|site) + (1|year),
+  data = data,
+  family = ziGamma(link = "log"),
+  ziformula = ~1,
+  na.action = na.pass
+)
+
+AICc(cluster_total_biomass_during_model_1, 
+     cluster_total_biomass_during_model_2)
+
+simulated_res <- simulateResiduals(cluster_total_biomass_during_model_2)
+
+plot(simulated_res)
+
+testZeroInflation(simulated_res)
+
+hist(simulated_res)
+
+plotResiduals(simulated_res, data$time_since_end)
+
+sim <- simulateResiduals(cluster_total_biomass_during_model_1)
+which(residuals(sim) == 1 | residuals(sim) == 0)
+# 69 71 80 82 86 93
+
+summary(cluster_total_biomass_during_model_1)
+
+preds <- ggpredict(cluster_total_biomass_during_model_1, terms = c("cluster_1", "treatment"))
+
+ggpredict(cluster_total_biomass_during_model_1, terms = c("time_since_end", "treatment")) %>% plot(show_data = TRUE)
+
+plot(ggpredict(cluster_total_biomass_during_model_1, terms = c("cluster_7", "treatment")), show_data = TRUE) +
+  labs(title = "cluster 7")
+
+
+
+performance::check_overdispersion(cluster_total_biomass_during_model_1)
+outliers(cluster_total_biomass_during_model_1)
+
+
+# observations 67 69 71 80 82 87 93 97
+
+#
+cluster_test <- glmmTMB(
+  log(total) ~ time_since_end + cluster_1 + cluster_2 + cluster_3 + cluster_4 + cluster_5 + cluster_6 + cluster_7 + treatment + (1|site) + (1|year),
+  data = cluster_biomass_wide %>% filter(exp_dates == "during"),
+  family = inverse.gaussian()
+)
+
+cluster_test2 <- glmmTMB(
+  total ~ time_since_end + cluster_1 + cluster_2 + cluster_3 + cluster_4 + cluster_5 + cluster_6 + cluster_7 + treatment + (1|site) + (1|year),
+  data = cluster_biomass_wide %>% filter(exp_dates == "during"),
+  family = tweedie(link = "log")
+)
+
+simulateResiduals(cluster_test2) %>% plot()
+
+## b. growth forms --------------------------------------------------------
+
+data <- gf_biomass_wide %>% 
+  filter(exp_dates == "during") %>% 
+  filter(total > 0) 
+  
+
+# model 1: includes all predictors and random effects of site and year
+gf_total_biomass_during_model_1 <- glmmTMB(
+  total ~ time_since_end + articulated_calcareous + corticated_foliose + corticated_macrophytes + crustose + filamentous_algae + foliose + leathery_macrophyte + treatment + (1|site) + (1|year),
+  data = data,
+  family = ziGamma(link = "log"),
+  ziformula = ~1,
+  na.action = na.pass
+)
+
+simulateResiduals(gf_total_biomass_during_model_1) %>% plot()
+
+## c. functional forms ----------------------------------------------------
+
+data <- ff_biomass_wide %>% 
+  filter(exp_dates == "during") %>% 
+  filter(total > 0)  
+
+# model 1: includes all predictors and random effects of site and year
+ff_total_biomass_during_model_1 <- glmmTMB(
+  total ~ time_since_end + coarsely_branched + crustose + filamentous + jointed_calcareous + sheet + thick_leathery + treatment + (1|site) + (1|year),
+  data = data,
+  family = ziGamma(link = "log"),
+  ziformula = ~ 1
+)
+
+simulateResiduals(ff_total_biomass_during_model_1) %>% plot()
+
+ggpredict(ff_total_biomass_during_model_1, terms = c("time_since_end", "treatment")) %>% plot(show_data = TRUE)
+
+model.sel(ff_total_biomass_during_model_1,
+          cluster_total_biomass_during_model_1,
+          gf_total_biomass_during_model_1)
+
+AICc(ff_total_biomass_during_model_1,
+     cluster_total_biomass_during_model_1,
+     gf_total_biomass_during_model_1) %>% 
+  arrange(AICc)

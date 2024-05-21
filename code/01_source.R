@@ -1,6 +1,6 @@
 ##########################################################################-
 # Source script
-# last modified: 2024-05-14
+# last modified: 2024-05-21
 
 # This script contains all packages, data, and other objects for
 # downstream use.
@@ -32,6 +32,7 @@ library(DHARMa)
 library(performance)
 library(RVAideMemoire)
 library(modelsummary)
+library(MuMIn)
 
 # visualization
 library(factoextra)
