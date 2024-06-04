@@ -45,10 +45,10 @@ pairwise.perm.manova(trait_gower_daisy,
 #                                  k = 8,
 #                                  metric = "euclidean")
 # 
-# pairwise.perm.manova(trait_gower_daisy, 
-#                      fact = trait_groups_pam$clustering, 
+# pairwise.perm.manova(trait_gower_daisy,
+#                      fact = trait_groups_pam$clustering,
 #                      p.method = "none")
-# too many clusters - no differences between clusters 5 and 8, 7 and 8
+# too many clusters - no differences between clusters 4 and 5, 5 and 8
 
 # extract clusters for further analysis
 pam_clusters_7 <- trait_groups_pam$clustering %>% 
@@ -252,13 +252,13 @@ trait_nmds_plot <- ggplot(trait_nmds_scores,
                      name = "Phylum") +
   annotate(geom = "text", x = -0.35, y = -0.27, size = 8, label = "1", color = cluster1) +
   annotate(geom = "text", x = 0, y = -0.3, size = 8, label = "2", color = cluster2) +
-  annotate(geom = "text", x = -0.3, y = 0.45, size = 8, label = "3", color = cluster3) +
-  annotate(geom = "text", x = 0.1, y = 0.27, size = 8, label = "4", color = cluster4) +
-  annotate(geom = "text", x = 0.26, y = 0.29, size = 8, label = "5", color = cluster5) +
-  annotate(geom = "text", x = 0.2, y = -0.1, size = 8, label = "6", color = cluster6) +
-  annotate(geom = "text", x = 0.42, y = 0.15, size = 8, label = "7", color = cluster7) +
-  scale_x_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +
-  scale_y_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +
+  annotate(geom = "text", x = 0, y = 0, size = 8, label = "3", color = cluster3) +
+  annotate(geom = "text", x = -0.3, y = 0.45, size = 8, label = "4", color = cluster4) +
+  annotate(geom = "text", x = 0.4, y = -0.1, size = 8, label = "5", color = cluster5) +
+  annotate(geom = "text", x = 0.1, y = 0.27, size = 8, label = "6", color = cluster6) +
+  annotate(geom = "text", x = 0.35, y = 0.2, size = 8, label = "7", color = cluster7) +
+  scale_x_continuous(expand = c(0, 0), limits = c(-0.5, 0.5)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(-0.5, 0.5)) +
   guides(shape = guide_legend(position = "inside")) +
   labs(title = "PAM clusters") +
   theme(
@@ -282,12 +282,12 @@ ff_nmds_plot <- ggplot(trait_nmds_scores,
                      guide = "none") +
   scale_shape_manual(values = c(16, 15, 17),
                      name = "Phylum") +
-  annotate(geom = "text", x = -0.15, y = 0.4, size = 6, label = "coarsely \nbranched", color = coa_bra_col) +
-  annotate(geom = "text", x = -0.21, y = -0.25, size = 6, label = "jointed \ncalcareous", color = joi_cal_col) +
-  annotate(geom = "text", x = 0.2, y = 0.3, size = 6, label = "sheet-like", color = sheet_col) +
-  annotate(geom = "text", x = 0.45, y = 0.25, size = 6, label = "thick \nleathery", color = thi_lea_col) +
-  scale_x_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +
-  scale_y_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +
+  annotate(geom = "text", x = -0.15, y = 0.42, size = 6, label = "coarsely \nbranched", color = coa_bra_col) +
+  annotate(geom = "text", x = -0.28, y = -0.25, size = 6, label = "jointed \ncalcareous", color = joi_cal_col) +
+  annotate(geom = "text", x = 0.1, y = 0.25, size = 6, label = "sheet-like", color = sheet_col) +
+  annotate(geom = "text", x = 0.4, y = 0.25, size = 6, label = "thick \nleathery", color = thi_lea_col) +
+  scale_x_continuous(expand = c(0, 0), limits = c(-0.5, 0.5)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(-0.5, 0.5)) +
   guides(shape = guide_legend(position = "inside")) +
   labs(title = "Littler & Littler functional forms") +
   theme(
@@ -312,12 +312,12 @@ gf_nmds_plot <- ggplot(trait_nmds_scores,
   scale_shape_manual(values = c(16, 15, 17),
                      name = "Phylum") +
   annotate(geom = "text", x = -0.2, y = 0.42, size = 6, label = "corticated \nfoliose", color = cor_fol_col) +
-  annotate(geom = "text", x = 0, y = 0.27, size = 6, label = "foliose", color = fol_col) +
-  annotate(geom = "text", x = -0.18, y = -0.25, size = 6, label = "articulated \ncalcareous", color = art_cal_col) +
-  annotate(geom = "text", x = 0.22, y = -0.3, size = 6, label = "corticated \nmacrophyte", color = cor_mac_col) +
-  annotate(geom = "text", x = 0.45, y = 0.25, size = 6, label = "leathery \nmacrophyte", color = lea_mac_col) +
-  scale_x_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +
-  scale_y_continuous(expand = c(0, 0), limits = c(-0.45, 0.55)) +
+  annotate(geom = "text", x = 0.1, y = 0.27, size = 6, label = "foliose", color = fol_col) +
+  annotate(geom = "text", x = -0.35, y = -0.3, size = 6, label = "articulated \ncalcareous", color = art_cal_col) +
+  annotate(geom = "text", x = 0.1, y = -0.4, size = 6, label = "corticated \nmacrophyte", color = cor_mac_col) +
+  annotate(geom = "text", x = 0.35, y = 0.35, size = 6, label = "leathery \nmacrophyte", color = lea_mac_col) +
+  scale_x_continuous(expand = c(0, 0), limits = c(-0.5, 0.5)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(-0.5, 0.5)) +
   guides(shape = guide_legend(position = "inside")) +
   labs(title = "Steneck & Dethier growth forms") +
   theme(

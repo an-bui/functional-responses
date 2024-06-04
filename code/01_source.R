@@ -551,7 +551,7 @@ biomass <- read_csv(
 # categorical traits 
 traits <- read_csv(here("data", 
                          "functional-traits",
-                         "joe-traits-lter_2024-04-16.csv"))
+                         "joe-traits-lter_2024-06-04.csv"))
 
 # Steneck and Dethier and Littler and Littler traits
 coarse_traits <- repmis::source_data("https://www.dropbox.com/scl/fi/s1gb2f3f13ry1oqtzoyyj/00-coarse_traits.csv?rlkey=tgd6j5q3y7bfsdxz7sgs77klb&st=moyfpk93&dl=1") %>% 
