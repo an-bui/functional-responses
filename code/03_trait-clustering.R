@@ -83,8 +83,19 @@ pam_clusters_7_table <- pam_clusters_7 %>%
   bg(i = ~ cluster == 5, j = c("scientific_name", "cluster"), bg = cluster5) %>% 
   bg(i = ~ cluster == 6, j = c("scientific_name", "cluster"), bg = cluster6) %>% 
   bg(i = ~ cluster == 7, j = c("scientific_name", "cluster"), bg = cluster7) %>% 
-  autofit()
+  autofit() %>% 
+  FitFlextableToPage(pgwidth = 10)
 pam_clusters_7_table
+
+FitFlextableToPage <- function(ft, pgwidth = 6){
+  
+  ft_out <- ft %>% autofit()
+  
+  ft_out <- width(ft_out, width = dim(ft_out)$widths*pgwidth /(flextable_dim(ft_out)$widths))
+  return(ft_out)
+}
+
+
 
 # save_as_docx(pam_clusters_7_table,
 #              path = here::here("tables", "cluster-tables", paste0("pam-clusters-7_", today(), ".docx")))
