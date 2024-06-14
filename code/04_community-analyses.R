@@ -1,6 +1,6 @@
 ##########################################################################-
 # Community analyses
-# last modified: 2024-05-21
+# last modified: 2024-06-14
 
 # This is a script to use the clusters from `03_trait-clustering.R` to 
 # attache the clusters to biomass data from LTE surveys.
@@ -95,6 +95,105 @@ cluster_biomass <- calc_group_biomass(cluster)
 gf_biomass <- calc_group_biomass(sd_growth_form)
 ff_biomass <- calc_group_biomass(ll_func_form)
 
+check <- cluster_match %>% 
+  filter(site == "aque" & date > "2010-04-26" |
+           site == "napl" & date > "2010-04-27" |
+           site == "mohk" & date > "2010-05-05" |
+           site == "carp" & date > "2010-04-23") %>% 
+  filter(ll_func_form == "thick_leathery") %>% 
+  filter(!is.na(cluster)) %>% 
+  filter(treatment == "continual") %>% 
+  filter(time_since_end == 3) %>% 
+  pull(dry_gm2) %>% 
+  sum()
+# this output should match up with total in cluster_thick_leathery for a given time_since_end
+
+cluster_thick_leathery <- cluster_match %>% 
+  filter(site == "aque" & date > "2010-04-26" |
+           site == "napl" & date > "2010-04-27" |
+           site == "mohk" & date > "2010-05-05" |
+           site == "carp" & date > "2010-04-23") %>% 
+  filter(ll_func_form == "thick_leathery") %>% 
+  filter(!is.na(cluster)) %>% 
+  filter(treatment == "continual") %>% 
+  # group by sample_ID
+  group_by(time_since_end, cluster) %>% 
+  # add up biomass within a cluster
+  summarize(group_total = sum(dry_gm2, na.rm = TRUE)) %>% 
+  # calculate total biomass and proportion of each cluster
+  mutate(total = sum(group_total),
+         prop = group_total/total,
+         prop = case_when(
+           prop == "NaN" ~ 0,
+           TRUE ~ prop
+         )) %>% 
+  ungroup()
+
+cluster_coarsely_branched <- cluster_match %>% 
+  filter(site == "aque" & date > "2010-04-26" |
+           site == "napl" & date > "2010-04-27" |
+           site == "mohk" & date > "2010-05-05" |
+           site == "carp" & date > "2010-04-23") %>% 
+  filter(ll_func_form == "coarsely_branched") %>% 
+  filter(!is.na(cluster)) %>% 
+  filter(treatment == "continual") %>% 
+  # group by sample_ID
+  group_by(time_since_end, cluster) %>% 
+  # add up biomass within a cluster
+  summarize(group_total = sum(dry_gm2, na.rm = TRUE)) %>% 
+  # calculate total biomass and proportion of each cluster
+  mutate(total = sum(group_total),
+         prop = group_total/total,
+         prop = case_when(
+           prop == "NaN" ~ 0,
+           TRUE ~ prop
+         )) %>% 
+  ungroup()
+
+thick_leathery_prop <- ggplot(data = cluster_thick_leathery,
+       aes(x = time_since_end,
+           y = prop,
+           fill = cluster)) +
+  geom_area(color = "white") + 
+  geom_vline(xintercept = 0) +
+  scale_fill_manual(values = c(cluster2, cluster3, cluster5, cluster6, cluster7)) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(x = "Time since end (years)",
+       y = "Proportion",
+       title = "Proportion of thick leathery biomass by cluster",
+       subtitle = "Sum cluster biomass across sites for a single sampling period")
+
+thick_leathery_prop
+
+ggsave(here("figures", "community-timeseries", 
+            paste0("cluster-thick-leathery-timeseries", today(), ".jpg")),
+       thick_leathery_prop,
+       width = 8,
+       height = 4)
+
+coarsely_branched_prop <- ggplot(data = cluster_coarsely_branched,
+       aes(x = time_since_end,
+           y = prop,
+           fill = cluster)) +
+  geom_area(color = "white") + 
+  geom_vline(xintercept = 0) +
+  scale_fill_manual(values = c(cluster2, cluster3, cluster4, cluster6)) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(x = "Time since end (years)",
+       y = "Proportion",
+       title = "Proportion of coarsely branched biomass by cluster",
+       subtitle = "Sum cluster biomass across sites for a single sampling period")
+
+coarsely_branched_prop
+
+ggsave(here("figures", "community-timeseries", 
+            paste0("cluster-coarsely-branched-timeseries", today(), ".jpg")),
+       coarsely_branched_prop,
+       width = 8,
+       height = 4)
+
 # function to widen group biomass
 widen_group_biomass <- function(df) {
   df %>% 
@@ -171,6 +270,66 @@ cluster_total_timeseries <- group_timeseries(
                      name = "Cluster")
 
 cluster_total_timeseries
+
+cluster_mean_summary <- cluster_biomass %>% 
+  filter(sample_ID != "napl_control_2023-05-18") %>% 
+  group_by(cluster, time_since_end) %>% 
+  summarize(mean = mean(group_total, na.rm = TRUE))
+
+cluster_thick_leathery_summary <- cluster_thick_leathery %>% 
+  group_by(cluster, time_since_end) %>% 
+  summarize(mean = mean(prop, na.rm = TRUE)) 
+
+ggplot(data = cluster_thick_leathery_summary,
+       aes(x = time_since_end,
+           y = mean,
+           fill = cluster)) +
+  geom_area() +
+  scale_fill_manual(values = c(cluster2, cluster3, cluster5, cluster6, cluster7))
+  
+
+ff_mean_summary <- ff_biomass %>% 
+  filter(sample_ID != "napl_control_2023-05-18") %>% 
+  group_by(ll_func_form, time_since_end) %>% 
+  summarize(mean = mean(group_total, na.rm = TRUE))
+
+ggplot(data = cluster_biomass %>% 
+         filter(sample_ID != "napl_control_2023-05-18") %>% 
+         filter(cluster %in% c(2, 3, 5, 6, 7)),
+       aes(x = time_since_end,
+           y = group_total)) +
+  # geom_point(shape = 21,
+  #            alpha = 0.3) +
+  geom_line(data = cluster_mean_summary %>% 
+              filter(cluster %in% c(2, 3, 5, 6, 7)),
+            aes(x = time_since_end,
+                y = mean,
+                color = cluster),
+            linewidth = 1,
+            linetype = 2) +
+  scale_color_manual(values = c(cluster2, cluster3, cluster5, cluster6, cluster7)) +
+  geom_line(data = ff_mean_summary %>% 
+              filter(ll_func_form == "thick_leathery"),
+           aes(x = time_since_end,
+               y = mean),
+           color = thi_lea_col,
+           linewidth = 1) +
+  labs(x = "Time since end (years)",
+       y = "Mean group biomass") +
+  theme(panel.grid = element_blank())
+
+ggplot(data = cluster_thick_leathery,
+       aes(x = time_since_end,
+           y = prop,
+           fill = cluster)) +
+  geom_area()
+
+group_timeseries(
+  df = cluster_biomass %>% 
+    filter(sample_ID != "napl_control_2023-05-18"),
+  grouping = cluster,
+  y = group_total
+)
   
 ff_total_timeseries <- group_timeseries(
   df = ff_biomass %>% 
@@ -342,8 +501,11 @@ cluster_biomass_continual_plot <- ggplot() +
         legend.text = element_text(size = 6))
 
 cluster_biomass_continual_plot
-# cluster 7 is eisenia, egregia, laminaria, pterygophora
-# cluster 2 includes coarsely branched (e.g. Anisocladella, Polyneura, Nienburgia) and thick leathery (e.g. Chondracanthus, Cryptopleura)
+# cluster 7 is tall with stipes: eisenia, laminaria, pterygophora
+# cluster 5 is stephanocystis, egregia, sargassum horneri/muticum
+# cluster 2 is acrosorium, chondracanthus, callophyllis, cryptopleura, desmarestia, gloiocladia, mazzaella, osmundea, nienburgia, polyneura
+# cluster 3 is cryptopleura, dictyota, gymnogrongrus, phycodrys, prionitis, rhodymenia, sarcodiotheca, stenogramma
+# cluster 1 is amphiroa, bossiella, calliarthron, corallina, lithothrix
 
 # ggsave(here("figures", "model-predictions", paste0("cluster_group-biomass_", today(), ".jpg")),
 #        cluster_biomass_continual_plot,
@@ -616,7 +778,6 @@ ff_biomass_continual_plot <- ggplot() +
         legend.text = element_text(size = 6))
 
 ff_biomass_continual_plot 
-# thick leathery includes tall brown species and leathery reds
 
 # ggsave(here("figures", "model-predictions", paste0("ll-func-form_total-biomass_", today(), ".jpg")),
 #        ff_biomass_continual_plot,
@@ -627,6 +788,15 @@ ff_biomass_continual_plot
 
 # coarsely branched above jointed calcareous during removal
 # coarsely branched below jointed calcareous after removal
+
+
+## d. coarsely branched and thick leathery timeseries ---------------------
+
+# thick leathery includes tall brown species and leathery reds (clusters 7, 5, 2)
+# coarsely branched includes clusters 4, 6, 2, 3
+
+
+
 
 ##########################################################################-
 # 5. total biomass model --------------------------------------------------
@@ -781,3 +951,4 @@ AICc(ff_total_biomass_during_model_1,
      cluster_total_biomass_during_model_1,
      gf_total_biomass_during_model_1) %>% 
   arrange(AICc)
+
