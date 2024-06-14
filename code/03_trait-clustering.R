@@ -532,8 +532,42 @@ loo_8clusters <- loo_clusters(8) %>%
   loo_perm() %>% 
   loo_compare()
 
+# trait optimal clusters
+# wish I could write a function to do this!
+trait_loo_clusters <- tibble(traits) %>% 
+  mutate(clusters = case_when(
+    traits == "size_cm" ~ 5,
+    traits %in% c("attachment", "position_to_benthos") ~ 6,
+    TRUE ~ 7
+  )) 
 
+loo_cluster_plot <- ggplot(data = trait_loo_clusters,
+                           aes(x = clusters,
+                               y = reorder(traits, -clusters),
+                               color = as_factor(clusters))) +
+  geom_point(size = 3) +
+  geom_linerange(aes(xmin = 0, 
+                     xmax = clusters),
+                 linewidth = 1) +
+  scale_x_continuous(breaks = seq(from = 0, to = 7, by = 1),
+                     expand = c(0, 0),
+                     limits = c(0, 7.5)) +
+  scale_color_manual(values = c("#edc951", "#eb6841", "#00a0b0")) +
+  labs(x = "Clusters",
+       title = "Missing trait") +
+  theme_bw() +
+  theme(panel.grid = element_blank(),
+        legend.position = "none",
+        axis.title.y = element_blank(),
+        plot.title.position = "plot",
+        text = element_text(size = 14)) 
 
+loo_cluster_plot
 
+# ggsave(here("figures", "trait-clustering", paste0("loo-clustering_", today(), ".jpg")),
+#        loo_cluster_plot,
+#        height = 7,
+#        width = 5)
+ 
 
   
