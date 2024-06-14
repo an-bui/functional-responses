@@ -1,6 +1,6 @@
 ##########################################################################-
 # Trait clustering
-# last modified: 2024-05-14
+# last modified: 2024-06-14
 
 # This is a script to cluster categorical and continuous traits based on 
 # Gower dissimilarity. It depends on `02_data-cleaning.R`, which
@@ -393,7 +393,147 @@ gf_nmds_plot
 # 
 # dev.off()
 
+##########################################################################-
+# 6. leave one out --------------------------------------------------------
+##########################################################################-
+
+# Objective: determine how each trait contributes to clusters
+# Step 1: create different data frames, each with a different trait left out
+# Step 2: create Gower dissimilarity matrices for each data frame from step 1
+# Step 3: 
+
+# getting trait column names
+traits <- colnames(trait_matrix)
+
+# creating an empty list to hold the output of the for loop
+matrix_holding <- list()
+
+# for each trait from the first to the last in `traits`
+for(i in 1:length(traits)) {
+  subset <- trait_matrix %>% # create an intermediate object called subset from trait_matrix
+    select(!(traits[i])) # exclude the trait
+  
+  matrix_holding[[i]] <- subset # store the data frame in the empty list
+}
+
+# getting gower matrices via nested data frame
+gower_matrices <- tibble( # creating a data frame
+  # column that contains trait names
+  trait = traits,
+  # column with subset data frames
+  data = matrix_holding
+) %>% 
+  # create new column called gower
+  mutate(gower = map(data, # use objects in data column
+                     ~ daisy(., # put data frame into daisy function to calculate
+                             metric = "gower"))) # gower diss
+
+# function to do the pam clustering
+# input: number of clusters
+loo_clusters <- function(number) {
+  
+  # save the number input as an object
+  clusters <- number
+  
+  # create a holding vector
+  cluster_list <- list()
+  
+  # for each object from the first to the last in traits
+  for(i in 1:length(traits)) {
+    # store the appropriate gower matrix as an object
+    gower <- gower_matrices[[3]][[i]]
+    
+    # do the clustering
+    cluster <- cluster::pam(x = gower,
+                            k = clusters,
+                            metric = "euclidean")
+    
+    # store the output of the clustering in the holding vector
+    cluster_list[[i]] <- cluster
+  }
+  
+  # when using the function, return the full holding vector of cluster output
+  return(cluster_list)
+}
+
+# function to do the permanova
+# input: the output of loo_clusters
+loo_perm <- function(cluster_list) {
+  
+  # store the cluster list as an object
+  cluster_list <- cluster_list
+  
+  # create a holding vector
+  perm_list <- list()
+  
+  # for each object from the first to the last in traits
+  for(i in 1:length(traits)) {
+    # store the appropriate gower matrix as an object
+    gower <- gower_matrices[[3]][[i]]
+    
+    # get the clusters out of the cluster list
+    cluster <- cluster_list[[i]]
+    
+    # do the permanova
+    perm <- pairwise.perm.manova(gower, 
+                                 fact = cluster$clustering, 
+                                 p.method = "none")
+    
+    # store the permanova results in the holding vector
+    perm_list[[i]] <- perm
+  }
+  
+  # return the permanova results
+  return(perm_list)
+  
+}
+
+# function to figure out if there are significant differences or not
+# input: the output loo_perm
+loo_compare <- function(perm_list) {
+  # store input as object
+  perm_list <- perm_list
+  
+  # create a holding vector
+  test_list <- list()
+  
+  # for each object from the first to last in traits
+  for(i in 1:length(traits)) {
+    # test to see if p-values are greater than 0.05
+    test <- perm_list[[i]]$p.value > 0.05
+    
+    # store output in holding vector
+    test_list[[i]] <- test
+  }
+  
+  # return holding vector
+  return(test_list)
+}
+
+loo_5clusters <- loo_clusters(5) %>% 
+  loo_perm() %>% 
+  loo_compare()
+
+# if size is missing, then the smallest number of clusters that preserves significant differences between clusters is 5
+
+loo_6clusters <- loo_clusters(6) %>% 
+  loo_perm() %>% 
+  loo_compare()
+
+# if attachment, position to benthos is missing, then the smallest number of clusters that preserves significant differences between clusters is 6
+
+loo_7clusters <- loo_clusters(7) %>% 
+  loo_perm() %>% 
+  loo_compare()
+
+# for everything else, the smallest number of clusters that preserves significant differences between clusters is 7
+
+loo_8clusters <- loo_clusters(8) %>% 
+  loo_perm() %>% 
+  loo_compare()
 
 
 
 
+
+  
