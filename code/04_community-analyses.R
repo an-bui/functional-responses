@@ -166,11 +166,11 @@ thick_leathery_prop <- ggplot(data = cluster_thick_leathery,
 
 thick_leathery_prop
 
-ggsave(here("figures", "community-timeseries", 
-            paste0("cluster-thick-leathery-timeseries", today(), ".jpg")),
-       thick_leathery_prop,
-       width = 8,
-       height = 4)
+# ggsave(here("figures", "community-timeseries", 
+#             paste0("cluster-thick-leathery-timeseries", today(), ".jpg")),
+#        thick_leathery_prop,
+#        width = 8,
+#        height = 4)
 
 coarsely_branched_prop <- ggplot(data = cluster_coarsely_branched,
        aes(x = time_since_end,
@@ -188,11 +188,11 @@ coarsely_branched_prop <- ggplot(data = cluster_coarsely_branched,
 
 coarsely_branched_prop
 
-ggsave(here("figures", "community-timeseries", 
-            paste0("cluster-coarsely-branched-timeseries", today(), ".jpg")),
-       coarsely_branched_prop,
-       width = 8,
-       height = 4)
+# ggsave(here("figures", "community-timeseries", 
+#             paste0("cluster-coarsely-branched-timeseries", today(), ".jpg")),
+#        coarsely_branched_prop,
+#        width = 8,
+#        height = 4)
 
 # function to widen group biomass
 widen_group_biomass <- function(df) {
@@ -817,10 +817,11 @@ ggplot(cluster_biomass_wide,
                  fill = "blue")
 
 data <- cluster_biomass_wide %>% 
-  filter(exp_dates == "during") %>% 
+  filter(exp_dates == "during",
+         treatment == "continual") 
   # scaling cluster biomasses
   # mutate(across(18:24, ~ scale(.)[1:length(.), 1]))
-  mutate(total = scale(total))
+  # mutate(total = scale(total))
   # mutate(across(.cols = cluster_1:cluster_2, ~ scale)) %>% 
   # rename_with(~str_remove_all(., fixed("[, 1]")))
   # filter(!(sample_ID %in% c("mohk_continual_2012-11-15",
@@ -831,6 +832,14 @@ data <- cluster_biomass_wide %>%
   #                           "napl_continual_2014-05-21")))
   # filter(total > 0) %>% 
   # filter(!(sample_ID %in% outliers))
+
+zeros <- data %>% 
+  select(cluster_1:cluster_7) %>% 
+  pivot_longer(cols = cluster_1:cluster_7,
+               names_to = "cluster",
+               values_to = "biomass") %>% 
+  group_by(cluster) %>% 
+  summarize(morethan = length(cluster[biomass>0]))
 
 ggplot(data,
        aes(x = cluster_1,
@@ -851,21 +860,19 @@ outliers <- c("carp_continual_2015-08-18", # 69
 
 # model 1: includes all predictors and random effects of site and year
 cluster_total_biomass_during_model_1 <- glmmTMB(
-  total ~ time_since_end + cluster_1 + cluster_2 + cluster_3 + cluster_4 + cluster_5 + cluster_6 + cluster_7 + treatment + (1|site) + (1|year),
+  total ~ time_since_end + cluster_2 + cluster_3 + cluster_5 + cluster_7 + (1|site) + (1|year),
   data = data,
   family = ziGamma(link = "log"),
   ziformula = ~1,
   na.action = na.pass
 )
 
-AICc(cluster_total_biomass_during_model_1, 
-     cluster_total_biomass_during_model_2)
-
-simulated_res <- simulateResiduals(cluster_total_biomass_during_model_2)
+simulated_res <- simulateResiduals(cluster_total_biomass_during_model_1)
 
 plot(simulated_res)
 
 testZeroInflation(simulated_res)
+testDispersion(simulated_res)
 
 hist(simulated_res)
 
@@ -879,7 +886,7 @@ summary(cluster_total_biomass_during_model_1)
 
 preds <- ggpredict(cluster_total_biomass_during_model_1, terms = c("cluster_1", "treatment"))
 
-ggpredict(cluster_total_biomass_during_model_1, terms = c("time_since_end", "treatment")) %>% plot(show_data = TRUE)
+ggpredict(cluster_total_biomass_during_model_1, terms = c("time_since_end", "cluster_2")) %>% plot(show_data = TRUE)
 
 plot(ggpredict(cluster_total_biomass_during_model_1, terms = c("cluster_7", "treatment")), show_data = TRUE) +
   labs(title = "cluster 7")
@@ -933,8 +940,8 @@ data <- ff_biomass_wide %>%
 
 # model 1: includes all predictors and random effects of site and year
 ff_total_biomass_during_model_1 <- glmmTMB(
-  total ~ time_since_end + coarsely_branched + crustose + filamentous + jointed_calcareous + sheet + thick_leathery + treatment + (1|site) + (1|year),
-  data = data,
+  total ~ time_since_end + coarsely_branched + jointed_calcareous + thick_leathery + (1|site) + (1|year),
+  data = data %>% filter(treatment == "continual"),
   family = ziGamma(link = "log"),
   ziformula = ~ 1
 )
