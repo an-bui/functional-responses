@@ -32,6 +32,12 @@ read_data_package_archive(packageID, path = here("data", "SBC-LTE"))
 unzip(zipfile = here("data", "SBC-LTE", "knb-lter-sbc.119.10.zip"),
       exdir = here("data", "SBC-LTE", "knb-lter-sbc.119.10"))
 
+# SBC LTER annual benthics package ID
+benthicsID <- "knb-lter-sbc.50.16"
 
+# downloads zipped file
+read_data_package_archive(benthicsID, path = here("data", "SBC-LTER"))
 
-
+# unzips file
+unzip(zipfile = here("data", "SBC-LTER", "knb-lter-sbc.50.16.zip"),
+      exdir = here("data", "SBC-LTER", "knb-lter-sbc.50.16"))

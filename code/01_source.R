@@ -548,6 +548,30 @@ biomass <- read_csv(
   # take out extraneous columns from time_since_columns_continual()
   select(!quarter:test_min_time_yrs)
 
+benthics <- read_csv(
+  here("data",
+       "SBC-LTER",
+       "knb-lter-sbc.50.16",
+       "Annual_All_Species_Biomass_at_transect_20240501.csv")
+) %>% 
+  clean_names() %>%
+  # replace NA sp_code with Nandersoniana
+  mutate(sp_code = case_when(
+    scientific_name == "Nienburgia andersoniana" ~ "Nandersoniana",
+    TRUE ~ sp_code
+  )) %>%
+  # replace all -99999 values with NA
+  mutate(dry_gm2 = replace(dry_gm2, dry_gm2 < 0, NA),
+         wm_gm2 = replace(wm_gm2, wm_gm2 < 0, NA),
+         density = replace(density, density < 0, NA)) %>%
+  # create a sample_ID for each sampling date at each treatment at each site
+  unite("sample_ID", site, year, transect, remove = FALSE) %>%
+  # change to lower case
+  mutate_at(c("group", "mobility", "growth_morph", "site"), str_to_lower) %>%
+  # new group column %>%
+  left_join(., guilds, by = c("sp_code" = "sp.code")) %>% 
+  filter(new_group == "algae")
+
 # categorical traits 
 traits <- read_csv(here("data", 
                          "functional-traits",

@@ -1,6 +1,6 @@
 ##########################################################################-
 # Data cleaning
-# last modified: 2024-05-14
+# last modified: 2024-06-20
 
 # This is a script to get data files in order for downstream analysis.
 ##########################################################################-
@@ -49,6 +49,8 @@ trait_matrix <- traits_clean %>%
 ##########################################################################-
 # 3. community matrices ---------------------------------------------------
 ##########################################################################-
+
+# ⟞ a. LTE ----------------------------------------------------------------
 
 # broad community matrix
 comm_df <- biomass %>% 
@@ -140,6 +142,31 @@ comm_mat_control_algae <- comm_df %>%
   # only include sampling from control plots
   filter(sample_ID %in% comm_meta_control$sample_ID) %>% 
   widen()
+
+# ⟞ b. benthics -----------------------------------------------------------
+
+benthic_comm_df <- benthics %>% 
+  # select columns of interest 
+  dplyr::select(site, transect, year, month, date, new_group, sp_code, dry_gm2) %>% 
+  unite("sample_ID", site, year, transect, remove = FALSE) %>% 
+  full_join(., site_quality, by = "site") %>% 
+  left_join(., enframe(sites_full), by = c("site" = "name")) %>% 
+  rename(site_full = value) %>% 
+  mutate(site_full = fct_relevel(site_full, "Arroyo Quemado", "Naples", "Mohawk", "Carpinteria")) 
+
+benthic_comm_df_wide <- benthic_comm_df %>% 
+  widen()
+
+benthic_comm_meta <- benthics %>% 
+  # select columns of interest 
+  dplyr::select(site, transect, year, month, date) %>% 
+  unite("sample_ID", site, year, transect, remove = FALSE) %>% 
+  full_join(., site_quality, by = "site") %>% 
+  left_join(., enframe(sites_full), by = c("site" = "name")) %>% 
+  rename(site_full = value) %>% 
+  mutate(site_full = fct_relevel(site_full, "Arroyo Quemado", "Naples", "Mohawk", "Carpinteria")) %>% 
+  unique()
+  
 
 ##########################################################################-
 # 4. total biomass --------------------------------------------------------

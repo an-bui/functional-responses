@@ -1,6 +1,6 @@
 ##########################################################################-
 # Trait clustering
-# last modified: 2024-06-14
+# last modified: 2024-06-20
 
 # This is a script to cluster categorical and continuous traits based on 
 # Gower dissimilarity. It depends on `02_data-cleaning.R`, which
@@ -69,6 +69,14 @@ pam_clusters_7 <- trait_groups_pam$clustering %>%
 # write_csv(pam_clusters_7,
 #           file = here("data", "functional-traits", paste0("pam-clusters-7_", today(), ".csv")))
 
+FitFlextableToPage <- function(ft, pgwidth = 6){
+  
+  ft_out <- ft %>% autofit()
+  
+  ft_out <- width(ft_out, width = dim(ft_out)$widths*pgwidth /(flextable_dim(ft_out)$widths))
+  return(ft_out)
+}
+
 # put species in clusters into table
 pam_clusters_7_table <- pam_clusters_7 %>% 
   select(scientific_name, cluster) %>% 
@@ -87,13 +95,7 @@ pam_clusters_7_table <- pam_clusters_7 %>%
   FitFlextableToPage(pgwidth = 10)
 pam_clusters_7_table
 
-FitFlextableToPage <- function(ft, pgwidth = 6){
-  
-  ft_out <- ft %>% autofit()
-  
-  ft_out <- width(ft_out, width = dim(ft_out)$widths*pgwidth /(flextable_dim(ft_out)$widths))
-  return(ft_out)
-}
+
 
 
 

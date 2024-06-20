@@ -49,6 +49,8 @@ ggplot(data = spp_nmds_scores,
 # 3. calculating per cluster biomass for each survey ----------------------
 ##########################################################################-
 
+# ⟞ a. LTE ----------------------------------------------------------------
+
 # match community data with clusters
 cluster_match <- comm_df %>% 
   # only include algae
@@ -62,38 +64,66 @@ cluster_missing <- cluster_match %>%
 
 # function to calculate cluster biomass
 # takes argument for the actual column name
-calc_group_biomass <- function(grouping) {
-  cluster_match %>% 
-    filter(!is.na(cluster)) %>% 
-    # group by sample_ID
-    group_by(sample_ID, {{ grouping }}) %>% 
-    # add up biomass within a cluster
-    summarize(group_total = sum(dry_gm2, na.rm = TRUE)) %>% 
-    # calculate total biomass and proportion of each cluster
-    mutate(total = sum(group_total),
-           prop = group_total/total,
-           prop = case_when(
-             prop == "NaN" ~ 0,
-             TRUE ~ prop
-           )) %>% 
-    ungroup() %>% 
-    separate_wider_delim(cols = sample_ID,
-                         delim = "_",
-                         names = c("site", "treatment", "date"),
-                         cols_remove = FALSE) %>% 
-    mutate(date = as_date(date)) %>% 
-    select(!c(site, treatment, date)) %>% 
-    left_join(., comm_meta, by = "sample_ID") %>% 
-    filter(site == "aque" & date > "2010-04-26" |
-             site == "napl" & date > "2010-04-27" |
-             site == "mohk" & date > "2010-05-05" |
-             site == "carp" & date > "2010-04-23") 
+calc_group_biomass <- function(type, grouping) {
+  
+  if(type == "LTE") {
+    cluster_match %>% 
+      filter(!is.na(cluster)) %>% 
+      # group by sample_ID
+      group_by(sample_ID, {{ grouping }}) %>% 
+      # add up biomass within a cluster
+      summarize(group_total = sum(dry_gm2, na.rm = TRUE)) %>% 
+      # calculate total biomass and proportion of each cluster
+      mutate(total = sum(group_total),
+             prop = group_total/total,
+             prop = case_when(
+               prop == "NaN" ~ 0,
+               TRUE ~ prop
+             )) %>% 
+      ungroup() %>% 
+      separate_wider_delim(cols = sample_ID,
+                           delim = "_",
+                           names = c("site", "treatment", "date"),
+                           cols_remove = FALSE) %>% 
+      mutate(date = as_date(date)) %>% 
+      select(!c(site, treatment, date)) %>% 
+      left_join(., comm_meta, by = "sample_ID") %>% 
+      filter(site == "aque" & date > "2010-04-26" |
+               site == "napl" & date > "2010-04-27" |
+               site == "mohk" & date > "2010-05-05" |
+               site == "carp" & date > "2010-04-23") 
+  } else if(type == "benthics") {
+    benthic_cluster_match %>% 
+      filter(!is.na(cluster)) %>% 
+      # group by sample_ID
+      group_by(sample_ID, {{ grouping }}) %>% 
+      # add up biomass within a cluster
+      summarize(group_total = sum(dry_gm2, na.rm = TRUE)) %>% 
+      # calculate total biomass and proportion of each cluster
+      mutate(total = sum(group_total),
+             prop = group_total/total,
+             prop = case_when(
+               prop == "NaN" ~ 0,
+               TRUE ~ prop
+             )) %>% 
+      ungroup() %>% 
+      separate_wider_delim(cols = sample_ID,
+                           delim = "_",
+                           names = c("site", "year", "transect"),
+                           cols_remove = FALSE) %>% 
+      select(!c(site, year, transect)) %>% 
+      left_join(., benthic_comm_meta, by = "sample_ID")  
+  } else {
+    warning("Your type or grouping might be wrong!")
+    return(NA)
+  }
+
 }
 
 # calculate per group biomass in each survey
-cluster_biomass <- calc_group_biomass(cluster)
-gf_biomass <- calc_group_biomass(sd_growth_form)
-ff_biomass <- calc_group_biomass(ll_func_form)
+cluster_biomass <- calc_group_biomass("LTE", cluster)
+gf_biomass <- calc_group_biomass("LTE", sd_growth_form)
+ff_biomass <- calc_group_biomass("LTE", ll_func_form)
 
 check <- cluster_match %>% 
   filter(site == "aque" & date > "2010-04-26" |
@@ -166,8 +196,8 @@ thick_leathery_prop <- ggplot(data = cluster_thick_leathery,
 
 thick_leathery_prop
 
-# ggsave(here("figures", "community-timeseries", 
-#             paste0("cluster-thick-leathery-timeseries", today(), ".jpg")),
+# ggsave(here("figures", "community-timeseries",
+#             paste0("cluster-thick-leathery-timeseries_", today(), ".jpg")),
 #        thick_leathery_prop,
 #        width = 8,
 #        height = 4)
@@ -188,8 +218,8 @@ coarsely_branched_prop <- ggplot(data = cluster_coarsely_branched,
 
 coarsely_branched_prop
 
-# ggsave(here("figures", "community-timeseries", 
-#             paste0("cluster-coarsely-branched-timeseries", today(), ".jpg")),
+# ggsave(here("figures", "community-timeseries",
+#             paste0("cluster-coarsely-branched-timeseries_", today(), ".jpg")),
 #        coarsely_branched_prop,
 #        width = 8,
 #        height = 4)
@@ -357,6 +387,106 @@ gf_total_timeseries
 #        cluster_total_timeseries,
 #        height = 12,
 #        width = 8)
+
+# ⟞ b. benthics -----------------------------------------------------------
+
+# match community data with clusters
+benthic_cluster_match <- benthic_comm_df %>% 
+  # join with clusters
+  left_join(., pam_clusters_7, by = "sp_code")
+
+# find the taxa that are not included in the clustering
+cluster_missing <- benthic_cluster_match %>% 
+  filter(is.na(scientific_name))
+
+# calculate per group biomass in each survey
+benthic_cluster_biomass <- calc_group_biomass("benthics", cluster)
+benthic_gf_biomass <- calc_group_biomass("LTE", sd_growth_form)
+benthic_ff_biomass <- calc_group_biomass("LTE", ll_func_form)
+
+benthic_check <- benthic_cluster_match %>% 
+  filter(ll_func_form == "thick_leathery") %>% 
+  filter(!is.na(cluster)) %>% 
+  filter(year == 2010) %>% 
+  pull(dry_gm2) %>% 
+  sum()
+# this output should match up with total in cluster_thick_leathery for a given time_since_end
+
+benthic_cluster_thick_leathery <- benthic_cluster_match %>% 
+  filter(ll_func_form == "thick_leathery") %>% 
+  filter(!is.na(cluster)) %>% 
+  # group by year and cluster
+  group_by(year, cluster) %>% 
+  # add up biomass within a cluster
+  summarize(group_total = sum(dry_gm2, na.rm = TRUE)) %>% 
+  # calculate total biomass and proportion of each cluster
+  mutate(total = sum(group_total),
+         prop = group_total/total,
+         prop = case_when(
+           prop == "NaN" ~ 0,
+           TRUE ~ prop
+         )) %>% 
+  ungroup()
+
+benthic_cluster_coarsely_branched <- benthic_cluster_match %>% 
+  filter(ll_func_form == "coarsely_branched") %>% 
+  filter(!is.na(cluster)) %>% 
+  # group by year and cluster
+  group_by(year, cluster) %>% 
+  # add up biomass within a cluster
+  summarize(group_total = sum(dry_gm2, na.rm = TRUE)) %>% 
+  # calculate total biomass and proportion of each cluster
+  mutate(total = sum(group_total),
+         prop = group_total/total,
+         prop = case_when(
+           prop == "NaN" ~ 0,
+           TRUE ~ prop
+         )) %>% 
+  ungroup()
+
+benthic_thick_leathery_prop <- ggplot(
+  data = benthic_cluster_thick_leathery,
+  aes(x = year,
+      y = prop,
+      fill = cluster)) +
+  geom_area(color = "white") + 
+  scale_fill_manual(values = c(cluster2, cluster3, cluster5, cluster6, cluster7)) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(x = "Year",
+       y = "Proportion",
+       title = "BENTHICS Proportion of thick leathery biomass by cluster",
+       subtitle = "Sum cluster biomass across sites for a single sampling period")
+
+benthic_thick_leathery_prop
+
+# ggsave(here("figures", "community-timeseries",
+#             paste0("benthic_cluster-thick-leathery-timeseries_", today(), ".jpg")),
+#        benthic_thick_leathery_prop,
+#        width = 8,
+#        height = 4)
+
+benthic_coarsely_branched_prop <- ggplot(
+  data = benthic_cluster_coarsely_branched,
+       aes(x = year,
+           y = prop,
+           fill = cluster)) +
+  geom_area(color = "white") + 
+  scale_fill_manual(values = c(cluster2, cluster3, cluster4, cluster6)) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(x = "Year",
+       y = "Proportion",
+       title = "BENTHICS Proportion of coarsely branched biomass by cluster",
+       subtitle = "Sum cluster biomass across sites for a single sampling period")
+
+benthic_coarsely_branched_prop
+
+# ggsave(here("figures", "community-timeseries",
+#             paste0("benthic_cluster-coarsely-branched-timeseries_", today(), ".jpg")),
+#        benthic_coarsely_branched_prop,
+#        width = 8,
+#        height = 4)
 
 ##########################################################################-
 # 4. group biomass model --------------------------------------------------
