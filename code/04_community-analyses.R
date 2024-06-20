@@ -920,14 +920,6 @@ ff_biomass_continual_plot
 # coarsely branched below jointed calcareous after removal
 
 
-## d. coarsely branched and thick leathery timeseries ---------------------
-
-# thick leathery includes tall brown species and leathery reds (clusters 7, 5, 2)
-# coarsely branched includes clusters 4, 6, 2, 3
-
-
-
-
 ##########################################################################-
 # 5. total biomass model --------------------------------------------------
 ##########################################################################-
@@ -987,6 +979,11 @@ outliers <- c("carp_continual_2015-08-18", # 69
               "carp_control_2013-08-16", # 86
               "carp_control_2016-02-22" # 93
               )
+
+GGally::ggpairs(
+  data = data,
+  columns = c("time_since_end", "total", "cluster_2", "cluster_3", "cluster_5", "cluster_7")
+)
 
 # model 1: includes all predictors and random effects of site and year
 cluster_total_biomass_during_model_1 <- glmmTMB(
