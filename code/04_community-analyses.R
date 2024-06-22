@@ -982,16 +982,13 @@ outliers <- c("carp_continual_2015-08-18", # 69
 
 GGally::ggpairs(
   data = data,
-  columns = c("time_since_end", "total", "cluster_2", "cluster_3", "cluster_5", "cluster_7")
+  columns = c("total", "cluster_2", "cluster_3", "cluster_5", "cluster_7")
 )
 
 # model 1: includes all predictors and random effects of site and year
 cluster_total_biomass_during_model_1 <- glmmTMB(
-  total ~ time_since_end + cluster_2 + cluster_3 + cluster_5 + cluster_7 + (1|site) + (1|year),
-  data = data,
-  family = ziGamma(link = "log"),
-  ziformula = ~1,
-  na.action = na.pass
+  total ~ cluster_2 + cluster_3 + cluster_5 + cluster_7 + (1|site) + (1|year),
+  data = data
 )
 
 simulated_res <- simulateResiduals(cluster_total_biomass_during_model_1)
@@ -1007,18 +1004,23 @@ plotResiduals(simulated_res, data$time_since_end)
 
 sim <- simulateResiduals(cluster_total_biomass_during_model_1)
 which(residuals(sim) == 1 | residuals(sim) == 0)
-# 69 71 80 82 86 93
+# 56, 84, 90
 
 summary(cluster_total_biomass_during_model_1)
 
-preds <- ggpredict(cluster_total_biomass_during_model_1, terms = c("cluster_1", "treatment"))
+clust2_plot <- ggpredict(cluster_total_biomass_during_model_1, terms = c("cluster_2")) %>% plot(show_data = TRUE) +
+  labs(title = "cluster 2")
 
-ggpredict(cluster_total_biomass_during_model_1, terms = c("time_since_end", "cluster_2")) %>% plot(show_data = TRUE)
+clust3_plot <- ggpredict(cluster_total_biomass_during_model_1, terms = c("cluster_3")) %>% plot(show_data = TRUE) +
+  labs(title = "cluster 3")
 
-plot(ggpredict(cluster_total_biomass_during_model_1, terms = c("cluster_7", "treatment")), show_data = TRUE) +
+clust5_plot <- ggpredict(cluster_total_biomass_during_model_1, terms = c("cluster_5")) %>% plot(show_data = TRUE) +
+  labs(title = "cluster 5")
+
+clust7_plot <- ggpredict(cluster_total_biomass_during_model_1, terms = c("cluster_7")) %>% plot(show_data = TRUE) +
   labs(title = "cluster 7")
 
-
+(clust2_plot + clust3_plot) / (clust5_plot + clust7_plot)
 
 performance::check_overdispersion(cluster_total_biomass_during_model_1)
 outliers(cluster_total_biomass_during_model_1)
@@ -1065,6 +1067,15 @@ data <- ff_biomass_wide %>%
   filter(exp_dates == "during") %>% 
   filter(total > 0)  
 
+GGally::ggpairs(data = data,
+                columns = c("total", "coarsely_branched", "jointed_calcareous", "thick_leathery"))
+
+# testing this model: ignore
+ff_total_biomass_during_model_1 <- glmmTMB(
+  total ~ coarsely_branched + jointed_calcareous + thick_leathery + (1|site) + (1|year),
+  data = data %>% filter(treatment == "continual")
+)
+
 # model 1: includes all predictors and random effects of site and year
 ff_total_biomass_during_model_1 <- glmmTMB(
   total ~ time_since_end + coarsely_branched + jointed_calcareous + thick_leathery + (1|site) + (1|year),
@@ -1075,11 +1086,19 @@ ff_total_biomass_during_model_1 <- glmmTMB(
 
 simulateResiduals(ff_total_biomass_during_model_1) %>% plot()
 
-ggpredict(ff_total_biomass_during_model_1, terms = c("time_since_end", "treatment")) %>% plot(show_data = TRUE)
+cb_plot <- ggpredict(ff_total_biomass_during_model_1, terms = c("coarsely_branched")) %>% plot(show_data = TRUE) +
+  labs(title = "coarsely branched")
+
+jc_plot <- ggpredict(ff_total_biomass_during_model_1, terms = c("jointed_calcareous")) %>% plot(show_data = TRUE) +
+  labs(title = "jointed calcareous")
+
+tl_plot <- ggpredict(ff_total_biomass_during_model_1, terms = c("thick_leathery")) %>% plot(show_data = TRUE) +
+  labs(title = "thick leathery")
+
+cb_plot | jc_plot | tl_plot
 
 model.sel(ff_total_biomass_during_model_1,
-          cluster_total_biomass_during_model_1,
-          gf_total_biomass_during_model_1)
+          cluster_total_biomass_during_model_1)
 
 AICc(ff_total_biomass_during_model_1,
      cluster_total_biomass_during_model_1,
