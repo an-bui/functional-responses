@@ -26,19 +26,7 @@ traits_clean <- traits %>%
          size_cm, thickness, position_to_benthos, articulated, stipe,
          midrib, branching, branch_shape, blades, blade_category,
          coenocyte, attachment, tissue_complexity, growth, calcification) %>%
-  filter(!(scientific_name %in% c(
-    "Halymenia spp.; Schizymenia pacifica",
-    "crustose coralline algae spp.",
-    "Ectocarpaceae spp.",
-    "Ulva spp.; Sponogomorpha spp.",
-    "Rhodophyta",
-    "Neoptilota spp.; Ptilota spp.; Rhodoptilum spp.",
-    "Unidentifiable Branching Red Alga",
-    "Unidentifiable juvenile kelp",
-    "small Ceramiaceae spp.",
-    "Unidentifiable small brown blade",
-    "Unidentified erect coralline spp."
-  )))
+  filter(!(scientific_name %in% excluded_spp))
 
 # turns the cleaned trait data frame into a matrix for dissimilarity stuff
 trait_matrix <- traits_clean %>% 
@@ -52,30 +40,75 @@ trait_matrix <- traits_clean %>%
 
 # ⟞ a. LTE ----------------------------------------------------------------
 
+delta_continual <- biomass %>% 
+  filter(sp_code == "MAPY" & treatment %in% c("control", "continual")) %>% 
+  dplyr::select(-sp_code) %>% 
+  dplyr::select(site, year, month, treatment, date, dry_gm2) %>% 
+  pivot_wider(names_from = treatment, values_from = dry_gm2) %>% 
+  # calculate delta
+  mutate(delta_continual = continual - control) %>%  
+  # take out years where continual removal hadn't happened yet
+  drop_na(delta_continual) %>% 
+  mutate(exp_dates = case_when(
+    # after removal ended
+    site == "aque" & date >= aque_after_date_continual ~ "after",
+    site == "napl" & date >= napl_after_date_continual ~ "after",
+    site == "mohk" & date >= mohk_after_date_continual ~ "after",
+    site == "carp" & date >= carp_after_date_continual ~ "after",
+    # everything else is "during" removal
+    TRUE ~ "during"
+  ),
+  exp_dates = fct_relevel(exp_dates, c("during", "after"))) %>% 
+  time_since_columns_continual() %>% 
+  kelp_year_column() %>% 
+  comparison_column_continual_new() %>% 
+  left_join(., site_quality, by = "site") %>% 
+  left_join(., enframe(sites_full), by = c("site" = "name")) %>% 
+  rename("site_full" = value) %>% 
+  mutate(site_full = fct_relevel(
+    site_full, 
+    "Arroyo Quemado", "Naples", "Mohawk", "Carpinteria")) %>% 
+  mutate(site = fct_relevel(
+    site, 
+    "aque", "napl", "mohk", "carp"))
+
 # broad community matrix
 comm_df <- biomass %>% 
   filter(treatment %in% c("control", "continual")) %>% 
   # select columns of interest 
-  dplyr::select(site, year, month, treatment, date, new_group, sp_code, dry_gm2) %>% 
+  dplyr::select(site, year, month, treatment, 
+                date, new_group, sp_code, dry_gm2) %>% 
   unite("sample_ID_short", site, date, remove = FALSE) %>% 
+  # filtered from kelp delta data frame created in upstream script
+  filter(sample_ID_short %in% (delta_continual$sample_ID_short)) %>% 
+  # add column for experiment during/after
   exp_dates_column_continual() %>% 
+  # add column for time since end of the experiment
   time_since_columns_continual() %>% 
+  # add column for kelp year
   kelp_year_column() %>% 
+  # add column for 1 year, 2 years, 3 years comparison
   comparison_column_continual_new() %>% 
-  full_join(., site_quality, by = "site") %>% 
-  left_join(., enframe(sites_full), by = c("site" = "name")) %>% 
+  # join with site quality data frame and data frame of full names of site
+  full_join(., site_quality, 
+            by = "site") %>% 
+  left_join(., enframe(sites_full), 
+            by = c("site" = "name")) %>% 
   rename(site_full = value) %>% 
-  mutate(site_full = fct_relevel(site_full, "Arroyo Quemado", "Naples", "Mohawk", "Carpinteria")) %>%
+  mutate(site_full = fct_relevel(
+    site_full, 
+    "Arroyo Quemado", "Naples", "Mohawk", "Carpinteria")) %>%
   # create new sample ID with treatment
-  unite("sample_ID", site, treatment, date, remove = FALSE) # %>% 
+  unite("sample_ID", site, treatment, date, remove = FALSE) 
   # only include 3 year sampling sites
   # drop_na(comp_3yrs)
 
 # metadata for all plots
 comm_meta <- comm_df %>% 
-  select(sample_ID, site, date, year, month, treatment, exp_dates, quarter, time_yrs, time_since_start, time_since_end, kelp_year, comp_1yrs, comp_2yrs, comp_3yrs, quality, site_full) %>% 
-  mutate(site = factor(site,
-                          levels = c("aque", "napl", "mohk", "carp"))) %>% 
+  select(sample_ID, site, date, year, month, 
+         treatment, exp_dates, quarter, time_yrs, 
+         time_since_start, time_since_end, kelp_year, 
+         comp_1yrs, comp_2yrs, comp_3yrs, quality, site_full) %>% 
   unique()
 
 # metadata for continual removal plots
@@ -118,7 +151,7 @@ comm_mat_algae <- comm_df %>%
   # algae only
   filter(new_group == "algae" & sp_code != "MAPY") %>% 
   left_join(., algae_spp, by = "sp_code") %>% 
-  filter(exp_dates == "during") %>% 
+  # filter(exp_dates == "during") %>% 
   select(sample_ID, scientific_name, dry_gm2) %>% 
   filter(!(scientific_name %in% excluded_spp)) %>% 
   # get into wide format for community analysis
@@ -126,7 +159,10 @@ comm_mat_algae <- comm_df %>%
   filter(!(sample_ID %in% sites_to_exclude)) %>% 
   # make the sample_ID column row names
   column_to_rownames("sample_ID") %>% 
-  replace(is.na(.), 0)
+  replace(is.na(.), 0) %>% 
+  # reordering species to be in the same order as in the trait data frame
+  select(rownames(trait_matrix)) %>% 
+  as.matrix()
 
 comm_meta_algae <- comm_meta %>% 
   filter(sample_ID %in% rownames(comm_mat_algae))
@@ -259,6 +295,6 @@ zero_table <- enframe(sites_to_exclude) %>%
   flextable() %>% 
   autofit()
 
-save_as_docx(zero_table,
-             path = here("tables", "misc", "zero-sites.docx"))
+# save_as_docx(zero_table,
+#              path = here("tables", "misc", "zero-sites.docx"))
 

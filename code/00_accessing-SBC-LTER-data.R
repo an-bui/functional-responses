@@ -23,14 +23,14 @@ library(tidyverse)
 ##########################################################################-
 
 # SBC LTE package ID
-packageID <- "knb-lter-sbc.119.10"
+packageID <- "knb-lter-sbc.119.11"
 
 # downloads zipped file
 read_data_package_archive(packageID, path = here("data", "SBC-LTE"))
 
 # unzips file
-unzip(zipfile = here("data", "SBC-LTE", "knb-lter-sbc.119.10.zip"),
-      exdir = here("data", "SBC-LTE", "knb-lter-sbc.119.10"))
+unzip(zipfile = here("data", "SBC-LTE", "knb-lter-sbc.119.11.zip"),
+      exdir = here("data", "SBC-LTE", "knb-lter-sbc.119.11"))
 
 # SBC LTER annual benthics package ID
 benthicsID <- "knb-lter-sbc.50.16"
