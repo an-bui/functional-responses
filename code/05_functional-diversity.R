@@ -9,71 +9,7 @@
 source(here::here("code", "02_data-cleaning.R"))
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# ------------------------------ 1. wrangling -----------------------------
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# categories for each trait (needed to use `mFD` functions)
-algae_traits_cat <- colnames(trait_matrix) %>% 
-  enframe() %>% 
-  select(value) %>% 
-  rename(trait_name = value) %>% 
-  mutate(trait_type = case_match(
-    trait_name,
-    "size_cm" ~ "Q", # quantitative
-    "thickness" ~ "N", 
-    "position_to_benthos" ~ "N", # nominal
-    "articulated" ~ "N",
-    "stipe" ~ "N",
-    "midrib" ~ "N",
-    "branching" ~ "N",
-    "branch_shape" ~ "N",
-    "blades" ~ "N",
-    "blade_category" ~ "N",
-    "coenocyte" ~ "N",
-    "attachment" ~ "N",
-    "tissue_complexity" ~ "N",
-    "growth" ~ "N",
-    "calcification" ~ "N"
-  ))
-
-# reduced trait matrix
-trait_matrix_reduced <- trait_matrix %>% 
-  select(stipe, branching, blade_category, attachment, growth, calcification)
-
-# reduced trait categories
-algae_traits_cat_reduced <- algae_traits_cat %>% 
-  filter(trait_name %in% colnames(trait_matrix_reduced))
-
-# community matrix transformed to occurrences (1 = species is present)
-comm_mat_bin <- comm_mat_algae %>% 
-  as.data.frame() %>% 
-  mutate_if(is.numeric, ~1 * (. > 0)) %>% 
-  as.matrix()
-
-# reduced surveys
-comm_mat_algae_reduced <- comm_mat_algae %>% 
-  as.data.frame() %>% 
-  rownames_to_column("sample_ID") %>% 
-  filter(!(sample_ID %in% pull(few_spp_surveys, sample_ID))) %>% 
-  column_to_rownames("sample_ID") %>% 
-  as.matrix()
-
-comm_mat_algae_reduced_bin <- comm_mat_algae %>% 
-  as.data.frame() %>% 
-  mutate_if(is.numeric, ~1 * (. > 0)) %>% 
-  rownames_to_column("sample_ID") %>% 
-  filter(!(sample_ID %in% pull(few_spp_surveys, sample_ID))) %>% 
-  column_to_rownames("sample_ID") %>% 
-  as.matrix()
-
-# all surveys where there is only one species (need to fix this)
-one_spp <- comm_mat_bin %>% 
-  as_tibble(rownames = "sample_ID") %>% 
-  group_by(sample_ID) %>% 
-  mutate(total = sum(across(where(is.numeric))))
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# -------------------- 2. excluded species and surveys --------------------
+# -------------------- 1. excluded species and surveys --------------------
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # This section includes code to figure out what proportion of the data set is
@@ -225,26 +161,94 @@ few_spp_surveys <- survey_spp_count %>%
 # 47 surveys with 0-1 species
 # 28 surveys with 2 species
 # 23 surveys with 3 species
-  
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ------------------------------ 2. wrangling -----------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# categories for each trait (needed to use `mFD` functions)
+algae_traits_cat <- colnames(trait_matrix) %>% 
+  enframe() %>% 
+  select(value) %>% 
+  rename(trait_name = value) %>% 
+  mutate(trait_type = case_match(
+    trait_name,
+    "size_cm" ~ "Q", # quantitative
+    "thickness" ~ "N", 
+    "position_to_benthos" ~ "N", # nominal
+    "articulated" ~ "N",
+    "stipe" ~ "N",
+    "midrib" ~ "N",
+    "branching" ~ "N",
+    "branch_shape" ~ "N",
+    "blades" ~ "N",
+    "blade_category" ~ "N",
+    "coenocyte" ~ "N",
+    "attachment" ~ "N",
+    "tissue_complexity" ~ "N",
+    "growth" ~ "N",
+    "calcification" ~ "N"
+  ))
+
+# reduced trait matrix
+trait_matrix_reduced <- trait_matrix %>% 
+  select(stipe, branching, blade_category, attachment, growth, calcification)
+
+# reduced trait categories
+algae_traits_cat_reduced <- algae_traits_cat %>% 
+  filter(trait_name %in% colnames(trait_matrix_reduced))
+
+# community matrix transformed to occurrences (1 = species is present)
+comm_mat_bin <- comm_mat_algae %>% 
+  as.data.frame() %>% 
+  mutate_if(is.numeric, ~1 * (. > 0)) %>% 
+  as.matrix()
+
+# reduced surveys
+comm_mat_algae_reduced <- comm_mat_algae %>% 
+  as.data.frame() %>% 
+  rownames_to_column("sample_ID") %>% 
+  filter(!(sample_ID %in% pull(few_spp_surveys, sample_ID))) %>% 
+  column_to_rownames("sample_ID") %>% 
+  as.matrix()
+
+comm_mat_algae_reduced_bin <- comm_mat_algae %>% 
+  as.data.frame() %>% 
+  mutate_if(is.numeric, ~1 * (. > 0)) %>% 
+  rownames_to_column("sample_ID") %>% 
+  filter(!(sample_ID %in% pull(few_spp_surveys, sample_ID))) %>% 
+  column_to_rownames("sample_ID") %>% 
+  as.matrix()
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # -------------------------- 3. diversity metrics -------------------------
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# ⟞ a. `FD` ---------------------------------------------------------------
+# ⟞ a. Gower + PCoA -------------------------------------------------------
 
+# This section includes code to generate the Gower dissimilarity matrix from 
+# the trait matrix. The Gower matrix then goes into a Principal Coordinates
+# Analysis (PCoA) to generate synthetic traits from the Gower matrix.
+# Ultimately, the species values along PCoA axes will be the "traits" in 
+# downstream analyses.
+
+# generate Gower matrix
 trait_gower <- gowdis(trait_matrix)
 
 # doing PCoA to get dimensions
 trait_pcoa <- ape::pcoa(D = trait_gower)
 
+# extracting proportion of inertia explained by each axis
 proportion_inertia <- trait_pcoa$values %>% 
   rownames_to_column("axis") %>% 
   mutate(axis = as_factor(axis))
 
-ggplot(proportion_inertia,
-       aes(x = axis,
-           y = Rel_corr_eig)) +
+# plotting for visualization
+prop_inertia_plot <- ggplot(data = proportion_inertia,
+                            aes(x = axis,
+                                y = Rel_corr_eig)) +
   geom_point()
+# prop_inertia_plot
 
 # extracting scores
 spp_pcoa_scores <- trait_pcoa$vectors %>% 
@@ -253,48 +257,52 @@ spp_pcoa_scores <- trait_pcoa$vectors %>%
   left_join(., algae_taxa, by = "scientific_name") %>% 
   left_join(., traits_clean, by = "scientific_name")
 
-ggplot(data = spp_pcoa_scores,
-       aes(x = Axis.1,
-           y = Axis.2,
-           color = attachment,
-           shape = attachment)) +
+axes_12_attachment <- ggplot(data = spp_pcoa_scores,
+                  aes(x = Axis.1,
+                      y = Axis.2,
+                      color = attachment,
+                      shape = attachment)) +
   geom_point(size = 3)
+# axes_12_attachment
 
-ggplot(data = spp_pcoa_scores,
-       aes(x = Axis.1,
-           y = Axis.2,
-           color = calcification,
-           shape = calcification)) +
+axes_12_calcification <- ggplot(data = spp_pcoa_scores,
+                                aes(x = Axis.1,
+                                    y = Axis.2,
+                                    color = calcification,
+                                    shape = calcification)) +
   geom_point(size = 3)
+# axes_12_calcification
 
-ggplot(data = spp_pcoa_scores,
-       aes(x = Axis.1,
-           y = Axis.2,
-           color = position_to_benthos,
-           shape = position_to_benthos)) +
+axes_12_position <- ggplot(data = spp_pcoa_scores,
+                           aes(x = Axis.1,
+                               y = Axis.2,
+                               color = position_to_benthos,
+                               shape = position_to_benthos)) +
   geom_point(size = 3)
+# axes_12_position
 
-ggplot(data = spp_pcoa_scores,
-       aes(x = Axis.1,
-           y = Axis.2,
-           color = taxon_phylum,
-           shape = taxon_phylum)) +
+axes_12_phyla <- ggplot(data = spp_pcoa_scores,
+                        aes(x = Axis.1,
+                            y = Axis.2,
+                            color = taxon_phylum,
+                            shape = taxon_phylum)) +
   geom_point(size = 3)
+# axes_12_phyla
 
-# ggplot(data = spp_pcoa_scores,
-#        aes(x = Axis.1,
-#            y = Axis.3,
-#            color = taxon_phylum,
-#            shape = taxon_phylum)) +
-#   geom_point(size = 3)
+# ⟞ a. `FD` ---------------------------------------------------------------
 
-# dbFD takes the trait matrix and does the PCoA on Gower dissimilarity internally
-# this keeps 2 axes
+# ⟞ ⟞ i. calculating metrics ----------------------------------------------
+
+# This section includes code to calculate functional diversity metrics using 
+# `FD::dbFD()`. It takes the original trait matrix and goes through the Gower
+# and PCoA steps internally, choosing 2 axes.
+
 algae_fd <- dbFD(x = trait_matrix,
                  a = comm_mat_algae,
                  corr = "none",
                  print.pco = TRUE)
 
+# messages:
 # Species x species distance was not Euclidean, but no correction was applied. Only the PCoA axes with positive eigenvalues were kept. 
 # FEVe: Could not be calculated for communities with <3 functionally singular species. 
 # FDis: Equals 0 in communities with only one functionally singular species. 
@@ -323,12 +331,177 @@ raoq <- algae_fd$RaoQ %>%
   left_join(., algae_div, by = "name") %>% 
   mutate(redund = simpson - raoq)
 
-ggplot(data = raoq %>% filter(treatment == "control"),
-       aes(x = time_since_end,
-           y = redund,
-           color = exp_dates)) +
-  geom_point() +
-  geom_smooth(method = "lm")
+# ⟞ ⟞ ii. models ----------------------------------------------------------
+
+rich_during <- glmmTMB(value ~ time_since_end*treatment + (1|site) + (1|year),
+                       data = spp_ric %>% filter(exp_dates == "during"))
+
+rich_after <- glmmTMB(value ~ time_since_end*treatment + (1|site) + (1|year),
+                      data = spp_ric %>% filter(exp_dates == "after"))
+
+redund_during <- glmmTMB(redund ~ time_since_end*treatment + (1|site) + (1|year),
+                         data = raoq %>% filter(exp_dates == "during"))
+
+redund_after <- glmmTMB(redund ~ time_since_end*treatment + (1|site) + (1|year),
+                        data = raoq %>% filter(exp_dates == "after"))
+
+fric_during <- glmmTMB(value ~ time_since_end*treatment + (1|site) + (1|year),
+                       data = fric %>% filter(exp_dates == "during"))
+
+fric_after <- glmmTMB(value ~ time_since_end*treatment + (1|site) + (1|year),
+                      data = fric %>% filter(exp_dates == "after"))
+
+plot(simulateResiduals(rich_during)) 
+plot(simulateResiduals(rich_after))
+plot(simulateResiduals(redund_during)) # bad
+plot(simulateResiduals(redund_after)) 
+plot(simulateResiduals(fric_during))
+plot(simulateResiduals(fric_after))
+
+summary(rich_during) # significant interaction between time and treatment
+summary(rich_after) # significant interaction between time and treatment
+summary(fric_during) # significant effects of time and treatment, but not interaction
+summary(fric_after) # significant interaction between time and treatment
+summary(redund_during) # significant effect of treatment only
+summary(redund_after) # significant effect of time only
+
+rich_pred_during <- ggpredict(rich_during,
+                              terms = c("time_since_end", "treatment")) %>% 
+  rename(time_since_end = x,
+         treatment = group)
+
+rich_pred_after <- ggpredict(rich_after,
+                              terms = c("time_since_end", "treatment")) %>% 
+  rename(time_since_end = x,
+         treatment = group)
+
+redund_pred_during <- ggpredict(redund_during,
+                                terms = c("time_since_end", "treatment")) %>% 
+  rename(time_since_end = x,
+         treatment = group)
+
+redund_pred_after <- ggpredict(redund_after,
+                               terms = c("time_since_end", "treatment")) %>% 
+  rename(time_since_end = x,
+         treatment = group)
+
+fric_pred_during <- ggpredict(fric_during,
+                              terms = c("time_since_end", "treatment")) %>% 
+  rename(time_since_end = x,
+         treatment = group)
+
+fric_pred_after <- ggpredict(fric_after,
+                             terms = c("time_since_end", "treatment")) %>% 
+  rename(time_since_end = x,
+         treatment = group)
+
+rich_pred_plot <- ggplot(mapping = aes(group = treatment,
+                                       linetype = treatment,
+                                       x = time_since_end)) +
+  geom_point(data = spp_ric,
+             aes(y = value,
+                 color = treatment),
+             alpha = 0.3,
+             shape = 21) +
+  geom_ribbon(data = rich_pred_during,
+              aes(y = predicted,
+                  ymin = conf.low,
+                  ymax = conf.high),
+              alpha = 0.2) +
+  geom_ribbon(data = rich_pred_after,
+              aes(y = predicted,
+                  ymin = conf.low,
+                  ymax = conf.high),
+              alpha = 0.2) +
+  geom_line(data = rich_pred_during,
+            aes(y = predicted,
+                color = treatment),
+            linewidth = 1) +
+  geom_line(data = rich_pred_after,
+            aes(y = predicted,
+                color = treatment),
+            linewidth = 1) +
+  model_preds_aesthetics +
+  model_preds_theme() +
+  labs(title = "Species richness")
+rich_pred_plot
+
+fric_pred_plot <- ggplot(mapping = aes(group = treatment,
+                                       linetype = treatment,
+                                       x = time_since_end)) +
+  geom_point(data = fric,
+             aes(y = value,
+                 color = treatment),
+             alpha = 0.3,
+             shape = 21) +
+  geom_ribbon(data = fric_pred_during,
+              aes(y = predicted,
+                  ymin = conf.low,
+                  ymax = conf.high),
+              alpha = 0.2) +
+  geom_ribbon(data = fric_pred_after,
+              aes(y = predicted,
+                  ymin = conf.low,
+                  ymax = conf.high),
+              alpha = 0.2) +
+  geom_line(data = fric_pred_during,
+            aes(y = predicted,
+                color = treatment),
+            linewidth = 1) +
+  geom_line(data = fric_pred_after,
+            aes(y = predicted,
+                color = treatment),
+            linewidth = 1) +
+  model_preds_aesthetics +
+  model_preds_theme() +
+  labs(title = "Functional richness")
+fric_pred_plot
+
+redund_pred_plot <- ggplot(mapping = aes(group = treatment,
+                                       linetype = treatment,
+                                       x = time_since_end)) +
+  geom_point(data = raoq,
+             aes(y = redund,
+                 color = treatment),
+             alpha = 0.3,
+             shape = 21) +
+  geom_ribbon(data = redund_pred_during,
+              aes(y = predicted,
+                  ymin = conf.low,
+                  ymax = conf.high),
+              alpha = 0.2) +
+  geom_ribbon(data = redund_pred_after,
+              aes(y = predicted,
+                  ymin = conf.low,
+                  ymax = conf.high),
+              alpha = 0.2) +
+  geom_line(data = redund_pred_during,
+            aes(y = predicted,
+                color = treatment),
+            linewidth = 1) +
+  geom_line(data = redund_pred_after,
+            aes(y = predicted,
+                color = treatment),
+            linewidth = 1) +
+  model_preds_aesthetics +
+  model_preds_theme() +
+  labs(title = "Functional redundancy")
+redund_pred_plot
+
+plots_together <- rich_pred_plot / fric_pred_plot / redund_pred_plot
+
+ggsave(here::here("figures",
+                  "model-predictions",
+                  paste0("div-models_no-site-quality_",
+                         today(),
+                         ".jpg")),
+       plots_together,
+       height = 16,
+       width = 12,
+       units = "cm",
+       dpi = 200)
+
+# includes quality
 
 rich_during <- glmmTMB(value ~ time_since_end*treatment*quality + (1|site) + (1|year),
                data = spp_ric %>% filter(exp_dates == "during"))
