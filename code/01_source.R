@@ -745,6 +745,12 @@ continual_col <- "#CC7540"
 
 control_col <- "#6D5A18"
 
+low_col <- "#C70000"
+
+medium_col <- "#54662C"
+
+high_col <- "#114C54"
+
 # cluster colors
 cluster1 <- "#DE7424" 
 cluster2 <- "#EDAD30" 
@@ -800,7 +806,23 @@ theme_set(theme_bw() +
                   axis.title = element_text(size = 12),
                   panel.grid = element_blank()))
 
+model_preds_aesthetics <- list(
+  scale_color_manual(values = c(control = control_col, 
+                                continual = continual_col),
+                     labels = c(control = "Reference", 
+                                continual = "Removal")),
+  scale_linetype_manual(values = c(control = "22", 
+                                   continual = "solid"),
+                        labels = c(control = "Reference", 
+                                   continual = "Removal")) 
+)
 
+model_preds_theme <- function() {
+  theme_bw() +
+    theme(axis.text = element_text(size = 10),
+          axis.title = element_text(size = 12),
+          panel.grid = element_blank())
+}
 
 
 

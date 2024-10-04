@@ -246,7 +246,7 @@ proportion_inertia <- trait_pcoa$values %>%
 # plotting for visualization
 prop_inertia_plot <- ggplot(data = proportion_inertia,
                             aes(x = axis,
-                                y = Rel_corr_eig)) +
+                                y = Relative_eig)) +
   geom_point()
 # prop_inertia_plot
 
@@ -315,6 +315,7 @@ spp_ric <- algae_fd$nbsp %>%
   enframe() %>% 
   left_join(., comm_meta_algae, by = c("name" = "sample_ID"))
 
+# based on species occurrence, not abundance
 fric <- algae_fd$FRic %>% 
   enframe() %>% 
   left_join(., comm_meta_algae, by = c("name" = "sample_ID"))
@@ -800,6 +801,8 @@ ggplot(raoq %>% filter(exp_dates == "after"),
 
 # ⟞ b. `mFD` --------------------------------------------------------------
 
+# ⟞ ⟞ i. functional entities ----------------------------------------------
+
 algae_fe <- sp.to.fe(
   sp_tr = trait_matrix,
   tr_cat = algae_traits_cat,
@@ -856,27 +859,6 @@ frich <- ggplot(data = df %>% filter(treatment == "continual"),
 
 cowplot::plot_grid(frich, fred, ncol = 2)
 
-
-# computing distances
-algae_trait_distance <- mFD::funct.dist(
-  sp_tr         = trait_matrix,
-  tr_cat        = algae_traits_cat,
-  metric        = "gower",
-  scale_euclid  = "scale_center",
-  ordinal_var   = "classic",
-  weight_type   = "equal",
-  stop_if_NA    = FALSE)
-
-algae_quality <- mFD::quality.fspaces(
-  sp_dist             = algae_trait_distance,
-  maxdim_pcoa         = 10,
-  deviation_weighting = "absolute",
-  fdist_scaling       = FALSE,
-  fdendro             = "average")
-
-# this gives the same axis values as trait_pcoa$vectors
-sp_faxes_coord_algae <- algae_quality$"details_fspaces"$"sp_pc_coord"
-
 comm_mat_fe <- comm_mat_algae %>% 
   as_tibble(rownames = "sample_ID") %>% 
   pivot_longer(cols = 2:43,
@@ -926,50 +908,212 @@ comm_mat_fe <- comm_mat_algae %>%
   column_to_rownames("sample_ID") %>% 
   as.matrix()
 
+# ⟞ ⟞ ii. diversity metrics -----------------------------------------------
 
+# computing distances
+algae_trait_distance <- mFD::funct.dist(
+  sp_tr         = trait_matrix,
+  tr_cat        = algae_traits_cat,
+  metric        = "gower",
+  scale_euclid  = "scale_center",
+  ordinal_var   = "classic",
+  weight_type   = "equal",
+  stop_if_NA    = FALSE)
+# output is the same as trait_gower
+
+# this basically does a PCoA
+algae_quality <- mFD::quality.fspaces(
+  sp_dist             = algae_trait_distance,
+  maxdim_pcoa         = 10,
+  deviation_weighting = "absolute",
+  fdist_scaling       = FALSE,
+  fdendro             = "average")
+
+# this gives the same axis values as trait_pcoa$vectors
+sp_faxes_coord_algae <- algae_quality$"details_fspaces"$"sp_pc_coord"
 
 alpha_fd_indices_algae <- mFD::alpha.fd.multidim(
   sp_faxes_coord   = sp_faxes_coord_algae[ , c("PC1", "PC2")],
   asb_sp_w         = comm_mat_algae_reduced,
-  ind_vect         = c("fdis", "feve", "fric", "fdiv"),
+  ind_vect         = c('fide', 'fdis', 'fmpd', 'fnnd', 'feve', 'fric', 'fdiv', 'fori', 'fspe'),
   scaling          = TRUE,
   check_input      = TRUE,
   details_returned = TRUE)
 
-mFD::alpha.multidim.plot(
+# get the PCoA axes for axis
+m <- alpha_fd_indices_algae$details$sp_faxes_coord
+# m <- fd.coord[rownames(fd.coord) %in% fes_cond, ]
+
+# tripack::tri.mesh function, using first two coordinates
+tr <- tri.mesh(m[,1],m[,2])
+# tr <-tri.mesh(m[,1],m[,2])
+# tripack::convex.hull
+ch <- convex.hull(tr) %>% 
+  data.frame() %>% 
+  rownames_to_column("scientific_name")
+# points are species in PCoA axes
+library(tripack)
+
+species_presence <- comm_mat_algae %>% 
+  as_tibble(rownames = "sample_ID") %>% 
+  mutate(across(where(is.numeric), ~ case_when(. > 0 ~ "yes", TRUE ~ "no"))) %>% 
+  pivot_longer(cols = 2:43,
+               names_to = "scientific_name",
+               values_to = "presence") %>% 
+  left_join(., species_df, by = "scientific_name") %>% 
+  nest(.by = sample_ID, data = everything()) %>% 
+  mutate(filtered_comm = map2(
+    data, sample_ID,
+    ~ filter(.x, sample_ID == .y & presence == "yes")
+  )) %>% 
+  mutate(coords = map(
+    filtered_comm,
+    ~ select(.x, 
+             scientific_name, PC1, PC2) %>% 
+      column_to_rownames("scientific_name") %>% 
+      as.matrix()
+  )) %>% 
+  mutate(hull_outside_species = map(
+    filtered_comm,
+    ~ nrow(.x)
+  )) %>% 
+  filter(hull_outside_species > 3) %>% 
+  mutate(trimesh = map(
+    coords,
+    ~ tri.mesh(.x[, 1], .x[, 2])
+  )) %>% 
+  mutate(convex_hull = map(
+    trimesh,
+    ~ convex.hull(.x) %>% 
+      data.frame() %>% 
+      rownames_to_column("scientific_name")
+  )) %>% 
+  left_join(., comm_meta, by = "sample_ID")
+  
+# surveys that have too few species to plot a convex hull
+too_few <- species_presence %>% 
+    select(sample_ID, hull_outside_species) %>% 
+    unnest(hull_outside_species) %>% 
+    filter(hull_outside_species < 3)
+
+hulls <- species_presence %>% 
+  select(sample_ID, convex_hull) %>% 
+  unnest(cols = c(convex_hull)) %>% 
+  left_join(., comm_meta, by = "sample_ID")
+
+spp_by_survey <- species_presence %>% 
+  select(filtered_comm) %>% 
+  unnest(cols = c(filtered_comm)) %>% 
+  select(!presence) %>% 
+  left_join(., comm_meta, by = "sample_ID")
+
+removal_space <- ggplot() +
+  theme(panel.background = element_rect(fill = "lightgrey")) +
+  # global species pool
+  geom_polygon(data = ch,
+               aes(x = x,
+                   y = y),
+               fill = "#FFFFFF") +
+  geom_point(data = m,
+             aes(x = PC1,
+                 y = PC2),
+             color = "grey",
+             shape = 21,
+             alpha = 0.5) +
+  geom_polygon(data = hulls %>% 
+                 filter(treatment == "continual" & quality == "high"),
+               aes(x = x,
+                   y = y,
+                   group = sample_ID),
+               alpha = 0.025,
+               fill = high_col
+               ) +
+  geom_polygon(data = hulls %>% 
+                 filter(treatment == "continual" & quality == "medium"),
+               aes(x = x,
+                   y = y,
+                   group = sample_ID),
+               alpha = 0.025,
+               fill = medium_col
+  ) +
+  geom_polygon(data = hulls %>% 
+                 filter(treatment == "continual" & quality == "low"),
+               aes(x = x,
+                   y = y,
+                   group = sample_ID),
+               alpha = 0.03,
+               fill = low_col
+  ) +
+  facet_grid(cols = vars(quality), vars(exp_dates)) +
+  labs(title = "Removal plots",
+       x = "PCoA 1",
+       y = "PCoA 2") +
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size = 12))
+
+reference_space <- ggplot() +
+  theme(panel.background = element_rect(fill = "lightgrey")) +
+  # global species pool
+  geom_polygon(data = ch,
+               aes(x = x,
+                   y = y),
+               fill = "#FFFFFF") +
+  geom_point(data = m,
+             aes(x = PC1,
+                 y = PC2),
+             color = "grey",
+             shape = 21,
+             alpha = 0.5) +
+  geom_polygon(data = hulls %>% 
+                 filter(treatment == "control" & quality == "high"),
+               aes(x = x,
+                   y = y,
+                   group = sample_ID),
+               alpha = 0.025,
+               fill = high_col
+  ) +
+  geom_polygon(data = hulls %>% 
+                 filter(treatment == "control" & quality == "medium"),
+               aes(x = x,
+                   y = y,
+                   group = sample_ID),
+               alpha = 0.025,
+               fill = medium_col
+  ) +
+  geom_polygon(data = hulls %>% 
+                 filter(treatment == "control" & quality == "low"),
+               aes(x = x,
+                   y = y,
+                   group = sample_ID),
+               alpha = 0.03,
+               fill = low_col
+  ) +
+  facet_grid(cols = vars(quality), vars(exp_dates)) +
+  labs(title = "Reference plots",
+       x = "PCoA 1",
+       y = "PCoA 2") +
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size = 12))
+
+space_together <- removal_space + reference_space
+
+ggsave(here::here("figures",
+                  "trait-space",
+                  paste0("treatment-comparison_", today(), ".jpg")),
+       space_together,
+       width = 24,
+       height = 10,
+       units = "cm",
+       dpi = 200)
+  
+
+plot <- mFD::alpha.multidim.plot(
   output_alpha_fd_multidim = alpha_fd_indices_algae,
-  plot_asb_nm = c("aque_continual_2011-01-11", "aque_control_2011-01-11"),
+  plot_asb_nm = c("high-continual-during", "medium-continual-during",
+                  "low-continual-during"),
   ind_nm = c("fric")
 )
-
-plots_alpha <- mFD::alpha.multidim.plot(
-  output_alpha_fd_multidim = alpha_fd_indices_algae,
-  plot_asb_nm              = c("aque_continual_2011-01-11", "aque_control_2011-01-11 "),
-  ind_nm                   = c("fdis", "fide", "fnnd", "feve", "fric", 
-                               "fdiv", "fori", "fspe"),
-  faxes                    = NULL,
-  faxes_nm                 = NULL,
-  range_faxes              = c(NA, NA),
-  color_bg                 = "grey95",
-  shape_sp                 = c(pool = 3, asb1 = 21, asb2 = 21),
-  size_sp                  = c(pool = 0.7, asb1 = 1, asb2 = 1),
-  color_sp                 = c(pool = "grey50", asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
-  color_vert               = c(pool = "grey50", asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
-  fill_sp                  = c(pool = NA, asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
-  fill_vert                = c(pool = NA, asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
-  color_ch                 = c(pool = NA, asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
-  fill_ch                  = c(pool = "white", asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
-  alpha_ch                 = c(pool = 1, asb1 = 0.3, asb2 = 0.3),
-  shape_centroid_fdis      = c(asb1 = 22,  asb2 = 24),
-  shape_centroid_fdiv      = c(asb1 = 22,  asb2 = 24),
-  shape_centroid_fspe      = 23,
-  color_centroid_fspe      = "black",
-  size_sp_nm               = 3, 
-  color_sp_nm              = "black",
-  plot_sp_nm               = NULL,
-  fontface_sp_nm           = "plain",
-  save_file                = FALSE,
-  check_input              = TRUE) 
+plot
 
 fun_div_df <- alpha_fd_indices_algae$functional_diversity_indices %>% 
   rownames_to_column("sample_ID") %>% 
@@ -1058,23 +1202,5 @@ ggplot(data = fric_fundiversity %>% filter(treatment == "continual"),
                fun.data = "mean_cl_boot",
                color = "red") +
   facet_wrap(~exp_dates, ncol = 2)
-
-
-
-# ⟞ d. `betapart` ---------------------------------------------------------
-
-library(betapart)
-
-functional.beta.multi(x = comm_mat_algae_reduced_bin,
-                      traits = trait_axes[, 1:2],
-                      )
-
-
-
-
-
-
-
-
 
 
