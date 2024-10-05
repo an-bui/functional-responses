@@ -34,6 +34,7 @@ library(performance)
 library(RVAideMemoire)
 library(modelsummary)
 library(MuMIn)
+library(car)
 
 # visualization
 library(factoextra)
