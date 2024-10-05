@@ -311,248 +311,117 @@ algae_fd <- dbFD(x = trait_matrix,
 # FRic: Quality of the reduced-space representation (taking into account the negative eigenvalues) = 0.2849965 
 # FDiv: Could not be calculated for communities with <3 functionally singular species. 
 
-spp_ric <- algae_fd$nbsp %>% 
-  enframe() %>% 
-  left_join(., comm_meta_algae, by = c("name" = "sample_ID"))
-
-# based on species occurrence, not abundance
-fric <- algae_fd$FRic %>% 
-  enframe() %>% 
-  left_join(., comm_meta_algae, by = c("name" = "sample_ID"))
-
 algae_div <- vegan::diversity(x = comm_mat_algae,
                               index = "simpson") %>% 
   enframe() %>% 
   rename(simpson = value)
 
-raoq <- algae_fd$RaoQ %>% 
+fd_metrics <- algae_fd$nbsp %>% 
   enframe() %>% 
+  rename(sample_ID = name,
+         spp_rich = value) %>% 
+  left_join(., enframe(algae_fd$FRic), by = c("sample_ID" = "name")) %>% 
+  rename(fric = value) %>% 
+  left_join(., enframe(algae_fd$RaoQ), by = c("sample_ID" = "name")) %>% 
   rename(raoq = value) %>% 
-  left_join(., comm_meta_algae, by = c("name" = "sample_ID")) %>% 
-  left_join(., algae_div, by = "name") %>% 
-  mutate(redund = simpson - raoq)
+  left_join(., algae_div, by = c("sample_ID" = "name")) %>% 
+  mutate(redund = simpson - raoq) %>% 
+  left_join(., comm_meta, by = "sample_ID")
 
 # ⟞ ⟞ ii. models ----------------------------------------------------------
 
-rich_during <- glmmTMB(value ~ time_since_end*treatment + (1|site) + (1|year),
-                       data = spp_ric %>% filter(exp_dates == "during"))
+spp_rich_during <- glmmTMB(
+  spp_rich ~ time_since_end*treatment*quality + (1|site) + (1|year),
+  family = "poisson",
+  data = fd_metrics %>% filter(exp_dates == "during")
+)
 
-rich_after <- glmmTMB(value ~ time_since_end*treatment + (1|site) + (1|year),
-                      data = spp_ric %>% filter(exp_dates == "after"))
+plot(simulateResiduals(spp_rich_during))
 
-redund_during <- glmmTMB(redund ~ time_since_end*treatment + (1|site) + (1|year),
-                         data = raoq %>% filter(exp_dates == "during"))
+spp_rich_after <- glmmTMB(
+  spp_rich ~ time_since_end*treatment*quality + (1|site) + (1|year),
+  family = "poisson",
+  data = fd_metrics %>% filter(exp_dates == "after")
+)
 
-redund_after <- glmmTMB(redund ~ time_since_end*treatment + (1|site) + (1|year),
-                        data = raoq %>% filter(exp_dates == "after"))
+plot(simulateResiduals(spp_rich_after))
 
-fric_during <- glmmTMB(value ~ time_since_end*treatment + (1|site) + (1|year),
-                       data = fric %>% filter(exp_dates == "during"))
+fric_during1 <- glmmTMB(
+  fric ~ time_since_end*treatment*quality + (1|site) + (1|year),
+  family = beta_family(link = "logit"),
+  data = fd_metrics %>% filter(exp_dates == "after")
+)
 
-fric_after <- glmmTMB(value ~ time_since_end*treatment + (1|site) + (1|year),
-                      data = fric %>% filter(exp_dates == "after"))
+plot(simulateResiduals(fric_during))
 
-plot(simulateResiduals(rich_during)) 
-plot(simulateResiduals(rich_after))
-plot(simulateResiduals(redund_during)) # bad
+fric_after <- glmmTMB(
+  fric ~ time_since_end*treatment*quality + (1|site) + (1|year),
+  family = beta_family(link = "logit"),
+  data = fd_metrics %>% filter(exp_dates == "after")
+)
+
+plot(simulateResiduals(fric_after))
+
+fd_metrics %>% 
+  filter(exp_dates == "during") %>% 
+  ggplot(aes(x = redund)) +
+  geom_histogram(bins = 12)
+
+redund_during <- glmmTMB(
+  redund ~ time_since_end*treatment*quality + (1|site) + (1|year),
+  family = beta_family(link = "logit"),
+  ziformula = ~ 1,
+  data = fd_metrics %>% filter(exp_dates == "during")
+)
+
+plot(simulateResiduals(redund_during))
+
+redund_after <- glmmTMB(
+  redund ~ time_since_end*treatment*quality + (1|site) + (1|year),
+  family = beta_family(link = "logit"),
+  ziformula = ~1,
+  data = fd_metrics %>% filter(exp_dates == "after")
+)
+
 plot(simulateResiduals(redund_after)) 
-plot(simulateResiduals(fric_during))
-plot(simulateResiduals(fric_after))
 
-summary(rich_during) # significant interaction between time and treatment
-summary(rich_after) # significant interaction between time and treatment
-summary(fric_during) # significant effects of time and treatment, but not interaction
-summary(fric_after) # significant interaction between time and treatment
-summary(redund_during) # significant effect of treatment only
-summary(redund_after) # significant effect of time only
+summary(spp_rich_during)
+Anova(spp_rich_during, type = "III")
+# significant interaction of time, treatment, quality
 
-rich_pred_during <- ggpredict(rich_during,
-                              terms = c("time_since_end", "treatment")) %>% 
-  rename(time_since_end = x,
-         treatment = group)
+summary(spp_rich_after)
+Anova(spp_rich_after, type = "III")
+# significant interaction between time and quality, but not of treatment
 
-rich_pred_after <- ggpredict(rich_after,
-                              terms = c("time_since_end", "treatment")) %>% 
-  rename(time_since_end = x,
-         treatment = group)
+summary(fric_during)
+Anova(fric_during, type = "II")
+# interactions not significant, going to type II
+# significant interaction between time and quality 
 
-redund_pred_during <- ggpredict(redund_during,
-                                terms = c("time_since_end", "treatment")) %>% 
-  rename(time_since_end = x,
-         treatment = group)
+summary(fric_after)
+Anova(fric_after, type = "III")
+# significant interaction between time and quality
 
-redund_pred_after <- ggpredict(redund_after,
-                               terms = c("time_since_end", "treatment")) %>% 
-  rename(time_since_end = x,
-         treatment = group)
+summary(redund_during)
+Anova(redund_during, type = "III")
+# significant interaction between time and quality
 
-fric_pred_during <- ggpredict(fric_during,
-                              terms = c("time_since_end", "treatment")) %>% 
-  rename(time_since_end = x,
-         treatment = group)
+summary(redund_after)
+Anova(redund_after, type = "II")
+# interactions are not significant, going to type II
+# significant interaction between treatment and quality, time and quality
 
-fric_pred_after <- ggpredict(fric_after,
-                             terms = c("time_since_end", "treatment")) %>% 
-  rename(time_since_end = x,
-         treatment = group)
-
-rich_pred_plot <- ggplot(mapping = aes(group = treatment,
-                                       linetype = treatment,
-                                       x = time_since_end)) +
-  geom_point(data = spp_ric,
-             aes(y = value,
-                 color = treatment),
-             alpha = 0.3,
-             shape = 21) +
-  geom_ribbon(data = rich_pred_during,
-              aes(y = predicted,
-                  ymin = conf.low,
-                  ymax = conf.high),
-              alpha = 0.2) +
-  geom_ribbon(data = rich_pred_after,
-              aes(y = predicted,
-                  ymin = conf.low,
-                  ymax = conf.high),
-              alpha = 0.2) +
-  geom_line(data = rich_pred_during,
-            aes(y = predicted,
-                color = treatment),
-            linewidth = 1) +
-  geom_line(data = rich_pred_after,
-            aes(y = predicted,
-                color = treatment),
-            linewidth = 1) +
-  model_preds_aesthetics +
-  model_preds_theme() +
-  labs(title = "Species richness")
-rich_pred_plot
-
-fric_pred_plot <- ggplot(mapping = aes(group = treatment,
-                                       linetype = treatment,
-                                       x = time_since_end)) +
-  geom_point(data = fric,
-             aes(y = value,
-                 color = treatment),
-             alpha = 0.3,
-             shape = 21) +
-  geom_ribbon(data = fric_pred_during,
-              aes(y = predicted,
-                  ymin = conf.low,
-                  ymax = conf.high),
-              alpha = 0.2) +
-  geom_ribbon(data = fric_pred_after,
-              aes(y = predicted,
-                  ymin = conf.low,
-                  ymax = conf.high),
-              alpha = 0.2) +
-  geom_line(data = fric_pred_during,
-            aes(y = predicted,
-                color = treatment),
-            linewidth = 1) +
-  geom_line(data = fric_pred_after,
-            aes(y = predicted,
-                color = treatment),
-            linewidth = 1) +
-  model_preds_aesthetics +
-  model_preds_theme() +
-  labs(title = "Functional richness")
-fric_pred_plot
-
-redund_pred_plot <- ggplot(mapping = aes(group = treatment,
-                                       linetype = treatment,
-                                       x = time_since_end)) +
-  geom_point(data = raoq,
-             aes(y = redund,
-                 color = treatment),
-             alpha = 0.3,
-             shape = 21) +
-  geom_ribbon(data = redund_pred_during,
-              aes(y = predicted,
-                  ymin = conf.low,
-                  ymax = conf.high),
-              alpha = 0.2) +
-  geom_ribbon(data = redund_pred_after,
-              aes(y = predicted,
-                  ymin = conf.low,
-                  ymax = conf.high),
-              alpha = 0.2) +
-  geom_line(data = redund_pred_during,
-            aes(y = predicted,
-                color = treatment),
-            linewidth = 1) +
-  geom_line(data = redund_pred_after,
-            aes(y = predicted,
-                color = treatment),
-            linewidth = 1) +
-  model_preds_aesthetics +
-  model_preds_theme() +
-  labs(title = "Functional redundancy")
-redund_pred_plot
-
-plots_together <- rich_pred_plot / fric_pred_plot / redund_pred_plot
-
-ggsave(here::here("figures",
-                  "model-predictions",
-                  paste0("div-models_no-site-quality_",
-                         today(),
-                         ".jpg")),
-       plots_together,
-       height = 16,
-       width = 12,
-       units = "cm",
-       dpi = 200)
-
-# includes quality
-
-rich_during <- glmmTMB(value ~ time_since_end*treatment*quality + (1|site) + (1|year),
-               data = spp_ric %>% filter(exp_dates == "during"))
-
-rich_after <- glmmTMB(value ~ time_since_end*treatment*quality + (1|site) + (1|year),
-                       data = spp_ric %>% filter(exp_dates == "after"))
-
-redund_during <- glmmTMB(redund ~ time_since_end*treatment*quality + (1|site) + (1|year),
-                         data = raoq %>% filter(exp_dates == "during"))
-
-redund_after <- glmmTMB(redund ~ time_since_end*treatment*quality + (1|site) + (1|year),
-                         data = raoq %>% filter(exp_dates == "after"))
-
-fric_during <- glmmTMB(value ~ time_since_end*treatment*quality + (1|site) + (1|year),
-                       data = fric %>% filter(exp_dates == "during"))
-
-fric_after <- glmmTMB(value ~ time_since_end*treatment*quality + (1|site) + (1|year),
-                       data = fric %>% filter(exp_dates == "after"))
-
-plot(simulateResiduals(rich_during))
-plot(simulateResiduals(rich_after))
-plot(simulateResiduals(redund_during)) # bad
-plot(simulateResiduals(redund_after)) # ok but model didn't converge
-plot(simulateResiduals(fric_during))
-plot(simulateResiduals(fric_after))
-
-summary(rich_during) # effect of treatment and habitat quality interaction, not of time
-summary(rich_after) # effect of time, quality, and treatment interactions
-summary(fric_during) # effect of habitat quality only
-summary(fric_after) # effect of interaction between time and habitat quality
-summary(redund_during) # effect of time and habitat quality interaction
-summary(redund_after) # nothing!!!!
-
-rich_pred_during <- ggpredict(rich_during,
+spp_rich_pred_during <- ggpredict(spp_rich_during,
                               terms = c("time_since_end", "treatment", "quality")) %>% 
   rename(time_since_end = x,
          treatment = group,
          quality = facet)
 
-ggemmeans(rich_during,
-          terms = c("treatment", "quality")) %>% plot()
-
-rich_pred_after <- ggpredict(rich_after,
+spp_rich_pred_after <- ggpredict(spp_rich_after,
                              terms = c("time_since_end", "treatment", "quality")) %>% 
   rename(time_since_end = x,
          treatment = group,
          quality = facet)
-
-ggemmeans(rich_after,
-          terms = c("treatment", "quality")) %>% plot()
 
 redund_pred_during <- ggpredict(redund_during,
                                 terms = c("time_since_end", "treatment", "quality")) %>% 
@@ -560,17 +429,11 @@ redund_pred_during <- ggpredict(redund_during,
          treatment = group,
          quality = facet)
 
-ggemmeans(redund_during,
-          terms = c("treatment", "quality")) %>% plot()
-
 redund_pred_after <- ggpredict(redund_after,
                                terms = c("time_since_end", "treatment", "quality")) %>% 
   rename(time_since_end = x,
          treatment = group,
          quality = facet)
-
-ggemmeans(redund_after,
-          terms = c("treatment", "quality")) %>% plot()
 
 fric_pred_during <- ggpredict(fric_during,
                                 terms = c("time_since_end", "treatment", "quality")) %>% 
@@ -578,61 +441,54 @@ fric_pred_during <- ggpredict(fric_during,
          treatment = group,
          quality = facet)
 
-ggemmeans(fric_during,
-          terms = c("treatment", "quality")) %>% plot()
-
 fric_pred_after <- ggpredict(fric_after,
                                terms = c("time_since_end", "treatment", "quality")) %>% 
   rename(time_since_end = x,
          treatment = group,
          quality = facet)
 
-ggemmeans(fric_after,
-          terms = c("time_since_end", "quality")) %>% plot()
-
-rich_time <- ggplot() +
-  coord_cartesian(ylim = c(-0.01, 20)) +
-  geom_point(data = spp_ric,
+spp_rich_time <- ggplot() +
+  coord_cartesian(ylim = c(-0.01, 18)) +
+  geom_point(data = fd_metrics,
              aes(x = time_since_end,
-                 y = value,
+                 y = spp_rich,
                  color = treatment),
              alpha = 0.2, 
              shape = 21) +
-  geom_ribbon(data = rich_pred_during,
+  geom_ribbon(data = spp_rich_pred_during,
               aes(x = time_since_end,
                   ymin = conf.low,
                   ymax = conf.high,
                   group = treatment),
               alpha = 0.05) +
-  geom_ribbon(data = rich_pred_after,
+  geom_ribbon(data = spp_rich_pred_after,
               aes(x = time_since_end,
                   ymin = conf.low,
                   ymax = conf.high,
                   group = treatment),
               alpha = 0.05) +
-  geom_line(data = rich_pred_during,
+  geom_line(data = spp_rich_pred_during,
             aes(x = time_since_end,
                 y = predicted,
                 group = treatment,
                 color = treatment,
                 linetype = treatment),
             linewidth = 1) +
-  geom_line(data = rich_pred_after,
+  geom_line(data = spp_rich_pred_after,
             aes(x = time_since_end,
                 y = predicted,
                 group = treatment,
                 color = treatment,
                 linetype = treatment),
             linewidth = 1) +
-  scale_color_manual(values = c(control = control_col, continual = continual_col),
-                     labels = c("Removal", "Reference")) +
-  scale_linetype_manual(values = c(control = "22", continual = "solid"),
-                        labels = c("Removal", "Reference")) +
+  model_preds_aesthetics +
+  model_preds_theme() +
   labs(title = "Species richness") +
   facet_wrap(~ quality)
+spp_rich_time
 
 redund_time <- ggplot() +
-  geom_point(data = raoq,
+  geom_point(data = fd_metrics,
              aes(x = time_since_end,
                  y = redund,
                  color = treatment),
@@ -644,12 +500,12 @@ redund_time <- ggplot() +
                   ymax = conf.high,
                   group = treatment),
               alpha = 0.1) +
-  # geom_ribbon(data = redund_pred_after,
-  #             aes(x = time_since_end,
-  #                 ymin = conf.low,
-  #                 ymax = conf.high,
-  #                 group = treatment),
-  #             alpha = 0.05) +
+  geom_ribbon(data = redund_pred_after,
+              aes(x = time_since_end,
+                  ymin = conf.low,
+                  ymax = conf.high,
+                  group = treatment),
+              alpha = 0.05) +
   geom_line(data = redund_pred_during,
             aes(x = time_since_end,
                 y = predicted,
@@ -664,18 +520,17 @@ redund_time <- ggplot() +
                 color = treatment,
                 linetype = treatment),
             linewidth = 1) +
-  scale_color_manual(values = c("control" = control_col, "continual" = continual_col),
-                     labels = c("Removal", "Reference")) +
-  scale_linetype_manual(values = c("control" = "22", "continual" = "solid"),
-                        labels = c("Removal", "Reference")) +
+  model_preds_aesthetics + 
+  model_preds_theme() +
   labs(title = "Functional redundancy") +
   facet_wrap(~ quality)
+redund_time
 
 fric_time <- ggplot() +
   coord_cartesian(ylim = c(-0.01, 0.32)) +
-  geom_point(data = fric,
+  geom_point(data = fd_metrics,
              aes(x = time_since_end,
-                 y = value,
+                 y = fric,
                  color = treatment),
              alpha = 0.2, 
              shape = 21) +
@@ -705,10 +560,8 @@ fric_time <- ggplot() +
                 color = treatment,
                 linetype = treatment),
             linewidth = 1) +
-  scale_color_manual(values = c(control = control_col, continual = continual_col),
-                     labels = c("Removal", "Reference")) +
-  scale_linetype_manual(values = c(control = "22", continual = "solid"),
-                        labels = c("Removal", "Reference")) +
+  model_preds_aesthetics + 
+  model_preds_theme() +
   labs(title = "Functional richness") +
   facet_wrap(~ quality)
 fric_time
@@ -721,9 +574,12 @@ ggsave(filename = here::here(
   paste0("div-models_", today(), ".jpg")),
   plots_together,
   height = 14,
-  width = 14,
+  width = 16,
   units = "cm",
   dpi = 300)
+
+# ⟞ ⟞ iii. other plots ----------------------------------------------------
+
 
 
 ggplot(raoq %>% filter(exp_dates == "during"),
@@ -940,180 +796,7 @@ alpha_fd_indices_algae <- mFD::alpha.fd.multidim(
   check_input      = TRUE,
   details_returned = TRUE)
 
-# get the PCoA axes for axis
-m <- alpha_fd_indices_algae$details$sp_faxes_coord
-# m <- fd.coord[rownames(fd.coord) %in% fes_cond, ]
 
-# tripack::tri.mesh function, using first two coordinates
-tr <- tri.mesh(m[,1],m[,2])
-# tr <-tri.mesh(m[,1],m[,2])
-# tripack::convex.hull
-ch <- convex.hull(tr) %>% 
-  data.frame() %>% 
-  rownames_to_column("scientific_name")
-# points are species in PCoA axes
-library(tripack)
-
-species_presence <- comm_mat_algae %>% 
-  as_tibble(rownames = "sample_ID") %>% 
-  mutate(across(where(is.numeric), ~ case_when(. > 0 ~ "yes", TRUE ~ "no"))) %>% 
-  pivot_longer(cols = 2:43,
-               names_to = "scientific_name",
-               values_to = "presence") %>% 
-  left_join(., species_df, by = "scientific_name") %>% 
-  nest(.by = sample_ID, data = everything()) %>% 
-  mutate(filtered_comm = map2(
-    data, sample_ID,
-    ~ filter(.x, sample_ID == .y & presence == "yes")
-  )) %>% 
-  mutate(coords = map(
-    filtered_comm,
-    ~ select(.x, 
-             scientific_name, PC1, PC2) %>% 
-      column_to_rownames("scientific_name") %>% 
-      as.matrix()
-  )) %>% 
-  mutate(hull_outside_species = map(
-    filtered_comm,
-    ~ nrow(.x)
-  )) %>% 
-  filter(hull_outside_species > 3) %>% 
-  mutate(trimesh = map(
-    coords,
-    ~ tri.mesh(.x[, 1], .x[, 2])
-  )) %>% 
-  mutate(convex_hull = map(
-    trimesh,
-    ~ convex.hull(.x) %>% 
-      data.frame() %>% 
-      rownames_to_column("scientific_name")
-  )) %>% 
-  left_join(., comm_meta, by = "sample_ID")
-  
-# surveys that have too few species to plot a convex hull
-too_few <- species_presence %>% 
-    select(sample_ID, hull_outside_species) %>% 
-    unnest(hull_outside_species) %>% 
-    filter(hull_outside_species < 3)
-
-hulls <- species_presence %>% 
-  select(sample_ID, convex_hull) %>% 
-  unnest(cols = c(convex_hull)) %>% 
-  left_join(., comm_meta, by = "sample_ID")
-
-spp_by_survey <- species_presence %>% 
-  select(filtered_comm) %>% 
-  unnest(cols = c(filtered_comm)) %>% 
-  select(!presence) %>% 
-  left_join(., comm_meta, by = "sample_ID")
-
-removal_space <- ggplot() +
-  theme(panel.background = element_rect(fill = "lightgrey")) +
-  # global species pool
-  geom_polygon(data = ch,
-               aes(x = x,
-                   y = y),
-               fill = "#FFFFFF") +
-  geom_point(data = m,
-             aes(x = PC1,
-                 y = PC2),
-             color = "grey",
-             shape = 21,
-             alpha = 0.5) +
-  geom_polygon(data = hulls %>% 
-                 filter(treatment == "continual" & quality == "high"),
-               aes(x = x,
-                   y = y,
-                   group = sample_ID),
-               alpha = 0.025,
-               fill = high_col
-               ) +
-  geom_polygon(data = hulls %>% 
-                 filter(treatment == "continual" & quality == "medium"),
-               aes(x = x,
-                   y = y,
-                   group = sample_ID),
-               alpha = 0.025,
-               fill = medium_col
-  ) +
-  geom_polygon(data = hulls %>% 
-                 filter(treatment == "continual" & quality == "low"),
-               aes(x = x,
-                   y = y,
-                   group = sample_ID),
-               alpha = 0.03,
-               fill = low_col
-  ) +
-  facet_grid(cols = vars(quality), vars(exp_dates)) +
-  labs(title = "Removal plots",
-       x = "PCoA 1",
-       y = "PCoA 2") +
-  theme(strip.background = element_blank(),
-        strip.text = element_text(size = 12))
-
-reference_space <- ggplot() +
-  theme(panel.background = element_rect(fill = "lightgrey")) +
-  # global species pool
-  geom_polygon(data = ch,
-               aes(x = x,
-                   y = y),
-               fill = "#FFFFFF") +
-  geom_point(data = m,
-             aes(x = PC1,
-                 y = PC2),
-             color = "grey",
-             shape = 21,
-             alpha = 0.5) +
-  geom_polygon(data = hulls %>% 
-                 filter(treatment == "control" & quality == "high"),
-               aes(x = x,
-                   y = y,
-                   group = sample_ID),
-               alpha = 0.025,
-               fill = high_col
-  ) +
-  geom_polygon(data = hulls %>% 
-                 filter(treatment == "control" & quality == "medium"),
-               aes(x = x,
-                   y = y,
-                   group = sample_ID),
-               alpha = 0.025,
-               fill = medium_col
-  ) +
-  geom_polygon(data = hulls %>% 
-                 filter(treatment == "control" & quality == "low"),
-               aes(x = x,
-                   y = y,
-                   group = sample_ID),
-               alpha = 0.03,
-               fill = low_col
-  ) +
-  facet_grid(cols = vars(quality), vars(exp_dates)) +
-  labs(title = "Reference plots",
-       x = "PCoA 1",
-       y = "PCoA 2") +
-  theme(strip.background = element_blank(),
-        strip.text = element_text(size = 12))
-
-space_together <- removal_space + reference_space
-
-ggsave(here::here("figures",
-                  "trait-space",
-                  paste0("treatment-comparison_", today(), ".jpg")),
-       space_together,
-       width = 24,
-       height = 10,
-       units = "cm",
-       dpi = 200)
-  
-
-plot <- mFD::alpha.multidim.plot(
-  output_alpha_fd_multidim = alpha_fd_indices_algae,
-  plot_asb_nm = c("high-continual-during", "medium-continual-during",
-                  "low-continual-during"),
-  ind_nm = c("fric")
-)
-plot
 
 fun_div_df <- alpha_fd_indices_algae$functional_diversity_indices %>% 
   rownames_to_column("sample_ID") %>% 
@@ -1145,46 +828,6 @@ fric_mfd <- ggplot(data = fun_div_df,
 cowplot::plot_grid(sprich_mfd, fric_mfd, redundancy, nrow = 3)
 
 
-
-library(adiv)
-
-trait_gower <- gowdis(trait_matrix)
-
-trait_div_adiv <- uniqueness(comm = comm_mat_algae_reduced,
-           dis = trait_gower)
-
-redund <- trait_div_adiv$red %>% 
-  rownames_to_column("sample_ID") %>% 
-  left_join(., comm_meta, by = "sample_ID") %>% 
-  filter(treatment == "continual")
-            
-            
-rich <- ggplot(redund,
-       aes(x = quality,
-           y = N)) +
-  geom_point(alpha = 0.1,
-             position = position_jitter(width = 0.1, seed = 666)) +
-  stat_summary(geom = "pointrange",
-               fun.data = "mean_cl_boot",
-               color = "red") +
-  labs(title = "Species richess") +
-  facet_wrap(~exp_dates, ncol = 1)
-  
-redundancy <- ggplot(redund,
-       aes(x = quality,
-           y = Rstar)) +
-  geom_point(alpha = 0.1,
-             position = position_jitter(width = 0.1, seed = 666)) +
-  stat_summary(geom = "pointrange",
-               fun.data = "mean_cl_boot",
-               color = "red") +
-  labs(title = "Functional redundancy") +
-  facet_wrap(~exp_dates, ncol = 2)
-  
-  
-cowplot::plot_grid(rich, redundancy, ncol = 2)
-
-
 # ⟞ c. `fundiversity` -----------------------------------------------------
 
 library(fundiversity)
@@ -1202,5 +845,208 @@ ggplot(data = fric_fundiversity %>% filter(treatment == "continual"),
                fun.data = "mean_cl_boot",
                color = "red") +
   facet_wrap(~exp_dates, ncol = 2)
+
+
+# ⟞ d. functional space plots ---------------------------------------------
+
+# ⟞ ⟞ i. global species pool ----------------------------------------------
+
+library(tripack)
+
+# get the PCoA axes for axis
+m <- trait_pcoa$vectors
+
+# get the set of triangles that defines the hull
+tr <- tri.mesh(m[,1], m[,2])
+
+# get the points on the outside of the hull
+ch <- convex.hull(tr) %>% 
+  data.frame() %>% 
+  rownames_to_column("scientific_name")
+# points are species in PCoA axes (as in Teixido et al.)
+
+# ⟞ ⟞ ii. survey trait space ----------------------------------------------
+
+species_presence <- comm_mat_algae %>% 
+  # turn the matrix into a data frame
+  as_tibble(rownames = "sample_ID") %>% 
+  # if the species biomass is greater than 0, replace that number with "yes"
+  # if not, then "no"
+  mutate(across(where(is.numeric), 
+                ~ case_when(. > 0 ~ "yes", TRUE ~ "no"))) %>% 
+  # make the data frame longer
+  pivot_longer(cols = 2:43,
+               names_to = "scientific_name",
+               values_to = "presence") %>% 
+  # join with PCoA scroes from above
+  left_join(., spp_pcoa_scores, by = "scientific_name") %>% 
+  # nest the data frame by sample_ID to get convex hulls for each survey
+  nest(.by = sample_ID, data = everything()) %>% 
+  mutate(filtered_comm = map2(
+    data, sample_ID,
+    ~ filter(.x, sample_ID == .y & presence == "yes")
+  )) %>% 
+  mutate(coords = map(
+    filtered_comm,
+    ~ select(.x, 
+             scientific_name, Axis.1, Axis.2) %>% 
+      column_to_rownames("scientific_name") %>% 
+      as.matrix()
+  )) %>% 
+  mutate(hull_outside_species = map(
+    filtered_comm,
+    ~ nrow(.x)
+  )) %>% 
+  filter(hull_outside_species > 3) %>% 
+  mutate(trimesh = map(
+    coords,
+    ~ tri.mesh(.x[, 1], .x[, 2])
+  )) %>% 
+  mutate(convex_hull = map(
+    trimesh,
+    ~ convex.hull(.x) %>% 
+      data.frame() %>% 
+      rownames_to_column("scientific_name")
+  )) %>% 
+  left_join(., comm_meta, by = "sample_ID")
+
+# surveys that have too few species to plot a convex hull
+too_few <- comm_mat_algae %>% 
+  as_tibble(rownames = "sample_ID") %>% 
+  mutate(across(where(is.numeric), 
+                ~ case_when(. > 0 ~ "yes", TRUE ~ "no"))) %>% 
+  pivot_longer(cols = 2:43,
+               names_to = "scientific_name",
+               values_to = "presence") %>% 
+  left_join(., spp_pcoa_scores, by = "scientific_name") %>% 
+  nest(.by = sample_ID, data = everything()) %>% 
+  mutate(filtered_comm = map2(
+    data, sample_ID,
+    ~ filter(.x, sample_ID == .y & presence == "yes")
+  )) %>% 
+  mutate(coords = map(
+    filtered_comm,
+    ~ select(.x, 
+             scientific_name, Axis.1, Axis.2) %>% 
+      column_to_rownames("scientific_name") %>% 
+      as.matrix()
+  )) %>% 
+  mutate(hull_outside_species = map(
+    filtered_comm,
+    ~ nrow(.x)
+  )) %>% 
+  select(sample_ID, hull_outside_species) %>% 
+  unnest(hull_outside_species) %>% 
+  filter(hull_outside_species < 3)
+
+hulls <- species_presence %>% 
+  select(sample_ID, convex_hull) %>% 
+  unnest(cols = c(convex_hull)) %>% 
+  left_join(., comm_meta, by = "sample_ID")
+
+spp_by_survey <- species_presence %>% 
+  select(filtered_comm) %>% 
+  unnest(cols = c(filtered_comm)) %>% 
+  select(!presence) %>% 
+  left_join(., comm_meta, by = "sample_ID")
+
+during_space <- ggplot() +
+  theme(panel.background = element_rect(fill = "lightgrey")) +
+  # global species pool
+  geom_polygon(data = ch,
+               aes(x = x,
+                   y = y),
+               fill = "#FFFFFF") +
+  geom_point(data = m,
+             aes(x = Axis.1,
+                 y = Axis.2),
+             color = "grey",
+             shape = 21,
+             alpha = 0.5) +
+  geom_polygon(data = hulls %>% 
+                 filter(exp_dates == "during" & quality == "high"),
+               aes(x = x,
+                   y = y,
+                   group = sample_ID),
+               alpha = 0.025,
+               fill = high_col
+  ) +
+  geom_polygon(data = hulls %>% 
+                 filter(exp_dates == "during" & quality == "medium"),
+               aes(x = x,
+                   y = y,
+                   group = sample_ID),
+               alpha = 0.025,
+               fill = medium_col
+  ) +
+  geom_polygon(data = hulls %>% 
+                 filter(exp_dates == "during" & quality == "low"),
+               aes(x = x,
+                   y = y,
+                   group = sample_ID),
+               alpha = 0.03,
+               fill = low_col
+  ) +
+  facet_grid(cols = vars(quality), vars(treatment)) +
+  labs(title = "Removal period",
+       x = "PCoA 1",
+       y = "PCoA 2") +
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size = 12))
+
+after_space <- ggplot() +
+  theme(panel.background = element_rect(fill = "lightgrey")) +
+  # global species pool
+  geom_polygon(data = ch,
+               aes(x = x,
+                   y = y),
+               fill = "#FFFFFF") +
+  geom_point(data = m,
+             aes(x = Axis.1,
+                 y = Axis.2),
+             color = "grey",
+             shape = 21,
+             alpha = 0.5) +
+  geom_polygon(data = hulls %>% 
+                 filter(exp_dates == "after" & quality == "high"),
+               aes(x = x,
+                   y = y,
+                   group = sample_ID),
+               alpha = 0.025,
+               fill = high_col
+  ) +
+  geom_polygon(data = hulls %>% 
+                 filter(exp_dates == "after" & quality == "medium"),
+               aes(x = x,
+                   y = y,
+                   group = sample_ID),
+               alpha = 0.025,
+               fill = medium_col
+  ) +
+  geom_polygon(data = hulls %>% 
+                 filter(exp_dates == "after" & quality == "low"),
+               aes(x = x,
+                   y = y,
+                   group = sample_ID),
+               alpha = 0.03,
+               fill = low_col
+  ) +
+  facet_grid(cols = vars(quality), vars(treatment)) +
+  labs(title = "Recovery period",
+       x = "PCoA 1",
+       y = "PCoA 2") +
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size = 12))
+
+space_together <- during_space + after_space
+
+# ggsave(here::here("figures",
+#                   "trait-space",
+#                   paste0("exp-dates-comparison_", today(), ".jpg")),
+#        space_together,
+#        width = 24,
+#        height = 10,
+#        units = "cm",
+#        dpi = 200)
 
 
