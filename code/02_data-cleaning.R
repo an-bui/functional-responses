@@ -52,14 +52,15 @@ comm_df <- biomass %>%
     site_full, 
     "Arroyo Quemado", "Naples", "Mohawk", "Carpinteria")) %>%
   # create new sample ID with treatment
-  unite("sample_ID", site, treatment, date, remove = FALSE) 
+  unite("sample_ID", site, treatment, date, remove = FALSE) %>% 
+  mutate(across(where(is.character), as.factor))
 
 # metadata for all plots
 comm_meta <- comm_df %>% 
-  select(sample_ID, site, date, year, month, 
+  select(sample_ID, season_ID, site, date, year, month, 
          treatment, exp_dates, quarter, time_yrs, 
          time_since_start, time_since_end, kelp_year, 
-         comp_1yrs, comp_2yrs, comp_3yrs, quality, site_full) %>% 
+         comp_1yrs, comp_2yrs, comp_3yrs, quality, site_full, season) %>% 
   unique()
 
 # metadata for continual removal plots

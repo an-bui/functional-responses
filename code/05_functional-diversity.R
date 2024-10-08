@@ -326,7 +326,8 @@ fd_metrics <- algae_fd$nbsp %>%
   rename(raoq = value) %>% 
   left_join(., algae_div, by = c("sample_ID" = "name")) %>% 
   mutate(redund = simpson - raoq) %>% 
-  left_join(., comm_meta, by = "sample_ID")
+  left_join(., comm_meta, by = "sample_ID") %>% 
+  left_join(., npp, by = "season_ID")
 
 # ⟞ ⟞ ii. models ----------------------------------------------------------
 
@@ -346,10 +347,10 @@ spp_rich_after <- glmmTMB(
 
 plot(simulateResiduals(spp_rich_after))
 
-fric_during1 <- glmmTMB(
+fric_during <- glmmTMB(
   fric ~ time_since_end*treatment*quality + (1|site) + (1|year),
   family = beta_family(link = "logit"),
-  data = fd_metrics %>% filter(exp_dates == "after")
+  data = fd_metrics %>% filter(exp_dates == "during")
 )
 
 plot(simulateResiduals(fric_during))
@@ -417,23 +418,17 @@ spp_rich_pred_during <- ggpredict(spp_rich_during,
          treatment = group,
          quality = facet)
 
+ggemmeans(spp_rich_during, 
+          terms = c("treatment", "quality")) %>% plot()
+
 spp_rich_pred_after <- ggpredict(spp_rich_after,
                              terms = c("time_since_end", "treatment", "quality")) %>% 
   rename(time_since_end = x,
          treatment = group,
          quality = facet)
 
-redund_pred_during <- ggpredict(redund_during,
-                                terms = c("time_since_end", "treatment", "quality")) %>% 
-  rename(time_since_end = x,
-         treatment = group,
-         quality = facet)
-
-redund_pred_after <- ggpredict(redund_after,
-                               terms = c("time_since_end", "treatment", "quality")) %>% 
-  rename(time_since_end = x,
-         treatment = group,
-         quality = facet)
+ggemmeans(spp_rich_after, 
+          terms = c("treatment", "quality")) %>% plot()
 
 fric_pred_during <- ggpredict(fric_during,
                                 terms = c("time_since_end", "treatment", "quality")) %>% 
@@ -441,11 +436,35 @@ fric_pred_during <- ggpredict(fric_during,
          treatment = group,
          quality = facet)
 
+ggemmeans(fric_during,
+          terms = c("treatment", "quality")) %>% plot()
+
 fric_pred_after <- ggpredict(fric_after,
                                terms = c("time_since_end", "treatment", "quality")) %>% 
   rename(time_since_end = x,
          treatment = group,
          quality = facet)
+
+ggemmeans(fric_after,
+          terms = c("treatment", "quality")) %>% plot()
+
+redund_pred_during <- ggpredict(redund_during,
+                                terms = c("time_since_end", "treatment", "quality")) %>% 
+  rename(time_since_end = x,
+         treatment = group,
+         quality = facet)
+
+ggemmeans(redund_during,
+          terms = c("treatment", "quality")) %>% plot()
+
+redund_pred_after <- ggpredict(redund_after,
+                               terms = c("time_since_end", "treatment", "quality")) %>% 
+  rename(time_since_end = x,
+         treatment = group,
+         quality = facet)
+
+ggemmeans(redund_after,
+          terms = c("treatment", "quality")) %>% plot()
 
 spp_rich_time <- ggplot() +
   coord_cartesian(ylim = c(-0.01, 18)) +
@@ -578,41 +597,75 @@ ggsave(filename = here::here(
   units = "cm",
   dpi = 300)
 
+
+# ⟞ ⟞ ⟞ richness ----------------------------------------------------------
+
+rich_mod <- glmmTMB(redund ~ spp_rich,
+                    data = fd_metrics,
+                    family = beta_family(link = "logit"),
+                    ziformula = ~1)
+
+plot(simulateResiduals(rich_mod))
+
+summary(rich_mod)
+
+ggpredict(rich_mod,
+          terms = "spp_rich") %>% plot(show_data = TRUE)
+
+
+# ⟞ ⟞ ⟞ NPP ---------------------------------------------------------------
+
+ggplot(data = fd_metrics,
+       aes(x = sqrt(total_npp))) +
+  geom_histogram(bins = 12,
+                 fill = "cornflowerblue",
+                 color = "black")
+
+ggplot(data = fd_metrics %>% filter(exp_dates == "after" & treatment == "continual"),
+       aes(x = redund,
+           y = sqrt(total_npp),
+           color = quality)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_wrap(~quality)
+
+npp_mod <- glmmTMB(sqrt(total_npp) ~ redund*quality*treatment + (1|site) + (1|year) + (1|season),
+                   data = fd_metrics %>% filter(exp_dates == "after"))
+
+npp_mod <- glmmTMB(sqrt(total_npp) ~ spp_rich*quality*treatment + (1|site) + (1|year) + (1|season),
+                   data = fd_metrics %>% filter(exp_dates == "after"))
+
+npp_mod <- glmmTMB(sqrt(total_npp) ~ fric*quality*treatment + (1|site) + (1|year) + (1|season),
+                   data = fd_metrics %>% filter(exp_dates == "after"))
+
+plot(simulateResiduals(npp_mod))
+
+summary(npp_mod)
+Anova(npp_mod, type = "II")
+
+x <- seq(from = 1, to = 10, by = 1)
+y <- x^2 + 3
+
+mod1 <- lm(y ~ x)
+
+ggpredict(model = mod1,
+          terms = c("x")) %>% 
+  plot(show_data = TRUE)
+
+mod2 <- lm(sqrt(y) ~ x)
+
+insight::find_transformation(mod2)
+
+ggpredict(model = mod2,
+          terms = c("x"),
+          back_transform = TRUE) 
+  plot(show_data = TRUE)
+
 # ⟞ ⟞ iii. other plots ----------------------------------------------------
 
-
-
-ggplot(raoq %>% filter(exp_dates == "during"),
-       aes(x = quality,
-           y = redund)) +
-  geom_violin() +
-  geom_point(alpha = 0.05, 
-             position = position_jitter(width = 0.1, seed = 666)) +
-  stat_summary(geom = "pointrange",
-               fun.data = "mean_cl_boot",
-               color = "red") +
-  theme_bw() +
-  theme(panel.grid = element_blank()) +
-  facet_wrap(~treatment, ncol = 2) +
-  labs(title = "Functional redundancy")
-
-redund_plot <- ggplot(raoq %>% filter(treatment == "control"),
-                      aes(x = quality,
-                          y = redund)) +
-  geom_violin() +
-  geom_point(alpha = 0.05, 
-             position = position_jitter(width = 0.1, seed = 666)) +
-  stat_summary(geom = "pointrange",
-               fun.data = "mean_cl_boot",
-               color = "red") +
-  theme_bw() +
-  theme(panel.grid = element_blank()) +
-  facet_wrap(~exp_dates, ncol = 1) +
-  labs(title = "Functional redundancy")
-
-spric_plot <- ggplot(spp_ric %>% filter(treatment == "continual"),
+spric_plot <- ggplot(fd_metrics %>% filter(treatment == "continual"),
                      aes(x = quality,
-                         y = value)) +
+                         y = spp_rich)) +
   geom_violin() +
   geom_point(alpha = 0.05, 
              position = position_jitter(width = 0.1, seed = 666)) +
@@ -624,9 +677,9 @@ spric_plot <- ggplot(spp_ric %>% filter(treatment == "continual"),
   facet_wrap(~exp_dates, ncol = 1) +
   labs(title = "Species richness")
 
-fric_plot <- ggplot(fric %>% filter(treatment == "continual"),
+fric_plot <- ggplot(fd_metrics %>% filter(treatment == "continual"),
                     aes(x = quality,
-                        y = value)) +
+                        y = fric)) +
   geom_violin() +
   geom_point(alpha = 0.05, 
              position = position_jitter(width = 0.1, seed = 666)) +
@@ -635,24 +688,24 @@ fric_plot <- ggplot(fric %>% filter(treatment == "continual"),
                color = "red") +
   theme_bw() +
   theme(panel.grid = element_blank()) +
-  facet_wrap(~exp_dates, ncol = 1) +
+  facet_wrap(~exp_dates) +
   labs(title = "Functional richness (convex hull volume)")
 
+redund_plot <- ggplot(fd_metrics %>% filter(treatment == "continual"),
+                      aes(x = quality,
+                          y = redund)) +
+  geom_violin() +
+  geom_point(alpha = 0.05, 
+             position = position_jitter(width = 0.1, seed = 666)) +
+  stat_summary(geom = "pointrange",
+               fun.data = "mean_cl_boot",
+               color = "red") +
+  theme_bw() +
+  theme(panel.grid = element_blank()) +
+  facet_wrap(~exp_dates) +
+  labs(title = "Functional redundancy")
+
 cowplot::plot_grid(spric_plot, redund_plot, fric_plot, ncol = 3)
-
-ggplot(raoq %>% filter(exp_dates == "during"),
-       aes(x = time_since_end,
-           y = value,
-           color = quality)) +
-  geom_point() +
-  geom_smooth(method = "lm")
-
-ggplot(raoq %>% filter(exp_dates == "after"),
-       aes(x = time_since_end,
-           y = value,
-           color = quality)) +
-  geom_point() +
-  geom_smooth(method = "lm")
 
 
 # ⟞ b. `mFD` --------------------------------------------------------------
@@ -832,8 +885,15 @@ cowplot::plot_grid(sprich_mfd, fric_mfd, redundancy, nrow = 3)
 
 library(fundiversity)
 
+# same as results from FD
 fric_fundiversity <- fd_fric(traits = trait_pcoa$vectors[, 1:2], 
-        sp_com = comm_mat_algae_reduced) %>% 
+        sp_com = comm_mat_algae) %>% 
+  rename(sample_ID = site) %>% 
+  left_join(., comm_meta, by = c("sample_ID"))
+
+# different from FD!!!!
+raoq_fundiversity <- fd_raoq(traits = trait_pcoa$vectors[, 1:2], 
+                             sp_com = comm_mat_algae) %>% 
   rename(sample_ID = site) %>% 
   left_join(., comm_meta, by = c("sample_ID"))
 
@@ -845,6 +905,39 @@ ggplot(data = fric_fundiversity %>% filter(treatment == "continual"),
                fun.data = "mean_cl_boot",
                color = "red") +
   facet_wrap(~exp_dates, ncol = 2)
+
+
+# ⟞ ⟞ d. SYNCSA -----------------------------------------------------------
+
+library(SYNCSA)
+
+# different raoQ, different redundancy
+syncsa_metrics <- rao.diversity(comm = comm_mat_algae,
+                                traits = trait_matrix) 
+
+syncsa_metrics_df <- bind_cols(
+  enframe(syncsa_metrics$Simpson),
+  enframe(syncsa_metrics$FunRao),
+  enframe(syncsa_metrics$FunRedundancy)
+) %>% 
+  rename(sample_ID = name...1,
+         simpson = value...2,
+         raoq = value...4,
+         redund = value...6) %>% 
+  select(sample_ID, simpson, raoq, redund) %>% 
+  left_join(., comm_meta, by = "sample_ID")
+
+syncsa_metrics_df %>% 
+  filter(treatment == "continual") %>% 
+  ggplot(aes(x = quality,
+             y = redund)) +
+  geom_point(alpha = 0.1,
+             position = position_jitter(width = 0.1, seed = 666)) +
+  stat_summary(geom = "pointrange",
+               fun.data = "mean_cl_boot",
+               color = "red") +
+  facet_wrap(~exp_dates)
+
 
 
 # ⟞ d. functional space plots ---------------------------------------------

@@ -48,24 +48,11 @@ library(ggConvexHull)
 # 2. start and end dates --------------------------------------------------
 ##########################################################################-
 
-# NOTE!!!!!! CHANGE THIS SO THAT THE START DATES ARE CORRECT ONCE YOU KNOW
-# WHICH SURVEYS ARE SUPPOSED TO BE WHEN!!!!!!!!
-
 # ⟞ a. Arroyo Quemado (AQUE) ---------------------------------------------
 
-aque_start_dates <- c("AQUE_CONTROL_2008-01-30",
-                      "AQUE_ANNUAL_2008-01-30",
-                      "AQUE_CONTINUAL_2010-04-26")
-# 
-# aque_start_date <- as_date("2008-01-30")
-# 
-# aque_after_date <- as_date("2017-03-02")
-# 
-aque_after_date_annual <- as_date("2018-05-10")
-
-# date of first removal: 2010-02-04
+# date of first removal: 2010-01-29
+# first survey after first removal: 2010-04-26
 aque_start_date_continual <- as_date("2010-04-26")
-# first survey after first removal: 2010-06-15
 # date of last removal: 2017-03-02
 # first survey after last removal: 2017-05-18
 # start of recovery period: 2017-08-16
@@ -74,69 +61,30 @@ aque_after_date_continual <- as_date("2017-08-16")
 
 # ⟞ b. Naples (NAPL) -----------------------------------------------------
 
-napl_start_dates <- c("NAPL_CONTROL_2008-01-10",
-                      "NAPL_ANNUAL_2008-01-10",
-                      "NAPL_CONTINUAL_2010-04-27")
-# 
-# napl_start_date <- as_date("2008-01-10")
-# 
-# napl_after_date <- as_date("2016-02-19") # wrong in methods? 
-# 
-napl_after_date_annual <- as_date("2017-05-16")
-
 # date of first removal: 2010-01-28
+# first survey after first removal: 2010-04-27
 napl_start_date_continual <- as_date("2010-04-27")
-# first survey after first removal: 2010-06-11
+
 # date of last removal: 2016-02-09
 # first survey after last removal: 2016-05-17
 # start of recovery period: 2016-08-16
 napl_after_date_continual <- as_date("2016-08-16")
 
-
-# ⟞ c. Isla Vista (IVEE) --------------------------------------------------
-
-# ivee_start_dates <- c("IVEE_CONTROL_2011-10-26",
-#                       "IVEE_ANNUAL_2011-10-26")
-# 
-# ivee_start_date <- as_date("2011-10-26")
-# 
-# ivee_after_date <- as_date("2016-02-18")
-
-# ivee_after_date_annual <- as_date("2017-05-15")
-
-# ⟞ d. Mohawk (MOHK) ------------------------------------------------------
-
-mohk_start_dates <- c("MOHK_ANNUAL_2008-01-17",
-                      "MOHK_CONTROL_2008-01-17",
-                      "MOHK_CONTINUAL_2010-05-05")
-# 
-# mohk_start_date <- as_date("2008-01-17")
-# 
-# mohk_after_date <- as_date("2017-02-13")
-# 
-mohk_after_date_annual <- as_date("2018-05-15")
+# ⟞ c. Mohawk (MOHK) ------------------------------------------------------
 
 # date of first removal: 2010-05-05
-mohk_start_date_continual <- as_date("2010-05-05")
 # first survey after first removal: 2010-06-14
+mohk_start_date_continual <- as_date("2010-07-23")
+
 # date of last removal: 2017-02-13
 # first survey after last removal: 2017-05-17
 # start of recovery period: 2017-08-11
 mohk_after_date_continual <- as_date("2017-08-11")
 
-# ⟞ e. Carpinteria (CARP)  ------------------------------------------------
+# ⟞ d. Carpinteria (CARP)  ------------------------------------------------
 
-carp_start_dates <- c("CARP_CONTROL_2008-02-12", 
-                      "CARP_ANNUAL_2008-02-12", 
-                      "CARP_CONTINUAL_2010-04-23")
-
-carp_start_date <- as_date("2008-02-12")
-
-carp_after_date <- as_date("2017-02-15")
-
-carp_after_date_annual <- as_date("2018-05-22")
-
-# date of first removal: 2010-01-29
+# date of first removal: 2010-02-04 
+# first survey after first removal: 2010-04-23
 carp_start_date_continual <- as_date("2010-04-23")
 # first survey after first removal: 2010-03-11
 
@@ -144,6 +92,7 @@ carp_start_date_continual <- as_date("2010-04-23")
 # first survey after last removal: 2017-05-19
 # start of recovery period: 2017-08-10
 carp_after_date_continual <- as_date("2017-08-10")
+
 
 ##########################################################################-
 # 3. wrangling functions --------------------------------------------------
@@ -627,36 +576,68 @@ biomass <- read_csv(
   # take out extraneous columns from time_since_columns_continual()
   select(!test_min_time_yrs) %>% 
   comparison_column_continual_new() %>% 
-  kelp_year_column()
+  kelp_year_column() %>% 
+  season_column() %>% 
+  unite("season_ID", year, season, site, treatment, remove = FALSE)
 
-benthics <- read_csv(
+npp <- read_csv(
   here("data",
-       "SBC-LTER",
-       "knb-lter-sbc.50.16",
-       "Annual_All_Species_Biomass_at_transect_20240501.csv")
-) %>% 
+       "SBC-LTE",
+       "knb-lter-sbc.58.18",
+       "Understory_NPP_All_Year_season_20240501.csv")
+) %>%
   clean_names() %>%
   # replace NA sp_code with Nandersoniana
   mutate(sp_code = case_when(
     scientific_name == "Nienburgia andersoniana" ~ "Nandersoniana",
     TRUE ~ sp_code
   )) %>%
-  # replace all -99999 values with NA
-  mutate(dry_gm2 = replace(dry_gm2, dry_gm2 < 0, NA),
-         wm_gm2 = replace(wm_gm2, wm_gm2 < 0, NA),
-         density = replace(density, density < 0, NA)) %>%
-  # create a sample_ID for each sampling date at each treatment at each site
-  unite("sample_ID", site, year, transect, remove = FALSE) %>%
   # change to lower case
-  mutate_at(c("group", "mobility", "growth_morph", "site"), str_to_lower) %>%
-  # new group column %>%
-  left_join(., guilds, by = c("sp_code" = "sp.code")) %>% 
-  filter(new_group == "algae")
+  mutate_at(c("treatment", "site"), str_to_lower) %>% 
+  mutate(season = case_match(
+    season,
+    "1-WINTER" ~ "winter",
+    "2-SPRING" ~ "spring",
+    "3-SUMMER" ~ "summer",
+    "4-AUTUMN" ~ "fall"
+  ),
+  season = fct_relevel(season, "spring", "summer", "fall", "winter")) %>% 
+  filter(!(sp_code == "MAPY")) %>% 
+  group_by(year, season, site, treatment) %>% 
+  summarize(total_npp = sum(npp_season_g_c_m2_day)) %>% 
+  unite("season_ID", year, season, site, treatment)
+  # # filter to only include continual removal plots and control plots
+  # filter(treatment %in% c("continual", "control")) %>% 
+  # mutate(exp_dates = case_when(
+  #   site == "aque" & date >= aque_start_date_continual & date < aque_after_date_continual ~ "during",
+  #   site == "aque" & date >= aque_after_date_continual ~ "after",
+  #   site == "napl" & date >= napl_start_date_continual & date < napl_after_date_continual ~ "during",
+  #   site == "napl" & date >= napl_after_date_continual ~ "after",
+  #   site == "mohk" & date >= mohk_start_date_continual & date < mohk_after_date_continual ~ "during",
+  #   site == "mohk" & date >= mohk_after_date_continual ~ "after",
+  #   site == "carp" & date >= carp_start_date_continual & date < carp_after_date_continual ~ "during",
+  #   site == "carp" & date >= carp_after_date_continual ~ "after"
+  # ),
+  # exp_dates = fct_relevel(exp_dates, "during", "after")) %>% 
+  # # take out all surveys that were before the removal experiment started
+  # drop_na(exp_dates) %>% 
+  # time_since_columns_continual() %>%
+  # group_by(site, year, treatment, quarter, sp_code) %>%
+  # mutate(dry_gm2 = mean(dry_gm2),
+  #        wm_gm2 = mean(wm_gm2),
+  #        density = mean(density)) %>%
+  # # take out the "duplicates": only one sampling date per quarter in the dataframe, with values averaged across the two sampling dates
+  # slice(1L) %>%
+  # ungroup() %>%
+  # # take out extraneous columns from time_since_columns_continual()
+  # select(!test_min_time_yrs) %>% 
+  # comparison_column_continual_new() %>% 
+  # kelp_year_column()
 
 # categorical traits 
 traits <- read_csv(here("data", 
-                         "functional-traits",
-                         "joe-traits-lter_2024-09-27.csv"))
+                        "functional-traits",
+                        "joe-traits-lter_2024-09-27.csv"))
 
 # Steneck and Dethier and Littler and Littler traits
 coarse_traits <- repmis::source_data("https://www.dropbox.com/scl/fi/s1gb2f3f13ry1oqtzoyyj/00-coarse_traits.csv?rlkey=tgd6j5q3y7bfsdxz7sgs77klb&st=moyfpk93&dl=1") %>% 
