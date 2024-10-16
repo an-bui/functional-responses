@@ -192,7 +192,9 @@ algae_traits_cat <- colnames(trait_matrix) %>%
 
 # reduced trait matrix
 trait_matrix_reduced <- trait_matrix %>% 
-  select(stipe, branching, blade_category, attachment, growth, calcification)
+  select(size_cm, position_to_benthos,
+         stipe, midrib, branching, branch_shape,
+         blade_category, attachment, growth, calcification)
 
 # reduced trait categories
 algae_traits_cat_reduced <- algae_traits_cat %>% 
@@ -233,7 +235,7 @@ comm_mat_algae_reduced_bin <- comm_mat_algae %>%
 # downstream analyses.
 
 # generate Gower matrix
-trait_gower <- gowdis(trait_matrix)
+trait_gower <- gowdis(trait_matrix_reduced)
 
 # doing PCoA to get dimensions
 trait_pcoa <- ape::pcoa(D = trait_gower)
@@ -302,6 +304,16 @@ algae_fd <- dbFD(x = trait_matrix,
                  corr = "none",
                  print.pco = TRUE)
 
+algae_fd_bin <- dbFD(x = trait_matrix,
+                 a = comm_mat_bin,
+                 corr = "none",
+                 print.pco = TRUE)
+
+algae_fd_reduced <- dbFD(x = trait_matrix_reduced,
+                     a = comm_mat_algae,
+                     corr = "none",
+                     print.pco = TRUE)
+
 # messages:
 # Species x species distance was not Euclidean, but no correction was applied. Only the PCoA axes with positive eigenvalues were kept. 
 # FEVe: Could not be calculated for communities with <3 functionally singular species. 
@@ -316,6 +328,28 @@ algae_div <- vegan::diversity(x = comm_mat_algae,
   enframe() %>% 
   rename(simpson = value)
 
+ll_group_biomass <- biomass %>% 
+  filter(new_group == "algae") %>% 
+  filter(!(sp_code %in% pull(excluded_spp, sp_code))) %>%
+  left_join(., coarse_traits, by = "scientific_name") %>% 
+  group_by(year, season, site, treatment, ll_func_form) %>% 
+  summarize(group_bio = sum(dry_gm2, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  unite("season_ID", year, season, site, treatment, sep = "_") %>% 
+  pivot_wider(names_from = ll_func_form,
+              values_from = group_bio)
+
+sd_group_biomass <- biomass %>% 
+  filter(new_group == "algae") %>% 
+  filter(!(sp_code %in% pull(excluded_spp, sp_code))) %>%
+  left_join(., coarse_traits, by = "scientific_name") %>% 
+  group_by(year, season, site, treatment, sd_growth_form) %>% 
+  summarize(group_bio = sum(dry_gm2, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  unite("season_ID", year, season, site, treatment, sep = "_") %>% 
+  pivot_wider(names_from = sd_growth_form,
+              values_from = group_bio)
+
 fd_metrics <- algae_fd$nbsp %>% 
   enframe() %>% 
   rename(sample_ID = name,
@@ -324,15 +358,49 @@ fd_metrics <- algae_fd$nbsp %>%
   rename(fric = value) %>% 
   left_join(., enframe(algae_fd$RaoQ), by = c("sample_ID" = "name")) %>% 
   rename(raoq = value) %>% 
+  left_join(., enframe(algae_fd$FDis), by = c("sample_ID" = "name")) %>% 
+  rename(fdis = value) %>%  
+  left_join(., enframe(algae_fd$FEve), by = c("sample_ID" = "name")) %>% 
+  rename(feve = value) %>% 
   left_join(., algae_div, by = c("sample_ID" = "name")) %>% 
   mutate(redund = simpson - raoq) %>% 
   left_join(., comm_meta, by = "sample_ID") %>% 
-  left_join(., npp, by = "season_ID")
+  left_join(., npp, by = "season_ID") %>% 
+  left_join(., ll_group_biomass, by = "season_ID") %>% 
+  left_join(., sd_group_biomass, by = "season_ID")
+
+fd_metrics_reduced <- algae_fd_reduced$nbsp %>% 
+  enframe() %>% 
+  rename(sample_ID = name,
+         spp_rich = value) %>% 
+  left_join(., enframe(algae_fd_reduced$FRic), by = c("sample_ID" = "name")) %>% 
+  rename(fric = value) %>% 
+  left_join(., enframe(algae_fd_reduced$RaoQ), by = c("sample_ID" = "name")) %>% 
+  rename(raoq = value) %>% 
+  left_join(., enframe(algae_fd_reduced$FDis), by = c("sample_ID" = "name")) %>% 
+  rename(fdis = value) %>%  
+  left_join(., enframe(algae_fd_reduced$FEve), by = c("sample_ID" = "name")) %>% 
+  rename(feve = value) %>% 
+  left_join(., algae_div, by = c("sample_ID" = "name")) %>% 
+  mutate(redund = simpson - raoq) %>% 
+  left_join(., comm_meta, by = "sample_ID") %>% 
+  left_join(., npp, by = "season_ID") %>% 
+  left_join(., ll_group_biomass, by = "season_ID") %>% 
+  left_join(., sd_group_biomass, by = "season_ID")
 
 # ⟞ ⟞ ii. models ----------------------------------------------------------
 
+
+# ⟞ ⟞ ⟞ richness ----------------------------------------------------------
+
 spp_rich_during <- glmmTMB(
-  spp_rich ~ time_since_end*treatment*quality + (1|site) + (1|year),
+  spp_rich ~ treatment*quality + (1|site) + (1|year),
+  family = "poisson",
+  data = fd_metrics %>% filter(exp_dates == "during")
+)
+
+spp_rich_during <- glmmTMB(
+  spp_rich ~ time_since_end*treatment*quality + (1|year),
   family = "poisson",
   data = fd_metrics %>% filter(exp_dates == "during")
 )
@@ -340,7 +408,13 @@ spp_rich_during <- glmmTMB(
 plot(simulateResiduals(spp_rich_during))
 
 spp_rich_after <- glmmTMB(
-  spp_rich ~ time_since_end*treatment*quality + (1|site) + (1|year),
+  spp_rich ~ treatment*quality + (1|site) + (1|year),
+  family = poisson(link = "log"),
+  data = fd_metrics %>% filter(exp_dates == "after")
+)
+
+spp_rich_after <- glmmTMB(
+  spp_rich ~ time_since_end*treatment*quality + (1|year),
   family = "poisson",
   data = fd_metrics %>% filter(exp_dates == "after")
 )
@@ -348,12 +422,24 @@ spp_rich_after <- glmmTMB(
 plot(simulateResiduals(spp_rich_after))
 
 fric_during <- glmmTMB(
-  fric ~ time_since_end*treatment*quality + (1|site) + (1|year),
+  fric ~ treatment*quality + (1|site) + (1|year),
+  family = beta_family(link = "logit"),
+  data = fd_metrics %>% filter(exp_dates == "during")
+)
+
+fric_during <- glmmTMB(
+  fric ~ time_since_end*treatment*quality + (1|year),
   family = beta_family(link = "logit"),
   data = fd_metrics %>% filter(exp_dates == "during")
 )
 
 plot(simulateResiduals(fric_during))
+
+fric_after <- glmmTMB(
+  fric ~ treatment*quality + (1|site) + (1|year),
+  family = beta_family(link = "logit"),
+  data = fd_metrics %>% filter(exp_dates == "after")
+)
 
 fric_after <- glmmTMB(
   fric ~ time_since_end*treatment*quality + (1|site) + (1|year),
@@ -362,6 +448,7 @@ fric_after <- glmmTMB(
 )
 
 plot(simulateResiduals(fric_after))
+plotResiduals(fric_after, form = (fd_metrics %>% filter(exp_dates == "after"))$treatment)
 
 fd_metrics %>% 
   filter(exp_dates == "during") %>% 
@@ -369,7 +456,14 @@ fd_metrics %>%
   geom_histogram(bins = 12)
 
 redund_during <- glmmTMB(
-  redund ~ time_since_end*treatment*quality + (1|site) + (1|year),
+  redund ~ treatment*quality + (1|site) + (1|year),
+  family = beta_family(link = "logit"),
+  ziformula = ~ 1,
+  data = fd_metrics %>% filter(exp_dates == "during")
+)
+
+redund_during <- glmmTMB(
+  redund ~ time_since_end*treatment*quality + (1|year),
   family = beta_family(link = "logit"),
   ziformula = ~ 1,
   data = fd_metrics %>% filter(exp_dates == "during")
@@ -378,7 +472,14 @@ redund_during <- glmmTMB(
 plot(simulateResiduals(redund_during))
 
 redund_after <- glmmTMB(
-  redund ~ time_since_end*treatment*quality + (1|site) + (1|year),
+  redund ~ treatment*quality + (1|site) + (1|year),
+  family = beta_family(link = "logit"),
+  ziformula = ~1,
+  data = fd_metrics %>% filter(exp_dates == "after")
+)
+
+redund_after <- glmmTMB(
+  redund ~ time_since_end*treatment*quality + (1|year),
   family = beta_family(link = "logit"),
   ziformula = ~1,
   data = fd_metrics %>% filter(exp_dates == "after")
@@ -397,7 +498,7 @@ Anova(spp_rich_after, type = "III")
 summary(fric_during)
 Anova(fric_during, type = "II")
 # interactions not significant, going to type II
-# significant interaction between time and quality 
+# significant interaction between time, treatment, and quality 
 
 summary(fric_after)
 Anova(fric_after, type = "III")
@@ -418,6 +519,11 @@ spp_rich_pred_during <- ggpredict(spp_rich_during,
          treatment = group,
          quality = facet)
 
+ggpredict(spp_rich_during,
+          terms = c("time_since_end", "treatment", "quality")) %>% 
+  plot(show_data = TRUE) +
+  coord_cartesian(ylim = c(0, 15))
+
 ggemmeans(spp_rich_during, 
           terms = c("treatment", "quality")) %>% plot()
 
@@ -426,6 +532,11 @@ spp_rich_pred_after <- ggpredict(spp_rich_after,
   rename(time_since_end = x,
          treatment = group,
          quality = facet)
+
+ggpredict(spp_rich_after,
+          terms = c("time_since_end", "quality")) %>% 
+  plot(show_data = TRUE) +
+  coord_cartesian(ylim = c(0, 22))
 
 ggemmeans(spp_rich_after, 
           terms = c("treatment", "quality")) %>% plot()
@@ -436,8 +547,15 @@ fric_pred_during <- ggpredict(fric_during,
          treatment = group,
          quality = facet)
 
+ggpredict(fric_during,
+          terms = c("time_since_end", "treatment", "quality")) %>% 
+  plot(show_data = TRUE) +
+  coord_cartesian(ylim = c(0, 0.35))
+
 ggemmeans(fric_during,
-          terms = c("treatment", "quality")) %>% plot()
+          terms = c("treatment", "quality")) %>% 
+  plot() +
+  coord_cartesian(ylim = c(0, 0.35))
 
 fric_pred_after <- ggpredict(fric_after,
                                terms = c("time_since_end", "treatment", "quality")) %>% 
@@ -445,14 +563,25 @@ fric_pred_after <- ggpredict(fric_after,
          treatment = group,
          quality = facet)
 
+ggpredict(fric_after,
+          terms = c("time_since_end", "treatment", "quality")) %>% 
+  plot(show_data = TRUE) +
+  coord_cartesian(ylim = c(0, 0.35))
+
 ggemmeans(fric_after,
-          terms = c("treatment", "quality")) %>% plot()
+          terms = c("treatment", "quality")) %>% 
+  plot()
 
 redund_pred_during <- ggpredict(redund_during,
                                 terms = c("time_since_end", "treatment", "quality")) %>% 
   rename(time_since_end = x,
          treatment = group,
          quality = facet)
+
+ggpredict(redund_during,
+          terms = c("time_since_end", "quality")) %>% 
+  plot(show_data = TRUE) +
+  coord_cartesian(ylim = c(0, 0.8))
 
 ggemmeans(redund_during,
           terms = c("treatment", "quality")) %>% plot()
@@ -462,6 +591,11 @@ redund_pred_after <- ggpredict(redund_after,
   rename(time_since_end = x,
          treatment = group,
          quality = facet)
+
+ggpredict(redund_after,
+          terms = c("time_since_end", "treatment", "quality")) %>% 
+  plot(show_data = TRUE) +
+  coord_cartesian(ylim = c(0, 0.8))
 
 ggemmeans(redund_after,
           terms = c("treatment", "quality")) %>% plot()
@@ -597,69 +731,230 @@ ggsave(filename = here::here(
   units = "cm",
   dpi = 300)
 
+# ⟞ ⟞ ⟞  redundancy -------------------------------------------------------
 
-# ⟞ ⟞ ⟞ richness ----------------------------------------------------------
-
-rich_mod <- glmmTMB(redund ~ spp_rich,
+rich_mod <- glmmTMB(fric ~ spp_rich,
                     data = fd_metrics,
-                    family = beta_family(link = "logit"),
-                    ziformula = ~1)
+                    family = beta_family(link = "logit"))
 
 plot(simulateResiduals(rich_mod))
 
 summary(rich_mod)
 
 ggpredict(rich_mod,
-          terms = "spp_rich") %>% plot(show_data = TRUE)
+          terms = "spp_rich") %>% 
+  plot(show_data = TRUE) 
 
+ggplot(data = fd_metrics,
+       aes(x = spp_rich,
+           y = fric)) +
+  geom_point() +
+  geom_smooth()
+
+asy_model <- nls(fric ~ SSasymp(spp_rich, Asym, R0, lrc),
+    data = fd_metrics)
+summary(asy_model)
+ggpredict(asy_model,
+          terms = c("spp_rich")) %>% 
+  plot(show_data = TRUE)
+
+AICc(asy_model, rich_mod)
+
+asy_preds <- propagate::predictNLS(asy_model,
+                                   newdata = data.frame(spp_rich = seq(3, 19, by = 1)))
+
+asy_preds_df <- enframe(asy_preds)
 
 # ⟞ ⟞ ⟞ NPP ---------------------------------------------------------------
 
-ggplot(data = fd_metrics,
-       aes(x = sqrt(total_npp))) +
+ggplot(data = fd_metrics %>% filter(exp_dates == "during"),
+       aes(x = (total_npp))) +
   geom_histogram(bins = 12,
                  fill = "cornflowerblue",
-                 color = "black")
+                 color = "black") # log normal?
 
-ggplot(data = fd_metrics %>% filter(exp_dates == "after" & treatment == "continual"),
-       aes(x = redund,
-           y = sqrt(total_npp),
-           color = quality)) +
+ggplot(data = fd_metrics %>% filter(exp_dates == "after"),
+       aes(x = (total_npp))) +
+  geom_histogram(bins = 12,
+                 fill = "cornflowerblue",
+                 color = "black") # log normal?
+
+npp_df <- fd_metrics_reduced %>% 
+  drop_na(fric) %>% 
+  filter(sample_ID != "napl_control_2023-05-18")
+
+npp_fdis <- glmmTMB(total_npp ~ fdis + (1|site) + (1|year) + (1|season),
+                    family = lognormal(link = "log"),
+                    na.action = na.fail,
+                    data = npp_df)
+plot(simulateResiduals(npp_fdis))
+summary(npp_fdis)
+r.squaredGLMM(npp_fdis)
+ggpredict(npp_fdis,
+          terms = c("fdis")) %>% 
+  plot(show_data = TRUE) +
+  coord_cartesian(ylim = c(0, 50))
+
+npp_spp_rich <- glmmTMB(total_npp ~ spp_rich + (1|site) + (1|year) + (1|season),
+                   family = lognormal(link = "log"),
+                   na.action = na.fail,
+                   data = npp_df)
+plot(simulateResiduals(npp_spp_rich))
+summary(npp_spp_rich)
+r.squaredGLMM(npp_spp_rich)
+ggpredict(npp_spp_rich,
+          terms = c("spp_rich")) %>% 
+  plot(show_data = TRUE) +
+  coord_cartesian(ylim = c(0, 50))
+
+ggplot(data = fd_metrics,
+       aes(x = spp_rich,
+           y = total_npp)) +
   geom_point() +
-  geom_smooth(method = "lm") +
-  facet_wrap(~quality)
+  geom_smooth()
 
-npp_mod <- glmmTMB(sqrt(total_npp) ~ redund*quality*treatment + (1|site) + (1|year) + (1|season),
+npp_mod_fric <- glmmTMB(total_npp ~ fric + (1|site) + (1|year) + (1|season),
+                   family = lognormal(link = "log"),
+                   data = npp_df)
+plot(simulateResiduals(npp_mod_fric))
+summary(npp_mod_fric)
+Anova(npp_mod_fric, type = "III")
+ggpredict(npp_mod_fric,
+          terms = c("fric")) %>% 
+  plot(show_data = TRUE) +
+  coord_cartesian(ylim = c(0, 50))
+
+npp_mod_redund <- glmmTMB(total_npp ~ redund + (1|site) + (1|year) + (1|season),
+                   family = lognormal(link = "log"),
+                   data = npp_df)
+plot(simulateResiduals(npp_mod_redund))
+summary(npp_mod_redund)
+Anova(npp_mod_redund, type = "III")
+ggpredict(npp_mod_redund,
+          terms = c("redund")) %>% 
+  plot(show_data = TRUE) +
+  coord_cartesian(ylim = c(0, 50))
+
+npp_mod_thick_leathery <- glmmTMB(total_npp ~ thick_leathery + (1|site) + (1|year) + (1|season),
+                                  family = lognormal(link = "log"),
+                                  na.action = na.fail,
+                                  data = npp_df)
+plot(simulateResiduals(npp_mod_thick_leathery))
+summary(npp_mod_thick_leathery)
+
+npp_mod_leathery_macrophyte <- glmmTMB(total_npp ~ leathery_macrophyte + (1|site) + (1|year) + (1|season),
+                                       family = lognormal(link = "log"),
+                                       na.action = na.fail,
+                                       data = npp_df)
+
+plot(simulateResiduals(npp_mod_leathery_macrophyte))
+summary(npp_mod_leathery_macrophyte)
+
+ggplot(data = npp_df %>% 
+         filter(sample_ID != "napl_control_2023-05-18"), 
+       aes(x = thick_leathery,
+           y = total_npp)) +
+  geom_point()
+
+ggpredict(npp_mod_thick_leathery,
+          terms = "thick_leathery") %>% 
+  plot(show_data = TRUE)
+
+AICc(npp_mod_fric, npp_spp_rich, npp_mod_thick_leathery, npp_mod_leathery_macrophyte)
+
+ggpredict(npp_spp_rich,
+          terms = c("spp_rich")) %>% 
+  plot(show_data = TRUE)
+
+ggplot(data = fd_metrics,
+       aes(x = fric,
+           y = total_npp)) +
+  geom_point(alpha = 0.5, 
+             shape = 21,
+             aes(size = thick_leathery))
+
+ggpredict(npp_mod_fric,
+          terms = c("fric")) %>% 
+  plot(show_data = TRUE)
+
+npp_mod <- glmmTMB(total_npp ~ spp_rich + (1|site) + (1|year) + (1|season),
+                   family = lognormal(link = "log"),
                    data = fd_metrics %>% filter(exp_dates == "after"))
-
-npp_mod <- glmmTMB(sqrt(total_npp) ~ spp_rich*quality*treatment + (1|site) + (1|year) + (1|season),
-                   data = fd_metrics %>% filter(exp_dates == "after"))
-
-npp_mod <- glmmTMB(sqrt(total_npp) ~ fric*quality*treatment + (1|site) + (1|year) + (1|season),
-                   data = fd_metrics %>% filter(exp_dates == "after"))
-
 plot(simulateResiduals(npp_mod))
+summary(npp_mod)
+Anova(npp_mod, type = "III")
+ggpredict(npp_mod,
+          terms = c("spp_rich")) %>% 
+  plot(show_data = TRUE)
+
+npp_mod <- glmmTMB(total_npp ~ fric*quality*treatment + (1|site) + (1|year) + (1|season),
+                   family = lognormal(link = "log"),
+                   data = fd_metrics %>% filter(exp_dates == "after"))
+plot(simulateResiduals(npp_mod))
+summary(npp_mod)
+Anova(npp_mod, type = "III")
+
+ggpredict(npp_mod,
+          terms = c("fric", "treatment", "quality")) %>% 
+  plot(show_data = TRUE)
+
+npp_mod <- glmmTMB(total_npp ~ redund*quality*treatment + (1|site) + (1|year) + (1|season),
+                   family = lognormal(link = "log"),
+                   data = fd_metrics %>% filter(exp_dates == "after"))
+plot(simulateResiduals(npp_mod))
+summary(npp_mod)
+Anova(npp_mod, type = "III")
+
+ggpredict(npp_mod,
+          terms = c("redund", "treatment", "quality")) %>% 
+  plot(show_data = TRUE)
+
+npp_mod <- glmmTMB(total_npp ~ fric*quality*treatment + (1|site) + (1|year) + (1|season),
+                   family = lognormal(link = "log"),
+                   data = fd_metrics %>% filter(exp_dates == "after"))
+plot(simulateResiduals(npp_mod))
+plotResiduals(npp_mod, form = fd_metrics$redund)
 
 summary(npp_mod)
 Anova(npp_mod, type = "II")
 
-x <- seq(from = 1, to = 10, by = 1)
-y <- x^2 + 3
-
-mod1 <- lm(y ~ x)
-
-ggpredict(model = mod1,
-          terms = c("x")) %>% 
+ggpredict(npp_mod,
+          terms = c("fric", "treatment", "quality")) %>% 
   plot(show_data = TRUE)
 
-mod2 <- lm(sqrt(y) ~ x)
 
-insight::find_transformation(mod2)
+# ⟞ ⟞ ⟞ change in richness ------------------------------------------------
 
-ggpredict(model = mod2,
-          terms = c("x"),
-          back_transform = TRUE) 
-  plot(show_data = TRUE)
+cont_redund <- fd_metrics %>% 
+  filter(treatment == "continual") %>% 
+  unite("yss", year, quarter, site, sep = "_", remove = FALSE)
+
+delta_richness <- fd_metrics %>% 
+  select(year, quarter, site, date, treatment, fric) %>% 
+  pivot_wider(names_from = treatment,
+              values_from = fric) %>% 
+  replace_na(list(continual = 0,
+                  control = 0)) %>% 
+  mutate(delta_fric = continual - control) %>% 
+  unite("yss", year, quarter, site, sep = "_") %>% 
+  left_join(., cont_redund, by = "yss")
+
+ggplot(data = delta_richness,
+       aes(x = redund,
+           y = delta_fric)) +
+  geom_hline(yintercept = 0) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+delta_mod <- glmmTMB(delta_fric ~ redund + (1|site) + (1|year),
+                     data = delta_richness)
+plot(simulateResiduals(delta_mod))
+summary(delta_mod)
+ggpredict(delta_mod,
+          terms = c("redund")) %>% 
+  plot(show_data = TRUE) +
+  coord_cartesian(xlim = c(0, 0.8))
+
 
 # ⟞ ⟞ iii. other plots ----------------------------------------------------
 
@@ -1133,13 +1428,371 @@ after_space <- ggplot() +
 
 space_together <- during_space + after_space
 
-# ggsave(here::here("figures",
-#                   "trait-space",
-#                   paste0("exp-dates-comparison_", today(), ".jpg")),
-#        space_together,
-#        width = 24,
-#        height = 10,
-#        units = "cm",
-#        dpi = 200)
+ggsave(here::here("figures",
+                  "trait-space",
+                  paste0("exp-dates-comparison_reduced_", today(), ".jpg")),
+       space_together,
+       width = 24,
+       height = 10,
+       units = "cm",
+       dpi = 200)
+
+
+# ⟞ e. log response ratio -------------------------------------------------
+
+log_response_ratios <- fd_metrics %>% 
+  nest(.by = c(exp_dates, quality),
+       data = everything()) %>% 
+  mutate(spp_rich_lrr = map(
+    data,
+    ~ means_ratio(x = spp_rich ~ treatment,
+                  data = .x,
+                  log = TRUE,
+                  ci = 0.95) %>% 
+      rename(lrr_spp_rich = log_Means_ratio_adjusted,
+             CI_low_spp_rich = CI_low,
+             CI_high_spp_rich = CI_high) %>% 
+      select(!CI)
+  )) %>% 
+  mutate(fric_lrr = map(
+    data,
+    ~ means_ratio(x = fric ~ treatment,
+                  data = .x,
+                  log = TRUE,
+                  ci = 0.95) %>% 
+      rename(lrr_fric = log_Means_ratio_adjusted,
+             CI_low_fric = CI_low,
+             CI_high_fric = CI_high) %>% 
+      select(!CI)
+  )) %>% 
+  mutate(redund_lrr = map(
+    data,
+    ~ means_ratio(x = redund ~ treatment,
+                  data = .x,
+                  log = TRUE,
+                  ci = 0.95) %>% 
+      rename(lrr_redund = log_Means_ratio_adjusted,
+             CI_low_redund = CI_low,
+             CI_high_redund = CI_high) %>% 
+      select(!CI)
+  )) %>% 
+  mutate(raoq_lrr = map(
+    data,
+    ~ means_ratio(x = raoq ~ treatment,
+                  data = .x,
+                  log = TRUE,
+                  ci = 0.95) %>% 
+      rename(lrr_raoq = log_Means_ratio_adjusted,
+             CI_low_raoq = CI_low,
+             CI_high_raoq = CI_high) %>% 
+      select(!CI)
+  )) %>%   
+  mutate(fdis_lrr = map(
+    data,
+    ~ means_ratio(x = fdis ~ treatment,
+                  data = .x,
+                  log = TRUE,
+                  ci = 0.95) %>% 
+      rename(lrr_fdis = log_Means_ratio_adjusted,
+             CI_low_fdis = CI_low,
+             CI_high_fdis = CI_high) %>% 
+      select(!CI)
+  )) %>% 
+  mutate(feve_lrr = map(
+    data,
+    ~ means_ratio(x = feve ~ treatment,
+                  data = .x,
+                  log = TRUE,
+                  ci = 0.95) %>% 
+      rename(lrr_feve = log_Means_ratio_adjusted,
+             CI_low_feve = CI_low,
+             CI_high_feve = CI_high) %>% 
+      select(!CI)
+  )) %>% 
+  mutate(npp_lrr = map(
+    data,
+    ~ means_ratio(x = total_npp ~ treatment,
+                  data = .x,
+                  log = TRUE,
+                  ci = 0.95) %>% 
+      rename(lrr_npp = log_Means_ratio_adjusted,
+             CI_low_npp = CI_low,
+             CI_high_npp = CI_high) %>% 
+      select(!CI)
+  )) %>%  
+  # select(!data) %>% 
+  mutate(aggregate = pmap(
+    list(exp_dates, quality, 
+         spp_rich_lrr, fric_lrr, redund_lrr, 
+         raoq_lrr, fdis_lrr, feve_lrr, npp_lrr),
+    bind_cols
+  )) 
+
+lrr_for_plots <- log_response_ratios %>% 
+  select(aggregate) %>% 
+  unnest(cols = c(aggregate)) %>% 
+  rename(exp_dates = ...1,
+         quality = ...2) %>% 
+  pivot_longer(cols = !c(exp_dates, quality),
+               names_to = "stat",
+               values_to = "value") %>% 
+  mutate(name = case_when(
+    str_detect(stat, "spp_rich") ~ "spp_rich",
+    str_detect(stat, "fric") ~ "fric",
+    str_detect(stat, "redund") ~ "redund",
+    str_detect(stat, "raoq") ~ "raoq",
+    str_detect(stat, "fdis") ~ "fdis",
+    str_detect(stat, "feve") ~ "feve",
+    str_detect(stat, "npp") ~ "npp"
+  )) %>% 
+  mutate(stat = case_when(
+    str_detect(stat, "lrr") ~ "lrr",
+    str_detect(stat, "CI_low") ~ "CI_low",
+    str_detect(stat, "CI_high") ~ "CI_high"
+  )) %>% 
+  pivot_wider(names_from = "stat",
+              values_from = "value") %>% 
+  mutate(name = fct_relevel(name, "spp_rich", "fric", "redund", "fdis", "raoq", "feve", "npp"))
+
+lrr_npp <- lrr_for_plots %>% 
+  filter(name %in% c("npp")) %>% 
+  ggplot(aes(x = quality,
+             y = lrr)) + 
+  geom_hline(yintercept = 0, 
+             linetype = 2,
+             color = "grey") +
+  geom_pointrange(aes(ymin = CI_low,
+                      ymax = CI_high)) +
+  labs(x = "Experimental period",
+       y = "log response ratio \n (log continual/control)") +
+  facet_grid(cols = vars(exp_dates))
+  
+
+lrr_func <- lrr_for_plots %>% 
+  filter(name %in% c("spp_rich", "fric", "feve", "fdis")) %>% 
+ggplot(aes(x = quality,
+           y = lrr)) + 
+  geom_hline(yintercept = 0, 
+             linetype = 2,
+             color = "grey") +
+  geom_pointrange(aes(ymin = CI_low,
+                      ymax = CI_high)) +
+  labs(x = "Experimental period",
+       y = "log response ratio (log continual/control)") +
+  facet_grid(rows = vars(name),
+             cols = vars(exp_dates),
+             labeller = labeller(
+               name = c("spp_rich" = "Species richness", 
+                        "fric" = "Functional richness",
+                        "feve" = "Functional evenness",
+                        "fdis" = "Functional dispersion")))
+# higher value = more in continual removal plot than control
+# after: higher spp richness in removal plot
+# after: higher functional richness in removal plot
+# no difference in redundancy
+# during: lower Rao Q
+
+# % change = 100 * (e^LRR - 1)
+# from https://jepusto.com/files/ABAI-2019-Log-response-ratios.pdf
+
+ggsave(here::here("figures",
+                  "log-response-ratio",
+                  paste0("npp_site-quality_exp-dates_", today(), ".jpg")),
+       lrr_npp,
+       height = 6, 
+       width = 15,
+       units = "cm",
+       dpi = 300)
+
+
+ggsave(here::here("figures",
+                  "log-response-ratio",
+                  paste0("func_site-quality_exp-dates_", today(), ".jpg")),
+       lrr_func,
+       height = 18, 
+       width = 15,
+       units = "cm",
+       dpi = 300)
+
+
+log_response_ratios_reduced <- fd_metrics_reduced %>% 
+  nest(.by = c(exp_dates, quality),
+       data = everything()) %>% 
+  mutate(spp_rich_lrr = map(
+    data,
+    ~ means_ratio(x = spp_rich ~ treatment,
+                  data = .x,
+                  log = TRUE,
+                  ci = 0.95) %>% 
+      rename(lrr_spp_rich = log_Means_ratio_adjusted,
+             CI_low_spp_rich = CI_low,
+             CI_high_spp_rich = CI_high) %>% 
+      select(!CI)
+  )) %>% 
+  mutate(fric_lrr = map(
+    data,
+    ~ means_ratio(x = fric ~ treatment,
+                  data = .x,
+                  log = TRUE,
+                  ci = 0.95) %>% 
+      rename(lrr_fric = log_Means_ratio_adjusted,
+             CI_low_fric = CI_low,
+             CI_high_fric = CI_high) %>% 
+      select(!CI)
+  )) %>% 
+  mutate(redund_lrr = map(
+    data,
+    ~ means_ratio(x = redund ~ treatment,
+                  data = .x,
+                  log = TRUE,
+                  ci = 0.95) %>% 
+      rename(lrr_redund = log_Means_ratio_adjusted,
+             CI_low_redund = CI_low,
+             CI_high_redund = CI_high) %>% 
+      select(!CI)
+  )) %>% 
+  mutate(raoq_lrr = map(
+    data,
+    ~ means_ratio(x = raoq ~ treatment,
+                  data = .x,
+                  log = TRUE,
+                  ci = 0.95) %>% 
+      rename(lrr_raoq = log_Means_ratio_adjusted,
+             CI_low_raoq = CI_low,
+             CI_high_raoq = CI_high) %>% 
+      select(!CI)
+  )) %>%   
+  mutate(fdis_lrr = map(
+    data,
+    ~ means_ratio(x = fdis ~ treatment,
+                  data = .x,
+                  log = TRUE,
+                  ci = 0.95) %>% 
+      rename(lrr_fdis = log_Means_ratio_adjusted,
+             CI_low_fdis = CI_low,
+             CI_high_fdis = CI_high) %>% 
+      select(!CI)
+  )) %>% 
+  mutate(feve_lrr = map(
+    data,
+    ~ means_ratio(x = feve ~ treatment,
+                  data = .x,
+                  log = TRUE,
+                  ci = 0.95) %>% 
+      rename(lrr_feve = log_Means_ratio_adjusted,
+             CI_low_feve = CI_low,
+             CI_high_feve = CI_high) %>% 
+      select(!CI)
+  )) %>% 
+  mutate(npp_lrr = map(
+    data,
+    ~ means_ratio(x = total_npp ~ treatment,
+                  data = .x,
+                  log = TRUE,
+                  ci = 0.95) %>% 
+      rename(lrr_npp = log_Means_ratio_adjusted,
+             CI_low_npp = CI_low,
+             CI_high_npp = CI_high) %>% 
+      select(!CI)
+  )) %>%  
+  # select(!data) %>% 
+  mutate(aggregate = pmap(
+    list(exp_dates, quality, 
+         spp_rich_lrr, fric_lrr, redund_lrr, 
+         raoq_lrr, fdis_lrr, feve_lrr, npp_lrr),
+    bind_cols
+  )) 
+
+lrr_for_plots_reduced <- log_response_ratios_reduced %>% 
+  select(aggregate) %>% 
+  unnest(cols = c(aggregate)) %>% 
+  rename(exp_dates = ...1,
+         quality = ...2) %>% 
+  pivot_longer(cols = !c(exp_dates, quality),
+               names_to = "stat",
+               values_to = "value") %>% 
+  mutate(name = case_when(
+    str_detect(stat, "spp_rich") ~ "spp_rich",
+    str_detect(stat, "fric") ~ "fric",
+    str_detect(stat, "redund") ~ "redund",
+    str_detect(stat, "raoq") ~ "raoq",
+    str_detect(stat, "fdis") ~ "fdis",
+    str_detect(stat, "feve") ~ "feve",
+    str_detect(stat, "npp") ~ "npp"
+  )) %>% 
+  mutate(stat = case_when(
+    str_detect(stat, "lrr") ~ "lrr",
+    str_detect(stat, "CI_low") ~ "CI_low",
+    str_detect(stat, "CI_high") ~ "CI_high"
+  )) %>% 
+  pivot_wider(names_from = "stat",
+              values_from = "value") %>% 
+  mutate(name = fct_relevel(name, "spp_rich", "fric", "redund", "fdis", "raoq", "feve", "npp"))
+
+lrr_npp_reduced <- lrr_for_plots_reduced %>% 
+  filter(name %in% c("npp")) %>% 
+  ggplot(aes(x = quality,
+             y = lrr)) + 
+  geom_hline(yintercept = 0, 
+             linetype = 2,
+             color = "grey") +
+  geom_pointrange(aes(ymin = CI_low,
+                      ymax = CI_high)) +
+  labs(x = "Experimental period",
+       y = "log response ratio \n (log continual/control)") +
+  facet_grid(cols = vars(exp_dates))
+
+
+lrr_func_reduced <- lrr_for_plots_reduced %>% 
+  filter(name %in% c("spp_rich", "fric", "feve")) %>% 
+  ggplot(aes(x = quality,
+             y = lrr)) + 
+  geom_hline(yintercept = 0, 
+             linetype = 2,
+             color = "grey") +
+  geom_pointrange(aes(ymin = CI_low,
+                      ymax = CI_high)) +
+  labs(x = "Experimental period",
+       y = "log response ratio (log continual/control)") +
+  facet_grid(rows = vars(name),
+             cols = vars(exp_dates),
+             labeller = labeller(
+               name = c("spp_rich" = "Species richness", 
+                        "fric" = "Functional richness",
+                        "feve" = "Functional evenness")))
+# higher value = more in continual removal plot than control
+# after: higher spp richness in removal plot
+# after: higher functional richness in removal plot
+# no difference in redundancy
+# during: lower Rao Q
+
+# % change = 100 * (e^LRR - 1)
+# from https://jepusto.com/files/ABAI-2019-Log-response-ratios.pdf
+
+ggsave(here::here("figures",
+                  "log-response-ratio",
+                  paste0("npp_site-quality_exp-dates_", today(), ".jpg")),
+       lrr_npp,
+       height = 6, 
+       width = 15,
+       units = "cm",
+       dpi = 300)
+
+
+ggsave(here::here("figures",
+                  "log-response-ratio",
+                  paste0("func_site-quality_exp-dates_reduced_", today(), ".jpg")),
+       lrr_func_reduced,
+       height = 18, 
+       width = 15,
+       units = "cm",
+       dpi = 300)
+
+
+
+
+
+
+
 
 

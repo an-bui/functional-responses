@@ -131,27 +131,27 @@ comm_mat_control_algae <- comm_df %>%
 
 # ⟞ b. benthics -----------------------------------------------------------
 
-benthic_comm_df <- benthics %>% 
-  # select columns of interest 
-  dplyr::select(site, transect, year, month, date, new_group, sp_code, dry_gm2) %>% 
-  unite("sample_ID", site, year, transect, remove = FALSE) %>% 
-  full_join(., site_quality, by = "site") %>% 
-  left_join(., enframe(sites_full), by = c("site" = "name")) %>% 
-  rename(site_full = value) %>% 
-  mutate(site_full = fct_relevel(site_full, "Arroyo Quemado", "Naples", "Mohawk", "Carpinteria")) 
-
-benthic_comm_df_wide <- benthic_comm_df %>% 
-  widen()
-
-benthic_comm_meta <- benthics %>% 
-  # select columns of interest 
-  dplyr::select(site, transect, year, month, date) %>% 
-  unite("sample_ID", site, year, transect, remove = FALSE) %>% 
-  full_join(., site_quality, by = "site") %>% 
-  left_join(., enframe(sites_full), by = c("site" = "name")) %>% 
-  rename(site_full = value) %>% 
-  mutate(site_full = fct_relevel(site_full, "Arroyo Quemado", "Naples", "Mohawk", "Carpinteria")) %>% 
-  unique()
+# benthic_comm_df <- benthics %>% 
+#   # select columns of interest 
+#   dplyr::select(site, transect, year, month, date, new_group, sp_code, dry_gm2) %>% 
+#   unite("sample_ID", site, year, transect, remove = FALSE) %>% 
+#   full_join(., site_quality, by = "site") %>% 
+#   left_join(., enframe(sites_full), by = c("site" = "name")) %>% 
+#   rename(site_full = value) %>% 
+#   mutate(site_full = fct_relevel(site_full, "Arroyo Quemado", "Naples", "Mohawk", "Carpinteria")) 
+# 
+# benthic_comm_df_wide <- benthic_comm_df %>% 
+#   widen()
+# 
+# benthic_comm_meta <- benthics %>% 
+#   # select columns of interest 
+#   dplyr::select(site, transect, year, month, date) %>% 
+#   unite("sample_ID", site, year, transect, remove = FALSE) %>% 
+#   full_join(., site_quality, by = "site") %>% 
+#   left_join(., enframe(sites_full), by = c("site" = "name")) %>% 
+#   rename(site_full = value) %>% 
+#   mutate(site_full = fct_relevel(site_full, "Arroyo Quemado", "Naples", "Mohawk", "Carpinteria")) %>% 
+#   unique()
   
 
 ##########################################################################-

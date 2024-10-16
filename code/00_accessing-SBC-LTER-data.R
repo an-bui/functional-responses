@@ -23,21 +23,21 @@ library(tidyverse)
 ##########################################################################-
 
 # SBC LTE package ID
-packageID <- "knb-lter-sbc.119.11"
+packageID <- "knb-lter-sbc.119.12"
 
 # downloads zipped file
 read_data_package_archive(packageID, path = here("data", "SBC-LTE"))
 
 # unzips file
-unzip(zipfile = here("data", "SBC-LTE", "knb-lter-sbc.119.11.zip"),
-      exdir = here("data", "SBC-LTE", "knb-lter-sbc.119.11"))
+unzip(zipfile = here("data", "SBC-LTE", "knb-lter-sbc.119.12.zip"),
+      exdir = here("data", "SBC-LTE", "knb-lter-sbc.119.12"))
 
 # SBC LTE NPP dataset
-nppID <- "knb-lter-sbc.58.18"
+nppID <- "knb-lter-sbc.58.19"
 
 # downloads zipped file
-read_data_package_archive(nppID, path = here("data", "SBC-LTER"))
+read_data_package_archive(nppID, path = here("data", "SBC-LTE"))
 
 # unzips file
-unzip(zipfile = here("data", "SBC-LTE", "knb-lter-sbc.58.18.zip"),
-      exdir = here("data", "SBC-LTE", "knb-lter-sbc.58.18"))
+unzip(zipfile = here("data", "SBC-LTE", "knb-lter-sbc.58.19.zip"),
+      exdir = here("data", "SBC-LTE", "knb-lter-sbc.58.19"))

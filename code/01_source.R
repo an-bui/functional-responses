@@ -35,6 +35,7 @@ library(RVAideMemoire)
 library(modelsummary)
 library(MuMIn)
 library(car)
+library(effectsize)
 
 # visualization
 library(factoextra)
@@ -523,6 +524,16 @@ my_fviz_nbclust <- function(x, print.summary = TRUE, barfill = "steelblue", barc
 # 3. data -----------------------------------------------------------------
 ##########################################################################-
 
+# categorical traits 
+traits <- read_csv(here("data", 
+                        "functional-traits",
+                        "joe-traits-lter_2024-09-27.csv"))
+
+# Steneck and Dethier and Littler and Littler traits
+coarse_traits <- repmis::source_data("https://www.dropbox.com/scl/fi/s1gb2f3f13ry1oqtzoyyj/00-coarse_traits.csv?rlkey=tgd6j5q3y7bfsdxz7sgs77klb&st=moyfpk93&dl=1") %>% 
+  mutate(scientific_name = str_replace(scientific_name, "_", " ")) %>% 
+  select(scientific_name, sd_growth_form, ll_func_form)
+
 guilds <- read_csv(here::here("data", "SBC-LTE", "LTE_guild_data.csv")) %>% 
   mutate(sp.code = replace_na(sp.code, "Nandersoniana")) %>% 
   rename("new_group" = biomass.guild) %>% 
@@ -532,8 +543,8 @@ guilds <- read_csv(here::here("data", "SBC-LTE", "LTE_guild_data.csv")) %>%
 biomass <- read_csv(
   here("data",
        "SBC-LTE",
-       "knb-lter-sbc.119.11",
-       "LTE_All_Species_Biomass_at_transect_20240501.csv")
+       "knb-lter-sbc.119.12",
+       "LTE_All_Species_Biomass_at_transect_20241014.csv")
 ) %>%
   clean_names() %>%
   # replace NA sp_code with Nandersoniana
@@ -583,8 +594,8 @@ biomass <- read_csv(
 npp <- read_csv(
   here("data",
        "SBC-LTE",
-       "knb-lter-sbc.58.18",
-       "Understory_NPP_All_Year_season_20240501.csv")
+       "knb-lter-sbc.58.19",
+       "Understory_NPP_All_Year_season_20241014.csv")
 ) %>%
   clean_names() %>%
   # replace NA sp_code with Nandersoniana
@@ -634,15 +645,7 @@ npp <- read_csv(
   # comparison_column_continual_new() %>% 
   # kelp_year_column()
 
-# categorical traits 
-traits <- read_csv(here("data", 
-                        "functional-traits",
-                        "joe-traits-lter_2024-09-27.csv"))
 
-# Steneck and Dethier and Littler and Littler traits
-coarse_traits <- repmis::source_data("https://www.dropbox.com/scl/fi/s1gb2f3f13ry1oqtzoyyj/00-coarse_traits.csv?rlkey=tgd6j5q3y7bfsdxz7sgs77klb&st=moyfpk93&dl=1") %>% 
-  mutate(scientific_name = str_replace(scientific_name, "_", " ")) %>% 
-  select(scientific_name, sd_growth_form, ll_func_form)
 
 
 ##########################################################################-

@@ -1,0 +1,6 @@
+Manifest file for knb-lter-sbc.58.19.zip created on Wed Oct 16 17:04:36 UTC 2024
+Understory_NPP_All_Year_season_20241014.csv (35235396 bytes)
+Understory_Summer_Bmass_Annual_NPP_Relationships_20241014.csv (2910 bytes)
+knb-lter-sbc.58.19.xml (66511 bytes)
+knb-lter-sbc.58.19.txt (33099 bytes)
+knb-lter-sbc.58.19.report.xml (52284 bytes)

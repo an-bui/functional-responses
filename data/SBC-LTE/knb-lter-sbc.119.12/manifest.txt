@@ -1,0 +1,5 @@
+Manifest file for knb-lter-sbc.119.12.zip created on Wed Oct 16 17:03:37 UTC 2024
+LTE_All_Species_Biomass_at_transect_20241014.csv (49571983 bytes)
+knb-lter-sbc.119.12.xml (73337 bytes)
+knb-lter-sbc.119.12.txt (37004 bytes)
+knb-lter-sbc.119.12.report.xml (34287 bytes)
