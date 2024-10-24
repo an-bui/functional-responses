@@ -1,0 +1,961 @@
+
+   
+      
+         uid=SBC,o=EDI,dc=ecoinformatics,dc=org
+         all
+      
+      
+         uid=lkui,o=EDI,dc=ecoinformatics,dc=org
+         all
+      
+      
+         public
+         read
+      
+   
+   
+      doi:10.6073/pasta/869317d54d5f7859add452722319d72cKFCD percent cover of bottom substrate and sand depth
+      SBC LTER: Reef: Kelp Forest Community Dynamics: Cover of bottom substrate and sand depth
+      
+         Daniel C Reed
+         			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+         805-893-8363
+         danreed@ucsb.edu
+         https://orcid.org/0000-0003-3015-8717
+      
+      
+         Robert J Miller
+         			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+         805-893-6174
+         rjmiller@ucsb.edu
+         https://orcid.org/0000-0002-8350-3759
+      
+      
+         Santa Barbara Coastal LTER
+         			Marine Science Institute University of California
+			Santa Barbara, CA 93106  USA
+         sbclter@msi.ucsb.edu
+         publisher, curator
+      
+      2024-09-13
+      English
+      
+         
+            
+      These data describe the percent cover of eight bottom substrate
+      types as determined by a uniform point contact method. The type of
+      bottom substrate is recorded at 80 uniformly spaced points along
+      permanent 40m x 2m transects. Percent cover of each substrate type
+      on a transect is estimated as the proportion of the 80 points
+      contacted by that substrate type x 100. In cases where the
+      substrate type is sand, the depth of the sand is measured.
+    
+            
+      These data are part of the SBC LTER’s time series observations of
+      kelp forest dynamics, which began in 2000 and was designed to
+      track long-term patterns in species abundance and diversity of
+      reef-associated organisms in the Santa Barbara Channel,
+      California, USA. The sampling locations in this dataset include
+      nine reef sites along the mainland coast of the Santa Barbara
+      Channel and two on the north side of Santa Cruz Island. These 11
+      sites were chosen to reflect the wide range of oceanographic
+      conditions present in the Channel and proximity to sources of
+      terrestrial runoff. Data are collected at each site once per year
+      in summer and this dataset is updated annually.
+    
+            
+      The time period of data collection varied among the 11 reef sites.
+      Sampling at BULL, CARP, and NAPL began in 2000, sampling at the
+      other 6 mainland sites (AHND, AQUE, IVEE, GOLB, ABUR, MOHK) began
+      in 2001 (transects 3, 5, 6, 7, 8 at IVEE were added in 2011). Data
+      collection at the two Santa Cruz Island sites (SCTW and SCDI)
+      began in 2004.
+    
+            
+      The two tables in this data package include: 1) The percent cover
+      of eight bottom substrate types; and 2) the sand depth of each
+      sampling point (sand depth = 0 if substrate type ≠sand).
+    
+         
+      
+      
+         LTER
+         sand
+         Santa Barbara Coastal
+         LTER Controlled Vocabulary v1
+      
+      
+         Kelp_forest_monitoring
+         SBC-LTER Controlled Vocabulary
+      
+      
+         Arroyo Burro
+         Arroyo Hondo
+         Arroyo Quemado
+         Bullito
+         Carpinteria
+         Goleta Bay
+         Isla Vista
+         Mohawk
+         Naples
+         Santa Cruz Island, Diablo
+         Santa Cruz Island, Twin Harbor West
+         Santa Barbara Coastal LTER Places
+      
+      
+         Cover
+         Substrates
+         NBII Biocomplexity
+      
+      
+         Kelp_forest_monitoring
+         LTER
+         LTER Core Research Areas
+         none
+      
+      
+         
+    This data package is released under the Creative Commons License
+    Attribution 4.0 International (CC BY 4.0, see
+    https://creativecommons.org/licenses/by/4.0/). This license states
+    that consumers ("Data Users" herein) may distribute,
+    adapt, reuse, remix, and build upon this work, as long as they give
+    appropriate credit, provide a link to the license, and indicate if
+    changes were made. If redistributed, a Data User may not apply
+    additional restrictions or technological measures that prevent
+    access.
+  
+         
+    The Data User has an ethical obligation to cite the data source
+    appropriately in any publication or product that results from its
+    use, and notify the data contact or creator. Communication,
+    collaboration, or co-authorship (as appropriate) with the creators
+    of this data package is encouraged to prevent duplicate research or
+    publication. The Data User is urged to contact the authors of these
+    data if any questions about methodology or results occur. The Data
+    User should realize that these data may be actively used by others
+    for ongoing research and that coordination may be necessary to
+    prevent duplication or inappropriate use. The Data User should
+    realize that misinterpretation may occur if data are used outside of
+    the context of the original study. The Data User should be aware
+    that data are updated periodically and it is the responsibility of
+    the Data User to check for new versions of the data.
+  
+         
+    While substantial efforts are made to ensure the accuracy of data
+    and associated documentation, complete accuracy of data sets cannot
+    be guaranteed. This data package (with its components) is made
+    available “as is” and with no warranty of accuracy or fitness for
+    use. The creators of this data package and the repository where
+    these data were obtained shall not be liable for any damages
+    resulting from misinterpretation, use or misuse of the data package
+    or its components.
+  
+      
+      
+         
+            https://sbclter.msi.ucsb.edu/
+         
+      
+      https://doi.org/10.6073/pasta/869317d54d5f7859add452722319d72c
+         
+            ABUR: Arroyo Burro Reef is located on the Santa Barbara Channel near the mouth of Arroyo Burro Creek and Beach. Depth ranges from 5.4 to 7 meters.
+            
+               -119.7445915
+               -119.7445915
+               34.400275
+               34.400275
+            
+         
+         
+            AHND: Arroyo Hondo Reef is located on the Santa Barbara Channel near the east end of Gaviota State Park, CA. Depth ranges from -4.3m to -6.6 meters.
+            
+               -120.1426165
+               -120.1426165
+               34.471817
+               34.471817
+            
+         
+         
+            AQUE: Arroyo Quemado Reef: Arroyo Quemado Reef depth range from 5.4 m to 10.7 m. Reference on Land is close to US101/Arroyo Quemada Ln.
+            
+               -120.11905
+               -120.11905
+               34.46774988
+               34.46774988
+            
+         
+         
+            BULL: Builto: Bulito has three permanent transect: Transect I, III, VI. Depth Range from -5.5 to -7.3. Reference on land is close to Ranch Real road and Hollister Ranch road crossing section.
+            
+               -120.33349
+               -120.33349
+               34.45850533
+               34.45850533
+            
+         
+         
+            CARP: Carpinteria Reef is located on the Santa Barbara Channel offshore of the Carpinteria Salt Marsh. Depth range is from -2.2 to -8.8 meters
+            
+               -119.5416933
+               -119.5416933
+               34.3916319
+               34.3916319
+            
+         
+         
+            GOLB: Goleta Bay is located on the Santa Barbara Channel east of Goleta Pier. Depth range is -4.2 to -5 meters.
+            
+               -119.8221
+               -119.8221
+               34.4137165
+               34.4137165
+            
+         
+         
+            IVEE: Isla Vista (IV) Reef is located on the Santa Barbara Channel near the University of California Santa Barbara, CA. Depth range is from -8.2 to -8.8 meters.
+            
+               -119.85755
+               -119.85755
+               34.402783
+               34.402783
+            
+         
+         
+            MOHK: Mohawk Reef: Mohawk Reef depth ranges from 4.5m to 6.0 m. Reference on land is Mohawk Rd / Edgewater Way.
+            
+               -119.72957
+               -119.72957
+               34.3940708
+               34.3940708
+            
+         
+         
+            NAPL: Naples Reef is located on the Santa Barbara Channel near the community of Naples and Dos Pueblos Canyon, Santa Barbara County, CA. Depth ranges from -5.9 to -13.4 meters.
+            
+               -119.95154
+               -119.95154
+               34.4221216
+               34.4221216
+            
+         
+         
+            SCDI: Santa Cruz Island, Diablo; Depth ranges from -5.2 to -11.9 meters
+            
+               -119.75763
+               -119.75763
+               34.05865
+               34.05865
+            
+         
+         
+            SCTW: Santa Cruz Island, Twin Harbor West; Depth ranges from -2.7 to -7.8 meters
+            
+               -119.71513
+               -119.71513
+               34.0444335
+               34.0444335
+            
+         
+         
+            
+               
+                  2000-08-01
+               
+               
+                  2024-07-30
+               
+            
+         
+      
+      
+         Santa Barbara Coastal LTER
+         			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+         sbclter@msi.ucsb.edu
+         https://sbclter.msi.ucsb.edu/
+         https://ror.org/05hnkta08
+      
+      
+         Environmental Data Initiative
+         info@edirepository.org
+         https://edirepository.org
+         0330j0z60
+      
+      Environmental Data Initiative
+      
+         
+            
+               
+                  
+      Bottom substrate cover and sand depth data are collected using
+      Uniform Point Contact (UPC) sampling method. UPC data are
+      collected at 80 points uniformly positioned within a 1 m wide area
+      centered along a permanent 40 m transect.
+    
+                  
+      Percent cover values were given a NA (-99999) in cases where data
+      were lost or not collected.
+    
+                  
+      See the protocol document for more information.
+    
+               
+            
+            
+               Kelp Forest Community Structure Methods - Percent Cover of Bottom Substrate and Sand Depth
+               
+                   Reed
+               
+               
+                  
+                     https://sbclter.msi.ucsb.edu/external/Reef/Protocols/Kelp_Forest_Community_Dynamics/KFCS_Protocol_Percent_cover_of_bottom_substrate_and_sand_depth.pdf
+                  
+               
+            
+         
+      
+      
+         Santa Barbara Coastal Long Term Ecological Research Project
+         
+            Dr. Robert Miller
+            			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+            miller@msi.ucsb.edu
+            Principal Investigator
+         
+         
+            Dr. Dan Reed
+            			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+            dan.reed@lifesci.ucsb.edu
+            Co-principal Investigator
+         
+         
+            Dr. Adrian Stier
+            			Department of Ecology, Evolution and Marine Biology
+			University of California
+			Santa Barbara, California 93106-9260  United States
+            adrian.stier@lifesci.ucsb.edu
+            Co-principal Investigator
+         
+         
+            Dr. Gretchen Hoffman
+            			Department of Ecology, Evolution and Marine Biology
+			University of California
+			Santa Barbara, California 93106-9620  United States
+            hofmann@lifesci.ucsb.edu
+            Co-principal Investigator
+         
+         
+            Dr. David Siegel
+            			Institute for Computational Earth System Science
+			University of California
+			Santa Barbara, California 93106-3060  United States
+            davey@icess.ucsb.edu
+            Co-principal Investigator
+         
+         
+            
+               The Santa Barbara Coastal LTER (SBC LTER) is an interdisciplinary research and education program
+established in April 2000 with the goal of developing a predictive understanding of how environmental
+drivers interact with terrestrial and oceanic processes to alter material flows and influence the ecology of
+coastal ecosystems. SBC LTER's principal study domain is the semi-arid coast and nearshore waters of
+the Santa Barbara Channel in southern California, and its diverse and productive marine forests of giant
+kelp (Macrocystis pyrifera) serve as the focal study ecosystem. Analyses of our long-term data have
+identified many of the environmental drivers and ecological processes underlying the production and
+community dynamics of kelp forests. The research proposed to address this question is integrated in a conceptual framework
+that focuses on the causes and ecological consequences of the dynamics of a relatively short-lived
+foundation species in a setting of long-term climate change and human use.
+            
+         
+         
+            SBC LTER is supported by the National Science Foundation.
+         
+         
+            National Science Foundation
+            https://dx.doi.org/10.13039/100000001
+            1831937
+            LTER: Environmental drivers and ecological consequences of kelp forest dynamics (SBV IV)
+            https://www.nsf.gov/awardsearch/showAward?AWD_ID=1831937
+         
+         
+            National Science Foundation
+            https://dx.doi.org/10.13039/100000001
+            1232779
+            LTER: Land/Ocean Interactions and the Dynamics of Kelp Forest Ecosystems (SBC III)
+            https://www.nsf.gov/awardsearch/showAward?AWD_ID=1232779
+         
+         
+            National Science Foundation
+            https://dx.doi.org/10.13039/100000001
+            0620276
+            LTER: Land/Ocean Interactions and the Dynamics of Kelp Forest Communities
+            https://www.nsf.gov/awardsearch/showAward?AWD_ID=0620276
+         
+         
+            National Science Foundation
+            https://dx.doi.org/10.13039/100000001
+            9982105
+            LTER: Land/Ocean Interactions and the Dynamics of Kelp Forest Ecosystems
+            https://www.nsf.gov/awardsearch/showAward?AWD_ID=9982105
+         
+      
+      
+         Benthic substrate cover all years
+         cover of substrate at permanent sites
+         
+            Annual_Substrate_All_Years_20240823.csv
+            1846717
+            3cc4dcc37104b39bb4edd9854821af8f
+            
+               
+                  1
+                  \r\n
+                  column
+                  
+                     ,
+                     no
+                     "
+                  
+               
+            
+            
+               
+                  https://pasta.lternet.edu/package/data/eml/knb-lter-sbc/138/5/82d1b4ba2b2c1b5438ae1279e19bf68b
+               
+            
+         
+         
+            
+               YEAR
+               Year
+               Calendar year
+               integer
+               
+                  
+                     YYYY
+                     1
+                     
+                  
+               
+               
+                  -99999
+                  no information available
+               
+            
+            
+               MONTH
+               Month
+               Calendar month
+               integer
+               
+                  
+                     MM
+                     1
+                     
+                        
+                           1
+                           12
+                        
+                     
+                  
+               
+               
+                  -99999
+                  no information available
+               
+            
+            
+               DATE
+               Date
+               Date of data collection in format: YYYY-MM-DD
+               date
+               
+                  
+                     YYYY-MM-DD
+                     1
+                     
+                  
+               
+               
+                  -99999
+                  no information available
+               
+            
+            
+               SITE
+               Site code
+               Code for reef site. See list of codes for meaning
+               string
+               
+                  
+                     
+                        
+                           
+                              ABUR
+                              Arroyo Burro
+                           
+                           
+                              AHND
+                              Arroyo Hondo
+                           
+                           
+                              AQUE
+                              Arroyo Quemado
+                           
+                           
+                              BULL
+                              Bulito
+                           
+                           
+                              CARP
+                              Carpinteria
+                           
+                           
+                              GOLB
+                              Goleta Bay
+                           
+                           
+                              IVEE
+                              Isla Vista
+                           
+                           
+                              MOHK
+                              Mohawk
+                           
+                           
+                              NAPL
+                              Naples
+                           
+                           
+                              SCDI
+                              Santa Cruz Island, Diablo
+                           
+                           
+                              SCTW
+                              Santa Cruz Island, Twin Harbor West Reef
+                           
+                        
+                     
+                  
+               
+               
+                  -99999
+                  no information available
+               
+            
+            
+               TRANSECT
+               Transect name
+               40m transects defined by six permanent markers (stainless steel eyebolts or rebar stakes) at 0, 8, 16, 24, 32, and 40m.
+               string
+               
+                  
+                     
+                        
+                           any text
+                        
+                     
+                  
+               
+               
+                  -99999
+                  no information available
+               
+            
+            
+               QUAD
+               Quad name
+               Used for benthic survey method only. Describes location along transect, either 0-20 or 20-40
+               string
+               
+                  
+                     
+                        
+                           text
+                        
+                     
+                  
+               
+               
+                  -99999
+                  value not recorded or not available
+               
+            
+            
+               SIDE
+               Transect side
+               Used for bethic survey method only. Inshore or offshore side of transect.
+               string
+               
+                  
+                     
+                        
+                           text
+                        
+                     
+                  
+               
+               
+                  -99999
+                  value not recorded or not available
+               
+            
+            
+               SUBSTRATE_TYPE
+               Substrate Type
+               substrate type
+               string
+               
+                  
+                     
+                        
+                           
+                              B
+                              Bedrock
+                           
+                           
+                              BL
+                              Boulder Large: rock greater than 1 meter in diameter
+                           
+                           
+                              BM
+                              Boulder Medium: rock 50 to 100 cm in diameter
+                           
+                           
+                              BS
+                              Boulder Small: rock 25-50 cm in diameter
+                           
+                           
+                              C
+                              Cobble: rock less than 25 cm in diameter
+                           
+                           
+                              S
+                              Sand: sand greater than 2.5 cm deep
+                           
+                           
+                              SH
+                              Shell Debris, broken
+                           
+                           
+                              SS
+                              Shallow Sand: sand less than 2.5 cm deep
+                           
+                        
+                     
+                  
+               
+               
+                  -99999
+                  no information available
+               
+            
+            
+               COMMON_NAME
+               Common name
+               common_name matching the substrate type code
+               string
+               
+                  
+                     
+                        
+                           any text
+                        
+                     
+                  
+               
+               
+                  -99999
+                  no information available
+               
+            
+            
+               PERCENT_COVER
+               Percent cover
+               Percent cover of the species noted as determined by a uniform point contact method (80 point per 40x2 meter transect) where multiple layers of species at a given point are accounted for.
+               float
+               
+                  
+                     
+                        percent
+                     
+                     0.01
+                     
+                        real
+                        
+                           0
+                           100
+                        
+                     
+                  
+               
+               
+                  -99999
+                  no information available
+               
+               
+                  http://qudt.org/schema/qudt/hasUnit
+                  http://qudt.org/vocab/unit/PERCENT
+               
+            
+         
+         32384
+      
+      
+         Sand depth all years
+         Sand depth at permanent sites
+         
+            Annual_Sand_Depth_All_Years_20240823.csv
+            3193636
+            cbaf921a0c664c0d54e77216c261c666
+            
+               
+                  1
+                  \r\n
+                  column
+                  
+                     ,
+                     no
+                     "
+                  
+               
+            
+            
+               
+                  https://pasta.lternet.edu/package/data/eml/knb-lter-sbc/138/5/a46a2e69dbf70a0e75f669a4bacf18ca
+               
+            
+         
+         
+            
+               YEAR
+               Year
+               Calendar year
+               integer
+               
+                  
+                     YYYY
+                     1
+                     
+                  
+               
+               
+                  -99999
+                  no information available
+               
+            
+            
+               MONTH
+               Month
+               Calendar month
+               integer
+               
+                  
+                     MM
+                     1
+                     
+                        
+                           1
+                           12
+                        
+                     
+                  
+               
+               
+                  -99999
+                  no information available
+               
+            
+            
+               DATE
+               Date
+               Date of data collection in format: YYYY-MM-DD
+               date
+               
+                  
+                     YYYY-MM-DD
+                     1
+                     
+                  
+               
+               
+                  -99999
+                  no information available
+               
+            
+            
+               SITE
+               Site code
+               Code for reef site. See list of codes for meaning
+               string
+               
+                  
+                     
+                        
+                           
+                              ABUR
+                              Arroyo Burro
+                           
+                           
+                              AHND
+                              Arroyo Hondo
+                           
+                           
+                              AQUE
+                              Arroyo Quemado
+                           
+                           
+                              BULL
+                              Bulito
+                           
+                           
+                              CARP
+                              Carpinteria
+                           
+                           
+                              GOLB
+                              Goleta Bay
+                           
+                           
+                              IVEE
+                              Isla Vista
+                           
+                           
+                              MOHK
+                              Mohawk
+                           
+                           
+                              NAPL
+                              Naples
+                           
+                           
+                              SCDI
+                              Santa Cruz Island, Diablo
+                           
+                           
+                              SCTW
+                              Santa Cruz Island, Twin Harbor West Reef
+                           
+                        
+                     
+                  
+               
+               
+                  -99999
+                  no information available
+               
+            
+            
+               TRANSECT
+               Transect name
+               40m transects defined by six permanent markers (stainless steel eyebolts or rebar stakes) at 0, 8, 16, 24, 32, and 40m.
+               string
+               
+                  
+                     
+                        
+                           any text
+                        
+                     
+                  
+               
+               
+                  -99999
+                  no information available
+               
+            
+            
+               DISTANCE
+               Distance
+               Distance in m along the transect; 1-20 is in Quad 20 and 21-40 is in Quad 40.
+               float
+               
+                  
+                     
+                        meter
+                     
+                     1
+                     
+                        integer
+                     
+                  
+               
+               
+                  -99999
+                  value not recorded or not available
+               
+               
+                  http://qudt.org/schema/qudt/hasUnit
+                  http://qudt.org/vocab/unit/M
+               
+            
+            
+               SIDE
+               Transect side
+               Used for bethic survey method only. Inshore or offshore side of transect.
+               string
+               
+                  
+                     
+                        
+                           text
+                        
+                     
+                  
+               
+               
+                  -99999
+                  value not recorded or not available
+               
+            
+            
+               SAND_DEPTH
+               Sand Depth
+               Sand depth in cm, measured at each point that the substrate is "sand"
+               float
+               
+                  
+                     
+                        centimeter
+                     
+                     0.1
+                     
+                        real
+                     
+                  
+               
+               
+                  -99999
+                  no information available
+               
+               
+                  http://qudt.org/schema/qudt/hasUnit
+                  http://qudt.org/vocab/unit/CentiM
+               
+            
+         
+         80960
+      
+   
+   
+      
+         
+            
+               .01 meters
+            
+            
+               SI unit of length
+            
+            
+               ratio of two quantities as percent composition (1:100)
+            
+         
+      
+   

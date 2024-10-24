@@ -44,6 +44,7 @@ library(ggeffects)
 library(funspace)
 library(ggdist)
 library(ggConvexHull)
+library(tripack)
 
 ##########################################################################-
 # 2. start and end dates --------------------------------------------------
@@ -524,6 +525,11 @@ my_fviz_nbclust <- function(x, print.summary = TRUE, barfill = "steelblue", barc
 # 3. data -----------------------------------------------------------------
 ##########################################################################-
 
+
+# ⟞  a. traits ------------------------------------------------------------
+
+
+
 # categorical traits 
 traits <- read_csv(here("data", 
                         "functional-traits",
@@ -539,6 +545,11 @@ guilds <- read_csv(here::here("data", "SBC-LTE", "LTE_guild_data.csv")) %>%
   rename("new_group" = biomass.guild) %>% 
   # for whatever reason Yellowtail Rockfish are not in the guild csv
   add_row(sp.code = "SFLA", new_group = "fish", diversity.guild = "fish")
+
+
+# ⟞ b. LTE biomass --------------------------------------------------------
+
+
 
 biomass <- read_csv(
   here("data",
@@ -590,6 +601,11 @@ biomass <- read_csv(
   kelp_year_column() %>% 
   season_column() %>% 
   unite("season_ID", year, season, site, treatment, remove = FALSE)
+
+
+# ⟞ c. LTE NPP ------------------------------------------------------------
+
+
 
 npp <- read_csv(
   here("data",
@@ -646,6 +662,41 @@ npp <- read_csv(
   # kelp_year_column()
 
 
+# ⟞ d. annual surveys (benthics) ------------------------------------------
+
+benthics <- read_csv(
+  here("data", 
+       "SBC-LTER",
+       "knb-lter-sbc.50.17",
+       "Annual_All_Species_Biomass_at_transect_20240823.csv")
+) %>%
+  clean_names() %>%
+  # replace NA sp_code with Nandersoniana
+  mutate(sp_code = case_when(
+    scientific_name == "Nienburgia andersoniana" ~ "Nandersoniana",
+    TRUE ~ sp_code
+  )) %>%
+  # replace all -99999 values with NA
+  mutate(dry_gm2 = replace(dry_gm2, dry_gm2 < 0, NA),
+         wm_gm2 = replace(wm_gm2, wm_gm2 < 0, NA),
+         density = replace(density, density < 0, NA)) %>%
+  # change to lower case
+  mutate_at(c("group", "mobility", "growth_morph", "site"), str_to_lower) %>% 
+  left_join(., guilds, by = c("sp_code" = "sp.code")) %>% 
+  # create a sample ID
+  unite("sample_ID", site, year, sep = "_", remove = FALSE)
+
+
+# ⟞ e. substrate from annual surveys --------------------------------------
+
+substrate <- read_csv(here(
+  "data",
+  "SBC-LTER", 
+  "knb-lter-sbc.138.5",
+  "Annual_Substrate_All_Years_20240823.csv"
+)) %>%
+  clean_names() %>% 
+  mutate(across(where(is.character), str_to_lower))
 
 
 ##########################################################################-

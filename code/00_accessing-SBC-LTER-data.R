@@ -41,3 +41,23 @@ read_data_package_archive(nppID, path = here("data", "SBC-LTE"))
 # unzips file
 unzip(zipfile = here("data", "SBC-LTE", "knb-lter-sbc.58.19.zip"),
       exdir = here("data", "SBC-LTE", "knb-lter-sbc.58.19"))
+
+# annual surveys
+annualID <- "knb-lter-sbc.50.17"
+
+# downloads zipped file
+read_data_package_archive(annualID, path = here("data", "SBC-LTER"))
+
+# unzips file
+unzip(zipfile = here("data", "SBC-LTER", "knb-lter-sbc.50.17.zip"),
+      exdir = here("data", "SBC-LTER", "knb-lter-sbc.50.17"))
+
+# substrate from annual surveys
+substrateID <- "knb-lter-sbc.138.5"
+
+# downloads zipped file
+read_data_package_archive(substrateID, path = here("data", "SBC-LTER"))
+
+# unzips file
+unzip(zipfile = here("data", "SBC-LTER", "knb-lter-sbc.138.5.zip"),
+      exdir = here("data", "SBC-LTER", "knb-lter-sbc.138.5"))

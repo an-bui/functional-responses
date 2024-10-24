@@ -1,0 +1,5 @@
+Manifest file for knb-lter-sbc.50.17.zip created on Mon Oct 21 18:45:11 UTC 2024
+Annual_All_Species_Biomass_at_transect_20240823.csv (46231577 bytes)
+knb-lter-sbc.50.17.xml (73318 bytes)
+knb-lter-sbc.50.17.txt (36842 bytes)
+knb-lter-sbc.50.17.report.xml (34597 bytes)

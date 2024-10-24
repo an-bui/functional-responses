@@ -1,0 +1,6 @@
+Manifest file for knb-lter-sbc.138.5.zip created on Thu Oct 24 20:17:58 UTC 2024
+Annual_Substrate_All_Years_20240823.csv (1846717 bytes)
+Annual_Sand_Depth_All_Years_20240823.csv (3193636 bytes)
+knb-lter-sbc.138.5.xml (54177 bytes)
+knb-lter-sbc.138.5.txt (29389 bytes)
+knb-lter-sbc.138.5.report.xml (57106 bytes)

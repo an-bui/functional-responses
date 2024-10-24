@@ -5,16 +5,16 @@
 # This is a script to get data files in order for downstream analysis.
 ##########################################################################-
 
-##########################################################################-
-# 1. source ---------------------------------------------------------------
-##########################################################################-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ------------------------------- 1. source -------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # only need to do this once per session
 source(here::here("code", "01_source.R"))
 
-##########################################################################-
-# 2. traits ---------------------------------------------------------------
-##########################################################################-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ------------------------------- 2. traits -------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 traits_clean <- traits %>% 
   # subset of traits
@@ -34,9 +34,9 @@ trait_matrix <- traits_clean %>%
   column_to_rownames("scientific_name") %>% 
   mutate(across(.cols = thickness:calcification, as_factor))
 
-##########################################################################-
-# 3. community matrices ---------------------------------------------------
-##########################################################################-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ------------------------- 3. community matrices -------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # ⟞ a. LTE ----------------------------------------------------------------
 
@@ -63,22 +63,14 @@ comm_meta <- comm_df %>%
          comp_1yrs, comp_2yrs, comp_3yrs, quality, site_full, season) %>% 
   unique()
 
-# metadata for continual removal plots
-comm_meta_continual <- comm_meta %>% 
-  filter(treatment == "continual")
-
-# metadata for control plots
-comm_meta_control <- comm_meta %>% 
-  filter(treatment == "control")
-
 
 # widening function
 widen <- function(df) {
   df %>% 
     # select columns of interest
-    select(sample_ID, sp_code, dry_gm2) %>% 
+    select(sample_ID, scientific_name, dry_gm2) %>% 
     # get into wide format for community analysis 
-    pivot_wider(names_from = sp_code, values_from = dry_gm2) %>% 
+    pivot_wider(names_from = scientific_name, values_from = dry_gm2) %>% 
     # make sample_ID column row names
     column_to_rownames("sample_ID") %>% 
     replace(is.na(.), 0)
@@ -128,35 +120,11 @@ comm_mat_control_algae <- comm_df %>%
   # only include sampling from control plots
   filter(sample_ID %in% comm_meta_control$sample_ID) %>% 
   widen()
-
-# ⟞ b. benthics -----------------------------------------------------------
-
-# benthic_comm_df <- benthics %>% 
-#   # select columns of interest 
-#   dplyr::select(site, transect, year, month, date, new_group, sp_code, dry_gm2) %>% 
-#   unite("sample_ID", site, year, transect, remove = FALSE) %>% 
-#   full_join(., site_quality, by = "site") %>% 
-#   left_join(., enframe(sites_full), by = c("site" = "name")) %>% 
-#   rename(site_full = value) %>% 
-#   mutate(site_full = fct_relevel(site_full, "Arroyo Quemado", "Naples", "Mohawk", "Carpinteria")) 
-# 
-# benthic_comm_df_wide <- benthic_comm_df %>% 
-#   widen()
-# 
-# benthic_comm_meta <- benthics %>% 
-#   # select columns of interest 
-#   dplyr::select(site, transect, year, month, date) %>% 
-#   unite("sample_ID", site, year, transect, remove = FALSE) %>% 
-#   full_join(., site_quality, by = "site") %>% 
-#   left_join(., enframe(sites_full), by = c("site" = "name")) %>% 
-#   rename(site_full = value) %>% 
-#   mutate(site_full = fct_relevel(site_full, "Arroyo Quemado", "Naples", "Mohawk", "Carpinteria")) %>% 
-#   unique()
   
 
-##########################################################################-
-# 4. total biomass --------------------------------------------------------
-##########################################################################-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ---------------------------- 4. total biomass ---------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # total biomass
 algae_biomass <- biomass %>% 
@@ -233,9 +201,9 @@ algae_biomass <- biomass %>%
 #   # create a new sample ID that is site, year, quarter, treatment
 #   unite("sample_ID", site, date, quarter, treatment, remove = FALSE)
 
-##########################################################################-
-# 5. table of excluded sampling events ------------------------------------
-##########################################################################-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ---------------------- 5. excluded sampling events ----------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 zero_table <- enframe(sites_to_exclude) %>% 
   separate_wider_delim(cols = value, 
@@ -247,4 +215,42 @@ zero_table <- enframe(sites_to_exclude) %>%
 
 # save_as_docx(zero_table,
 #              path = here("tables", "misc", "zero-sites.docx"))
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# --------------------------- 6. trait matrices ---------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# categories for each trait (needed to use `mFD` functions)
+algae_traits_cat <- colnames(trait_matrix) %>% 
+  enframe() %>% 
+  select(value) %>% 
+  rename(trait_name = value) %>% 
+  mutate(trait_type = case_match(
+    trait_name,
+    "size_cm" ~ "Q", # quantitative
+    "thickness" ~ "N", 
+    "position_to_benthos" ~ "N", # nominal
+    "articulated" ~ "N",
+    "stipe" ~ "N",
+    "midrib" ~ "N",
+    "branching" ~ "N",
+    "branch_shape" ~ "N",
+    "blades" ~ "N",
+    "blade_category" ~ "N",
+    "coenocyte" ~ "N",
+    "attachment" ~ "N",
+    "tissue_complexity" ~ "N",
+    "growth" ~ "N",
+    "calcification" ~ "N"
+  ))
+
+# reduced trait matrix
+trait_matrix_reduced <- trait_matrix %>% 
+  select(size_cm, position_to_benthos,
+         stipe, midrib, branching, branch_shape,
+         blade_category, attachment, growth, calcification)
+
+# reduced trait categories
+algae_traits_cat_reduced <- algae_traits_cat %>% 
+  filter(trait_name %in% colnames(trait_matrix_reduced))
 

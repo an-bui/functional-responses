@@ -1,0 +1,1131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eml:eml packageId="knb-lter-sbc.138.5"
+  system="https://pasta.edirepository.org"
+  xmlns:eml="https://eml.ecoinformatics.org/eml-2.2.0"
+  xmlns:stmml="http://www.xml-cml.org/schema/stmml-1.2"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://eml.ecoinformatics.org/eml-2.2.0 https://nis.lternet.edu/schemas/EML/eml-2.2.0/xsd/eml.xsd">
+   <access
+    authSystem="https://pasta.edirepository.org/authentication"
+    order="allowFirst" scope="document"
+      system="https://pasta.edirepository.org">
+      <allow>
+         <principal>uid=SBC,o=EDI,dc=ecoinformatics,dc=org</principal>
+         <permission>all</permission>
+      </allow>
+      <allow>
+         <principal>uid=lkui,o=EDI,dc=ecoinformatics,dc=org</principal>
+         <permission>all</permission>
+      </allow>
+      <allow>
+         <principal>public</principal>
+         <permission>read</permission>
+      </allow>
+   </access>
+   <dataset>
+      <alternateIdentifier
+        system="https://doi.org">doi:10.6073/pasta/869317d54d5f7859add452722319d72c</alternateIdentifier><shortName>KFCD percent cover of bottom substrate and sand depth</shortName>
+      <title>SBC LTER: Reef: Kelp Forest Community Dynamics: Cover of bottom substrate and sand depth</title>
+      <creator>
+         <individualName>
+            <givenName>Daniel C</givenName>
+            <surName>Reed</surName>
+         </individualName>
+         <address>
+            <deliveryPoint>Marine Science Institute University of California</deliveryPoint>
+            <city>Santa Barbara</city>
+            <administrativeArea>CA</administrativeArea>
+            <postalCode>93106-6150</postalCode>
+            <country>US</country>
+         </address>
+         <phone>805-893-8363</phone>
+         <electronicMailAddress>danreed@ucsb.edu</electronicMailAddress>
+         <userId
+        directory="https://orcid.org/">https://orcid.org/0000-0003-3015-8717</userId>
+      </creator>
+      <creator>
+         <individualName>
+            <givenName>Robert J</givenName>
+            <surName>Miller</surName>
+         </individualName>
+         <address>
+            <deliveryPoint>Marine Science Institute University of California</deliveryPoint>
+            <city>Santa Barbara</city>
+            <administrativeArea>CA</administrativeArea>
+            <postalCode>93106-6150</postalCode>
+            <country>US</country>
+         </address>
+         <phone>805-893-6174</phone>
+         <electronicMailAddress>rjmiller@ucsb.edu</electronicMailAddress>
+         <userId
+        directory="https://orcid.org/">https://orcid.org/0000-0002-8350-3759</userId>
+      </creator>
+      <associatedParty>
+         <organizationName>Santa Barbara Coastal LTER</organizationName>
+         <address>
+            <deliveryPoint>Marine Science Institute University of California</deliveryPoint>
+            <city>Santa Barbara</city>
+            <administrativeArea>CA</administrativeArea>
+            <postalCode>93106</postalCode>
+            <country>USA</country>
+         </address>
+         <electronicMailAddress>sbclter@msi.ucsb.edu</electronicMailAddress>
+         <role>publisher, curator</role>
+      </associatedParty>
+      <pubDate>2024-09-13</pubDate>
+      <language>English</language>
+      <abstract>
+         <section>
+            <para>
+      These data describe the percent cover of eight bottom substrate
+      types as determined by a uniform point contact method. The type of
+      bottom substrate is recorded at 80 uniformly spaced points along
+      permanent 40m x 2m transects. Percent cover of each substrate type
+      on a transect is estimated as the proportion of the 80 points
+      contacted by that substrate type x 100. In cases where the
+      substrate type is sand, the depth of the sand is measured.
+    </para>
+            <para>
+      These data are part of the SBC LTER’s time series observations of
+      kelp forest dynamics, which began in 2000 and was designed to
+      track long-term patterns in species abundance and diversity of
+      reef-associated organisms in the Santa Barbara Channel,
+      California, USA. The sampling locations in this dataset include
+      nine reef sites along the mainland coast of the Santa Barbara
+      Channel and two on the north side of Santa Cruz Island. These 11
+      sites were chosen to reflect the wide range of oceanographic
+      conditions present in the Channel and proximity to sources of
+      terrestrial runoff. Data are collected at each site once per year
+      in summer and this dataset is updated annually.
+    </para>
+            <para>
+      The time period of data collection varied among the 11 reef sites.
+      Sampling at BULL, CARP, and NAPL began in 2000, sampling at the
+      other 6 mainland sites (AHND, AQUE, IVEE, GOLB, ABUR, MOHK) began
+      in 2001 (transects 3, 5, 6, 7, 8 at IVEE were added in 2011). Data
+      collection at the two Santa Cruz Island sites (SCTW and SCDI)
+      began in 2004.
+    </para>
+            <para>
+      The two tables in this data package include: 1) The percent cover
+      of eight bottom substrate types; and 2) the sand depth of each
+      sampling point (sand depth = 0 if substrate type ≠sand).
+    </para>
+         </section>
+      </abstract>
+      <keywordSet>
+         <keyword
+        keywordType="theme">LTER</keyword>
+         <keyword
+        keywordType="theme">sand</keyword>
+         <keyword
+        keywordType="theme">Santa Barbara Coastal</keyword>
+         <keywordThesaurus>LTER Controlled Vocabulary v1</keywordThesaurus>
+      </keywordSet>
+      <keywordSet>
+         <keyword
+        keywordType="theme">Kelp_forest_monitoring</keyword>
+         <keywordThesaurus>SBC-LTER Controlled Vocabulary</keywordThesaurus>
+      </keywordSet>
+      <keywordSet>
+         <keyword
+        keywordType="place">Arroyo Burro</keyword>
+         <keyword
+        keywordType="place">Arroyo Hondo</keyword>
+         <keyword
+        keywordType="place">Arroyo Quemado</keyword>
+         <keyword
+        keywordType="place">Bullito</keyword>
+         <keyword
+        keywordType="place">Carpinteria</keyword>
+         <keyword
+        keywordType="place">Goleta Bay</keyword>
+         <keyword
+        keywordType="place">Isla Vista</keyword>
+         <keyword
+        keywordType="place">Mohawk</keyword>
+         <keyword
+        keywordType="place">Naples</keyword>
+         <keyword
+        keywordType="place">Santa Cruz Island, Diablo</keyword>
+         <keyword
+        keywordType="place">Santa Cruz Island, Twin Harbor West</keyword>
+         <keywordThesaurus>Santa Barbara Coastal LTER Places</keywordThesaurus>
+      </keywordSet>
+      <keywordSet>
+         <keyword
+        keywordType="theme">Cover</keyword>
+         <keyword
+        keywordType="theme">Substrates</keyword>
+         <keywordThesaurus>NBII Biocomplexity</keywordThesaurus>
+      </keywordSet>
+      <keywordSet>
+         <keyword
+        keywordType="theme">Kelp_forest_monitoring</keyword>
+         <keyword
+        keywordType="theme">LTER</keyword>
+         <keyword
+          keywordType="theme">LTER Core Research Areas</keyword>
+         <keywordThesaurus>none</keywordThesaurus>
+      </keywordSet>
+      <intellectualRights>
+         <para>
+    This data package is released under the Creative Commons License
+    Attribution 4.0 International (CC BY 4.0, see
+    https://creativecommons.org/licenses/by/4.0/). This license states
+    that consumers ("Data Users" herein) may distribute,
+    adapt, reuse, remix, and build upon this work, as long as they give
+    appropriate credit, provide a link to the license, and indicate if
+    changes were made. If redistributed, a Data User may not apply
+    additional restrictions or technological measures that prevent
+    access.
+  </para>
+         <para>
+    The Data User has an ethical obligation to cite the data source
+    appropriately in any publication or product that results from its
+    use, and notify the data contact or creator. Communication,
+    collaboration, or co-authorship (as appropriate) with the creators
+    of this data package is encouraged to prevent duplicate research or
+    publication. The Data User is urged to contact the authors of these
+    data if any questions about methodology or results occur. The Data
+    User should realize that these data may be actively used by others
+    for ongoing research and that coordination may be necessary to
+    prevent duplication or inappropriate use. The Data User should
+    realize that misinterpretation may occur if data are used outside of
+    the context of the original study. The Data User should be aware
+    that data are updated periodically and it is the responsibility of
+    the Data User to check for new versions of the data.
+  </para>
+         <para>
+    While substantial efforts are made to ensure the accuracy of data
+    and associated documentation, complete accuracy of data sets cannot
+    be guaranteed. This data package (with its components) is made
+    available “as is” and with no warranty of accuracy or fitness for
+    use. The creators of this data package and the repository where
+    these data were obtained shall not be liable for any damages
+    resulting from misinterpretation, use or misuse of the data package
+    or its components.
+  </para>
+      </intellectualRights>
+      <distribution>
+         <online>
+            <url
+      function="information">https://sbclter.msi.ucsb.edu/</url>
+         </online>
+      </distribution>
+      <distribution
+      id="10.6073/pasta/869317d54d5f7859add452722319d72c" scope="system"
+          system="https://pasta.edirepository.org"><online><url
+        function="information">https://doi.org/10.6073/pasta/869317d54d5f7859add452722319d72c</url></online></distribution><coverage>
+         <geographicCoverage>
+            <geographicDescription>ABUR: Arroyo Burro Reef is located on the Santa Barbara Channel near the mouth of Arroyo Burro Creek and Beach. Depth ranges from 5.4 to 7 meters.</geographicDescription>
+            <boundingCoordinates>
+               <westBoundingCoordinate>-119.7445915</westBoundingCoordinate>
+               <eastBoundingCoordinate>-119.7445915</eastBoundingCoordinate>
+               <northBoundingCoordinate>34.400275</northBoundingCoordinate>
+               <southBoundingCoordinate>34.400275</southBoundingCoordinate>
+            </boundingCoordinates>
+         </geographicCoverage>
+         <geographicCoverage>
+            <geographicDescription>AHND: Arroyo Hondo Reef is located on the Santa Barbara Channel near the east end of Gaviota State Park, CA. Depth ranges from -4.3m to -6.6 meters.</geographicDescription>
+            <boundingCoordinates>
+               <westBoundingCoordinate>-120.1426165</westBoundingCoordinate>
+               <eastBoundingCoordinate>-120.1426165</eastBoundingCoordinate>
+               <northBoundingCoordinate>34.471817</northBoundingCoordinate>
+               <southBoundingCoordinate>34.471817</southBoundingCoordinate>
+            </boundingCoordinates>
+         </geographicCoverage>
+         <geographicCoverage>
+            <geographicDescription>AQUE: Arroyo Quemado Reef: Arroyo Quemado Reef depth range from 5.4 m to 10.7 m. Reference on Land is close to US101/Arroyo Quemada Ln.</geographicDescription>
+            <boundingCoordinates>
+               <westBoundingCoordinate>-120.11905</westBoundingCoordinate>
+               <eastBoundingCoordinate>-120.11905</eastBoundingCoordinate>
+               <northBoundingCoordinate>34.46774988</northBoundingCoordinate>
+               <southBoundingCoordinate>34.46774988</southBoundingCoordinate>
+            </boundingCoordinates>
+         </geographicCoverage>
+         <geographicCoverage>
+            <geographicDescription>BULL: Builto: Bulito has three permanent transect: Transect I, III, VI. Depth Range from -5.5 to -7.3. Reference on land is close to Ranch Real road and Hollister Ranch road crossing section.</geographicDescription>
+            <boundingCoordinates>
+               <westBoundingCoordinate>-120.33349</westBoundingCoordinate>
+               <eastBoundingCoordinate>-120.33349</eastBoundingCoordinate>
+               <northBoundingCoordinate>34.45850533</northBoundingCoordinate>
+               <southBoundingCoordinate>34.45850533</southBoundingCoordinate>
+            </boundingCoordinates>
+         </geographicCoverage>
+         <geographicCoverage>
+            <geographicDescription>CARP: Carpinteria Reef is located on the Santa Barbara Channel offshore of the Carpinteria Salt Marsh. Depth range is from -2.2 to -8.8 meters</geographicDescription>
+            <boundingCoordinates>
+               <westBoundingCoordinate>-119.5416933</westBoundingCoordinate>
+               <eastBoundingCoordinate>-119.5416933</eastBoundingCoordinate>
+               <northBoundingCoordinate>34.3916319</northBoundingCoordinate>
+               <southBoundingCoordinate>34.3916319</southBoundingCoordinate>
+            </boundingCoordinates>
+         </geographicCoverage>
+         <geographicCoverage>
+            <geographicDescription>GOLB: Goleta Bay is located on the Santa Barbara Channel east of Goleta Pier. Depth range is -4.2 to -5 meters.</geographicDescription>
+            <boundingCoordinates>
+               <westBoundingCoordinate>-119.8221</westBoundingCoordinate>
+               <eastBoundingCoordinate>-119.8221</eastBoundingCoordinate>
+               <northBoundingCoordinate>34.4137165</northBoundingCoordinate>
+               <southBoundingCoordinate>34.4137165</southBoundingCoordinate>
+            </boundingCoordinates>
+         </geographicCoverage>
+         <geographicCoverage>
+            <geographicDescription>IVEE: Isla Vista (IV) Reef is located on the Santa Barbara Channel near the University of California Santa Barbara, CA. Depth range is from -8.2 to -8.8 meters.</geographicDescription>
+            <boundingCoordinates>
+               <westBoundingCoordinate>-119.85755</westBoundingCoordinate>
+               <eastBoundingCoordinate>-119.85755</eastBoundingCoordinate>
+               <northBoundingCoordinate>34.402783</northBoundingCoordinate>
+               <southBoundingCoordinate>34.402783</southBoundingCoordinate>
+            </boundingCoordinates>
+         </geographicCoverage>
+         <geographicCoverage>
+            <geographicDescription>MOHK: Mohawk Reef: Mohawk Reef depth ranges from 4.5m to 6.0 m. Reference on land is Mohawk Rd / Edgewater Way.</geographicDescription>
+            <boundingCoordinates>
+               <westBoundingCoordinate>-119.72957</westBoundingCoordinate>
+               <eastBoundingCoordinate>-119.72957</eastBoundingCoordinate>
+               <northBoundingCoordinate>34.3940708</northBoundingCoordinate>
+               <southBoundingCoordinate>34.3940708</southBoundingCoordinate>
+            </boundingCoordinates>
+         </geographicCoverage>
+         <geographicCoverage>
+            <geographicDescription>NAPL: Naples Reef is located on the Santa Barbara Channel near the community of Naples and Dos Pueblos Canyon, Santa Barbara County, CA. Depth ranges from -5.9 to -13.4 meters.</geographicDescription>
+            <boundingCoordinates>
+               <westBoundingCoordinate>-119.95154</westBoundingCoordinate>
+               <eastBoundingCoordinate>-119.95154</eastBoundingCoordinate>
+               <northBoundingCoordinate>34.4221216</northBoundingCoordinate>
+               <southBoundingCoordinate>34.4221216</southBoundingCoordinate>
+            </boundingCoordinates>
+         </geographicCoverage>
+         <geographicCoverage>
+            <geographicDescription>SCDI: Santa Cruz Island, Diablo; Depth ranges from -5.2 to -11.9 meters</geographicDescription>
+            <boundingCoordinates>
+               <westBoundingCoordinate>-119.75763</westBoundingCoordinate>
+               <eastBoundingCoordinate>-119.75763</eastBoundingCoordinate>
+               <northBoundingCoordinate>34.05865</northBoundingCoordinate>
+               <southBoundingCoordinate>34.05865</southBoundingCoordinate>
+            </boundingCoordinates>
+         </geographicCoverage>
+         <geographicCoverage>
+            <geographicDescription>SCTW: Santa Cruz Island, Twin Harbor West; Depth ranges from -2.7 to -7.8 meters</geographicDescription>
+            <boundingCoordinates>
+               <westBoundingCoordinate>-119.71513</westBoundingCoordinate>
+               <eastBoundingCoordinate>-119.71513</eastBoundingCoordinate>
+               <northBoundingCoordinate>34.0444335</northBoundingCoordinate>
+               <southBoundingCoordinate>34.0444335</southBoundingCoordinate>
+            </boundingCoordinates>
+         </geographicCoverage>
+         <temporalCoverage>
+            <rangeOfDates>
+               <beginDate>
+                  <calendarDate>2000-08-01</calendarDate>
+               </beginDate>
+               <endDate>
+                  <calendarDate>2024-07-30</calendarDate>
+               </endDate>
+            </rangeOfDates>
+         </temporalCoverage>
+      </coverage>
+      <contact>
+         <organizationName>Santa Barbara Coastal LTER</organizationName>
+         <address>
+            <deliveryPoint>Marine Science Institute</deliveryPoint>
+            <deliveryPoint>University of California</deliveryPoint>
+            <city>Santa Barbara</city>
+            <administrativeArea>California</administrativeArea>
+            <postalCode>93106-6150</postalCode>
+            <country>United States</country>
+         </address>
+         <electronicMailAddress>sbclter@msi.ucsb.edu</electronicMailAddress>
+         <onlineUrl>https://sbclter.msi.ucsb.edu/</onlineUrl>
+         <userId
+        directory="https://ror.org">https://ror.org/05hnkta08</userId>
+      </contact>
+      <publisher>
+         <organizationName>Environmental Data Initiative</organizationName>
+         <electronicMailAddress>info@edirepository.org</electronicMailAddress>
+         <onlineUrl>https://edirepository.org</onlineUrl>
+         <userId
+                directory="https://ror.org">0330j0z60</userId>
+      </publisher>
+      <pubPlace>Environmental Data Initiative</pubPlace>
+      <methods>
+         <methodStep>
+            <description>
+               <section>
+                  <para>
+      Bottom substrate cover and sand depth data are collected using
+      Uniform Point Contact (UPC) sampling method. UPC data are
+      collected at 80 points uniformly positioned within a 1 m wide area
+      centered along a permanent 40 m transect.
+    </para>
+                  <para>
+      Percent cover values were given a NA (-99999) in cases where data
+      were lost or not collected.
+    </para>
+                  <para>
+      See the protocol document for more information.
+    </para>
+               </section>
+            </description>
+            <protocol>
+               <title>Kelp Forest Community Structure Methods - Percent Cover of Bottom Substrate and Sand Depth</title>
+               <creator>
+                  <individualName>
+                     <surName>Reed</surName>
+                  </individualName>
+               </creator>
+               <distribution>
+                  <online>
+                     <url
+        function="download">https://sbclter.msi.ucsb.edu/external/Reef/Protocols/Kelp_Forest_Community_Dynamics/KFCS_Protocol_Percent_cover_of_bottom_substrate_and_sand_depth.pdf</url>
+                  </online>
+               </distribution>
+            </protocol>
+         </methodStep>
+      </methods>
+      <project>
+         <title>Santa Barbara Coastal Long Term Ecological Research Project</title>
+         <personnel
+          scope="document">
+            <individualName>
+               <salutation>Dr.</salutation>
+               <givenName>Robert</givenName>
+               <surName>Miller</surName>
+            </individualName>
+            <address
+        scope="document">
+               <deliveryPoint>Marine Science Institute</deliveryPoint>
+               <deliveryPoint>University of California</deliveryPoint>
+               <city>Santa Barbara</city>
+               <administrativeArea>California</administrativeArea>
+               <postalCode>93106-6150</postalCode>
+               <country>United States</country>
+            </address>
+            <electronicMailAddress>miller@msi.ucsb.edu</electronicMailAddress>
+            <role>Principal Investigator</role>
+         </personnel>
+         <personnel
+          scope="document">
+            <individualName>
+               <salutation>Dr.</salutation>
+               <givenName>Dan</givenName>
+               <surName>Reed</surName>
+            </individualName>
+            <address
+        scope="document">
+               <deliveryPoint>Marine Science Institute</deliveryPoint>
+               <deliveryPoint>University of California</deliveryPoint>
+               <city>Santa Barbara</city>
+               <administrativeArea>California</administrativeArea>
+               <postalCode>93106-6150</postalCode>
+               <country>United States</country>
+            </address>
+            <electronicMailAddress>dan.reed@lifesci.ucsb.edu</electronicMailAddress>
+            <role>Co-principal Investigator</role>
+         </personnel>
+         <personnel
+          scope="document">
+            <individualName>
+               <salutation>Dr.</salutation>
+               <givenName>Adrian</givenName>
+               <surName>Stier</surName>
+            </individualName>
+            <address
+        scope="document">
+               <deliveryPoint>Department of Ecology, Evolution and Marine Biology</deliveryPoint>
+               <deliveryPoint>University of California</deliveryPoint>
+               <city>Santa Barbara</city>
+               <administrativeArea>California</administrativeArea>
+               <postalCode>93106-9260</postalCode>
+               <country>United States</country>
+            </address>
+            <electronicMailAddress>adrian.stier@lifesci.ucsb.edu</electronicMailAddress>
+            <role>Co-principal Investigator</role>
+         </personnel>
+         <personnel
+          scope="document">
+            <individualName>
+               <salutation>Dr.</salutation>
+               <givenName>Gretchen</givenName>
+               <surName>Hoffman</surName>
+            </individualName>
+            <address
+        scope="document">
+               <deliveryPoint>Department of Ecology, Evolution and Marine Biology</deliveryPoint>
+               <deliveryPoint>University of California</deliveryPoint>
+               <city>Santa Barbara</city>
+               <administrativeArea>California</administrativeArea>
+               <postalCode>93106-9620</postalCode>
+               <country>United States</country>
+            </address>
+            <electronicMailAddress>hofmann@lifesci.ucsb.edu</electronicMailAddress>
+            <role>Co-principal Investigator</role>
+         </personnel>
+         <personnel
+          scope="document">
+            <individualName>
+               <salutation>Dr.</salutation>
+               <givenName>David</givenName>
+               <surName>Siegel</surName>
+            </individualName>
+            <address
+      scope="document">
+               <deliveryPoint>Institute for Computational Earth System Science</deliveryPoint>
+               <deliveryPoint>University of California</deliveryPoint>
+               <city>Santa Barbara</city>
+               <administrativeArea>California</administrativeArea>
+               <postalCode>93106-3060</postalCode>
+               <country>United States</country>
+            </address>
+            <electronicMailAddress>davey@icess.ucsb.edu</electronicMailAddress>
+            <role>Co-principal Investigator</role>
+         </personnel>
+         <abstract>
+            <section>
+               <para>The Santa Barbara Coastal LTER (SBC LTER) is an interdisciplinary research and education program
+established in April 2000 with the goal of developing a predictive understanding of how environmental
+drivers interact with terrestrial and oceanic processes to alter material flows and influence the ecology of
+coastal ecosystems. SBC LTER's principal study domain is the semi-arid coast and nearshore waters of
+the Santa Barbara Channel in southern California, and its diverse and productive marine forests of giant
+kelp (<emphasis>Macrocystis pyrifera</emphasis>) serve as the focal study ecosystem. Analyses of our long-term data have
+identified many of the environmental drivers and ecological processes underlying the production and
+community dynamics of kelp forests. The research proposed to address this question is integrated in a conceptual framework
+that focuses on the causes and ecological consequences of the dynamics of a relatively short-lived
+foundation species in a setting of long-term climate change and human use.</para>
+            </section>
+         </abstract>
+         <funding>
+            <para>SBC LTER is supported by the National Science Foundation.</para>
+         </funding>
+         <award>
+            <funderName>National Science Foundation</funderName>
+            <funderIdentifier>https://dx.doi.org/10.13039/100000001</funderIdentifier>
+            <awardNumber>1831937</awardNumber>
+            <title>LTER: Environmental drivers and ecological consequences of kelp forest dynamics (SBV IV)</title>
+            <awardUrl>https://www.nsf.gov/awardsearch/showAward?AWD_ID=1831937</awardUrl>
+         </award>
+         <award>
+            <funderName>National Science Foundation</funderName>
+            <funderIdentifier>https://dx.doi.org/10.13039/100000001</funderIdentifier>
+            <awardNumber>1232779</awardNumber>
+            <title>LTER: Land/Ocean Interactions and the Dynamics of Kelp Forest Ecosystems (SBC III)</title>
+            <awardUrl>https://www.nsf.gov/awardsearch/showAward?AWD_ID=1232779</awardUrl>
+         </award>
+         <award>
+            <funderName>National Science Foundation</funderName>
+            <funderIdentifier>https://dx.doi.org/10.13039/100000001</funderIdentifier>
+            <awardNumber>0620276</awardNumber>
+            <title>LTER: Land/Ocean Interactions and the Dynamics of Kelp Forest Communities</title>
+            <awardUrl>https://www.nsf.gov/awardsearch/showAward?AWD_ID=0620276</awardUrl>
+         </award>
+         <award>
+            <funderName>National Science Foundation</funderName>
+            <funderIdentifier>https://dx.doi.org/10.13039/100000001</funderIdentifier>
+            <awardNumber>9982105</awardNumber>
+            <title>LTER: Land/Ocean Interactions and the Dynamics of Kelp Forest Ecosystems</title>
+            <awardUrl>https://www.nsf.gov/awardsearch/showAward?AWD_ID=9982105</awardUrl>
+         </award>
+      </project>
+      <dataTable
+      id="82d1b4ba2b2c1b5438ae1279e19bf68b" scope="document"
+          system="https://pasta.edirepository.org">
+         <entityName>Benthic substrate cover all years</entityName>
+         <entityDescription>cover of substrate at permanent sites</entityDescription>
+         <physical>
+            <objectName>Annual_Substrate_All_Years_20240823.csv</objectName>
+            <size
+          unit="byte">1846717</size>
+            <authentication
+              method="MD5">3cc4dcc37104b39bb4edd9854821af8f</authentication>
+            <dataFormat>
+               <textFormat>
+                  <numHeaderLines>1</numHeaderLines>
+                  <recordDelimiter>\r\n</recordDelimiter>
+                  <attributeOrientation>column</attributeOrientation>
+                  <simpleDelimited>
+                     <fieldDelimiter>,</fieldDelimiter>
+                     <collapseDelimiters>no</collapseDelimiters>
+                     <quoteCharacter>"</quoteCharacter>
+                  </simpleDelimited>
+               </textFormat>
+            </dataFormat>
+            <distribution>
+               <online>
+                  <url
+          function="download">https://pasta.lternet.edu/package/data/eml/knb-lter-sbc/138/5/82d1b4ba2b2c1b5438ae1279e19bf68b</url>
+               </online>
+            </distribution>
+         </physical>
+         <attributeList>
+            <attribute
+          id="YEAR-1">
+               <attributeName>YEAR</attributeName>
+               <attributeLabel>Year</attributeLabel>
+               <attributeDefinition>Calendar year</attributeDefinition>
+               <storageType>integer</storageType>
+               <measurementScale>
+                  <dateTime>
+                     <formatString>YYYY</formatString>
+                     <dateTimePrecision>1</dateTimePrecision>
+                     <dateTimeDomain/>
+                  </dateTime>
+               </measurementScale>
+               <missingValueCode>
+                  <code>-99999</code>
+                  <codeExplanation>no information available</codeExplanation>
+               </missingValueCode>
+            </attribute>
+            <attribute
+                    id="MONTH-2">
+               <attributeName>MONTH</attributeName>
+               <attributeLabel>Month</attributeLabel>
+               <attributeDefinition>Calendar month</attributeDefinition>
+               <storageType>integer</storageType>
+               <measurementScale>
+                  <dateTime>
+                     <formatString>MM</formatString>
+                     <dateTimePrecision>1</dateTimePrecision>
+                     <dateTimeDomain>
+                        <bounds>
+                           <minimum
+                    exclusive="false">1</minimum>
+                           <maximum
+          exclusive="false">12</maximum>
+                        </bounds>
+                     </dateTimeDomain>
+                  </dateTime>
+               </measurementScale>
+               <missingValueCode>
+                  <code>-99999</code>
+                  <codeExplanation>no information available</codeExplanation>
+               </missingValueCode>
+            </attribute>
+            <attribute
+          id="DATE-3">
+               <attributeName>DATE</attributeName>
+               <attributeLabel>Date</attributeLabel>
+               <attributeDefinition>Date of data collection in format: YYYY-MM-DD</attributeDefinition>
+               <storageType>date</storageType>
+               <measurementScale>
+                  <dateTime>
+                     <formatString>YYYY-MM-DD</formatString>
+                     <dateTimePrecision>1</dateTimePrecision>
+                     <dateTimeDomain/>
+                  </dateTime>
+               </measurementScale>
+               <missingValueCode>
+                  <code>-99999</code>
+                  <codeExplanation>no information available</codeExplanation>
+               </missingValueCode>
+            </attribute>
+            <attribute
+          id="SITE-4">
+               <attributeName>SITE</attributeName>
+               <attributeLabel>Site code</attributeLabel>
+               <attributeDefinition>Code for reef site. See list of codes for meaning</attributeDefinition>
+               <storageType>string</storageType>
+               <measurementScale>
+                  <nominal>
+                     <nonNumericDomain>
+                        <enumeratedDomain>
+                           <codeDefinition>
+                              <code>ABUR</code>
+                              <definition>Arroyo Burro</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>AHND</code>
+                              <definition>Arroyo Hondo</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>AQUE</code>
+                              <definition>Arroyo Quemado</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>BULL</code>
+                              <definition>Bulito</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>CARP</code>
+                              <definition>Carpinteria</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>GOLB</code>
+                              <definition>Goleta Bay</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>IVEE</code>
+                              <definition>Isla Vista</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>MOHK</code>
+                              <definition>Mohawk</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>NAPL</code>
+                              <definition>Naples</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>SCDI</code>
+                              <definition>Santa Cruz Island, Diablo</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>SCTW</code>
+                              <definition>Santa Cruz Island, Twin Harbor West Reef</definition>
+                           </codeDefinition>
+                        </enumeratedDomain>
+                     </nonNumericDomain>
+                  </nominal>
+               </measurementScale>
+               <missingValueCode>
+                  <code>-99999</code>
+                  <codeExplanation>no information available</codeExplanation>
+               </missingValueCode>
+            </attribute>
+            <attribute
+          id="TRANSECT-5">
+               <attributeName>TRANSECT</attributeName>
+               <attributeLabel>Transect name</attributeLabel>
+               <attributeDefinition>40m transects defined by six permanent markers (stainless steel eyebolts or rebar stakes) at 0, 8, 16, 24, 32, and 40m.</attributeDefinition>
+               <storageType>string</storageType>
+               <measurementScale>
+                  <nominal>
+                     <nonNumericDomain>
+                        <textDomain>
+                           <definition>any text</definition>
+                        </textDomain>
+                     </nonNumericDomain>
+                  </nominal>
+               </measurementScale>
+               <missingValueCode>
+                  <code>-99999</code>
+                  <codeExplanation>no information available</codeExplanation>
+               </missingValueCode>
+            </attribute>
+            <attribute
+          id="QUAD-6">
+               <attributeName>QUAD</attributeName>
+               <attributeLabel>Quad name</attributeLabel>
+               <attributeDefinition>Used for benthic survey method only. Describes location along transect, either 0-20 or 20-40</attributeDefinition>
+               <storageType>string</storageType>
+               <measurementScale>
+                  <nominal>
+                     <nonNumericDomain>
+                        <textDomain>
+                           <definition>text</definition>
+                        </textDomain>
+                     </nonNumericDomain>
+                  </nominal>
+               </measurementScale>
+               <missingValueCode>
+                  <code>-99999</code>
+                  <codeExplanation>value not recorded or not available</codeExplanation>
+               </missingValueCode>
+            </attribute>
+            <attribute
+          id="SIDE-7">
+               <attributeName>SIDE</attributeName>
+               <attributeLabel>Transect side</attributeLabel>
+               <attributeDefinition>Used for bethic survey method only. Inshore or offshore side of transect.</attributeDefinition>
+               <storageType>string</storageType>
+               <measurementScale>
+                  <nominal>
+                     <nonNumericDomain>
+                        <textDomain>
+                           <definition>text</definition>
+                        </textDomain>
+                     </nonNumericDomain>
+                  </nominal>
+               </measurementScale>
+               <missingValueCode>
+                  <code>-99999</code>
+                  <codeExplanation>value not recorded or not available</codeExplanation>
+               </missingValueCode>
+            </attribute>
+            <attribute
+          id="SUBSTRATETYPE-8">
+               <attributeName>SUBSTRATE_TYPE</attributeName>
+               <attributeLabel>Substrate Type</attributeLabel>
+               <attributeDefinition>substrate type</attributeDefinition>
+               <storageType>string</storageType>
+               <measurementScale>
+                  <nominal>
+                     <nonNumericDomain>
+                        <enumeratedDomain>
+                           <codeDefinition>
+                              <code>B</code>
+                              <definition>Bedrock</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>BL</code>
+                              <definition>Boulder Large: rock greater than 1 meter in diameter</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>BM</code>
+                              <definition>Boulder Medium: rock 50 to 100 cm in diameter</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>BS</code>
+                              <definition>Boulder Small: rock 25-50 cm in diameter</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>C</code>
+                              <definition>Cobble: rock less than 25 cm in diameter</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>S</code>
+                              <definition>Sand: sand greater than 2.5 cm deep</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>SH</code>
+                              <definition>Shell Debris, broken</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>SS</code>
+                              <definition>Shallow Sand: sand less than 2.5 cm deep</definition>
+                           </codeDefinition>
+                        </enumeratedDomain>
+                     </nonNumericDomain>
+                  </nominal>
+               </measurementScale>
+               <missingValueCode>
+                  <code>-99999</code>
+                  <codeExplanation>no information available</codeExplanation>
+               </missingValueCode>
+            </attribute>
+            <attribute
+          id="COMMONNAME-9">
+               <attributeName>COMMON_NAME</attributeName>
+               <attributeLabel>Common name</attributeLabel>
+               <attributeDefinition>common_name matching the substrate type code</attributeDefinition>
+               <storageType>string</storageType>
+               <measurementScale>
+                  <nominal>
+                     <nonNumericDomain>
+                        <textDomain>
+                           <definition>any text</definition>
+                        </textDomain>
+                     </nonNumericDomain>
+                  </nominal>
+               </measurementScale>
+               <missingValueCode>
+                  <code>-99999</code>
+                  <codeExplanation>no information available</codeExplanation>
+               </missingValueCode>
+            </attribute>
+            <attribute
+                    id="PERCENTCOVER-10">
+               <attributeName>PERCENT_COVER</attributeName>
+               <attributeLabel>Percent cover</attributeLabel>
+               <attributeDefinition>Percent cover of the species noted as determined by a uniform point contact method (80 point per 40x2 meter transect) where multiple layers of species at a given point are accounted for.</attributeDefinition>
+               <storageType>float</storageType>
+               <measurementScale>
+                  <ratio>
+                     <unit>
+                        <standardUnit>percent</standardUnit>
+                     </unit>
+                     <precision>0.01</precision>
+                     <numericDomain>
+                        <numberType>real</numberType>
+                        <bounds>
+                           <minimum
+                    exclusive="false">0</minimum>
+                           <maximum
+              exclusive="false">100</maximum>
+                        </bounds>
+                     </numericDomain>
+                  </ratio>
+               </measurementScale>
+               <missingValueCode>
+                  <code>-99999</code>
+                  <codeExplanation>no information available</codeExplanation>
+               </missingValueCode>
+               <annotation>
+                  <propertyURI
+              label="has unit">http://qudt.org/schema/qudt/hasUnit</propertyURI>
+                  <valueURI
+      label="Percent">http://qudt.org/vocab/unit/PERCENT</valueURI>
+               </annotation>
+            </attribute>
+         </attributeList>
+         <numberOfRecords>32384</numberOfRecords>
+      </dataTable>
+      <dataTable
+      id="a46a2e69dbf70a0e75f669a4bacf18ca" scope="document"
+          system="https://pasta.edirepository.org">
+         <entityName>Sand depth all years</entityName>
+         <entityDescription>Sand depth at permanent sites</entityDescription>
+         <physical>
+            <objectName>Annual_Sand_Depth_All_Years_20240823.csv</objectName>
+            <size
+          unit="byte">3193636</size>
+            <authentication
+              method="MD5">cbaf921a0c664c0d54e77216c261c666</authentication>
+            <dataFormat>
+               <textFormat>
+                  <numHeaderLines>1</numHeaderLines>
+                  <recordDelimiter>\r\n</recordDelimiter>
+                  <attributeOrientation>column</attributeOrientation>
+                  <simpleDelimited>
+                     <fieldDelimiter>,</fieldDelimiter>
+                     <collapseDelimiters>no</collapseDelimiters>
+                     <quoteCharacter>"</quoteCharacter>
+                  </simpleDelimited>
+               </textFormat>
+            </dataFormat>
+            <distribution>
+               <online>
+                  <url
+          function="download">https://pasta.lternet.edu/package/data/eml/knb-lter-sbc/138/5/a46a2e69dbf70a0e75f669a4bacf18ca</url>
+               </online>
+            </distribution>
+         </physical>
+         <attributeList>
+            <attribute
+          id="YEAR-11">
+               <attributeName>YEAR</attributeName>
+               <attributeLabel>Year</attributeLabel>
+               <attributeDefinition>Calendar year</attributeDefinition>
+               <storageType>integer</storageType>
+               <measurementScale>
+                  <dateTime>
+                     <formatString>YYYY</formatString>
+                     <dateTimePrecision>1</dateTimePrecision>
+                     <dateTimeDomain/>
+                  </dateTime>
+               </measurementScale>
+               <missingValueCode>
+                  <code>-99999</code>
+                  <codeExplanation>no information available</codeExplanation>
+               </missingValueCode>
+            </attribute>
+            <attribute
+                    id="MONTH-12">
+               <attributeName>MONTH</attributeName>
+               <attributeLabel>Month</attributeLabel>
+               <attributeDefinition>Calendar month</attributeDefinition>
+               <storageType>integer</storageType>
+               <measurementScale>
+                  <dateTime>
+                     <formatString>MM</formatString>
+                     <dateTimePrecision>1</dateTimePrecision>
+                     <dateTimeDomain>
+                        <bounds>
+                           <minimum
+                    exclusive="false">1</minimum>
+                           <maximum
+          exclusive="false">12</maximum>
+                        </bounds>
+                     </dateTimeDomain>
+                  </dateTime>
+               </measurementScale>
+               <missingValueCode>
+                  <code>-99999</code>
+                  <codeExplanation>no information available</codeExplanation>
+               </missingValueCode>
+            </attribute>
+            <attribute
+          id="DATE-13">
+               <attributeName>DATE</attributeName>
+               <attributeLabel>Date</attributeLabel>
+               <attributeDefinition>Date of data collection in format: YYYY-MM-DD</attributeDefinition>
+               <storageType>date</storageType>
+               <measurementScale>
+                  <dateTime>
+                     <formatString>YYYY-MM-DD</formatString>
+                     <dateTimePrecision>1</dateTimePrecision>
+                     <dateTimeDomain/>
+                  </dateTime>
+               </measurementScale>
+               <missingValueCode>
+                  <code>-99999</code>
+                  <codeExplanation>no information available</codeExplanation>
+               </missingValueCode>
+            </attribute>
+            <attribute
+          id="SITE-14">
+               <attributeName>SITE</attributeName>
+               <attributeLabel>Site code</attributeLabel>
+               <attributeDefinition>Code for reef site. See list of codes for meaning</attributeDefinition>
+               <storageType>string</storageType>
+               <measurementScale>
+                  <nominal>
+                     <nonNumericDomain>
+                        <enumeratedDomain>
+                           <codeDefinition>
+                              <code>ABUR</code>
+                              <definition>Arroyo Burro</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>AHND</code>
+                              <definition>Arroyo Hondo</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>AQUE</code>
+                              <definition>Arroyo Quemado</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>BULL</code>
+                              <definition>Bulito</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>CARP</code>
+                              <definition>Carpinteria</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>GOLB</code>
+                              <definition>Goleta Bay</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>IVEE</code>
+                              <definition>Isla Vista</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>MOHK</code>
+                              <definition>Mohawk</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>NAPL</code>
+                              <definition>Naples</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>SCDI</code>
+                              <definition>Santa Cruz Island, Diablo</definition>
+                           </codeDefinition>
+                           <codeDefinition>
+                              <code>SCTW</code>
+                              <definition>Santa Cruz Island, Twin Harbor West Reef</definition>
+                           </codeDefinition>
+                        </enumeratedDomain>
+                     </nonNumericDomain>
+                  </nominal>
+               </measurementScale>
+               <missingValueCode>
+                  <code>-99999</code>
+                  <codeExplanation>no information available</codeExplanation>
+               </missingValueCode>
+            </attribute>
+            <attribute
+          id="TRANSECT-15">
+               <attributeName>TRANSECT</attributeName>
+               <attributeLabel>Transect name</attributeLabel>
+               <attributeDefinition>40m transects defined by six permanent markers (stainless steel eyebolts or rebar stakes) at 0, 8, 16, 24, 32, and 40m.</attributeDefinition>
+               <storageType>string</storageType>
+               <measurementScale>
+                  <nominal>
+                     <nonNumericDomain>
+                        <textDomain>
+                           <definition>any text</definition>
+                        </textDomain>
+                     </nonNumericDomain>
+                  </nominal>
+               </measurementScale>
+               <missingValueCode>
+                  <code>-99999</code>
+                  <codeExplanation>no information available</codeExplanation>
+               </missingValueCode>
+            </attribute>
+            <attribute
+              id="DISTANCE-16">
+               <attributeName>DISTANCE</attributeName>
+               <attributeLabel>Distance</attributeLabel>
+               <attributeDefinition>Distance in m along the transect; 1-20 is in Quad 20 and 21-40 is in Quad 40.</attributeDefinition>
+               <storageType>float</storageType>
+               <measurementScale>
+                  <ratio>
+                     <unit>
+                        <standardUnit>meter</standardUnit>
+                     </unit>
+                     <precision>1</precision>
+                     <numericDomain>
+                        <numberType>integer</numberType>
+                     </numericDomain>
+                  </ratio>
+               </measurementScale>
+               <missingValueCode>
+                  <code>-99999</code>
+                  <codeExplanation>value not recorded or not available</codeExplanation>
+               </missingValueCode>
+               <annotation>
+                  <propertyURI
+              label="has unit">http://qudt.org/schema/qudt/hasUnit</propertyURI>
+                  <valueURI
+          label="Meter">http://qudt.org/vocab/unit/M</valueURI>
+               </annotation>
+            </attribute>
+            <attribute
+          id="SIDE-17">
+               <attributeName>SIDE</attributeName>
+               <attributeLabel>Transect side</attributeLabel>
+               <attributeDefinition>Used for bethic survey method only. Inshore or offshore side of transect.</attributeDefinition>
+               <storageType>string</storageType>
+               <measurementScale>
+                  <nominal>
+                     <nonNumericDomain>
+                        <textDomain>
+                           <definition>text</definition>
+                        </textDomain>
+                     </nonNumericDomain>
+                  </nominal>
+               </measurementScale>
+               <missingValueCode>
+                  <code>-99999</code>
+                  <codeExplanation>value not recorded or not available</codeExplanation>
+               </missingValueCode>
+            </attribute>
+            <attribute
+              id="SANDDEPTH-18">
+               <attributeName>SAND_DEPTH</attributeName>
+               <attributeLabel>Sand Depth</attributeLabel>
+               <attributeDefinition>Sand depth in cm, measured at each point that the substrate is "sand"</attributeDefinition>
+               <storageType>float</storageType>
+               <measurementScale>
+                  <ratio>
+                     <unit>
+                        <standardUnit>centimeter</standardUnit>
+                     </unit>
+                     <precision>0.1</precision>
+                     <numericDomain>
+                        <numberType>real</numberType>
+                     </numericDomain>
+                  </ratio>
+               </measurementScale>
+               <missingValueCode>
+                  <code>-99999</code>
+                  <codeExplanation>no information available</codeExplanation>
+               </missingValueCode>
+               <annotation>
+                  <propertyURI
+              label="has unit">http://qudt.org/schema/qudt/hasUnit</propertyURI>
+                  <valueURI
+          label="Centimeter">http://qudt.org/vocab/unit/CentiM</valueURI>
+               </annotation>
+            </attribute>
+         </attributeList>
+         <numberOfRecords>80960</numberOfRecords>
+      </dataTable>
+   </dataset>
+   <additionalMetadata>
+      <metadata>
+         <unitList>
+            <unit
+          abbreviation="cm" id="centimeter" multiplierToSI="0.01"
+          name="centimeter"
+          parentSI="meter">
+               <description>.01 meters</description>
+            </unit>
+            <unit
+          abbreviation="m" id="meter" multiplierToSI="1" name="meter"
+          unitType="length">
+               <description>SI unit of length</description>
+            </unit>
+            <unit
+          abbreviation="%" id="percent" multiplierToSI="1"
+          name="percent" unitType="dimensionless">
+               <description>ratio of two quantities as percent composition (1:100)</description>
+            </unit>
+         </unitList>
+      </metadata>
+   </additionalMetadata>
+</eml:eml>
