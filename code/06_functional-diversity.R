@@ -903,15 +903,15 @@ ggpredict(npp_fdis,
   plot(show_data = TRUE) +
   coord_cartesian(ylim = c(0, 50))
 
-npp_spp_rich <- glmmTMB(total_npp ~ spp_rich + (1|site) + (1|year) + (1|season),
-                   family = lognormal(link = "log"),
+npp_spp_rich <- glmmTMB(log(total_npp) ~ spp_rich + (1|site) + (1|year) + (1|season),
+                   # family = lognormal(link = "log"),
                    na.action = na.fail,
                    data = npp_df)
 plot(simulateResiduals(npp_spp_rich))
 summary(npp_spp_rich)
 r.squaredGLMM(npp_spp_rich)
 ggpredict(npp_spp_rich,
-          terms = c("spp_rich")) %>% 
+          terms = c("spp_rich[3:19 by = 0.5]")) %>% 
   plot(show_data = TRUE) +
   coord_cartesian(ylim = c(0, 50))
 
@@ -921,14 +921,14 @@ ggplot(data = fd_metrics,
   geom_point() +
   geom_smooth()
 
-npp_mod_fric <- glmmTMB(total_npp ~ fric + (1|site) + (1|year) + (1|season),
-                   family = lognormal(link = "log"),
+npp_mod_fric <- glmmTMB(log(total_npp) ~ fric + (1|site) + (1|year) + (1|season),
+                   # family = lognormal(link = "log"),
                    data = npp_df)
 plot(simulateResiduals(npp_mod_fric))
 summary(npp_mod_fric)
 Anova(npp_mod_fric, type = "III")
 ggpredict(npp_mod_fric,
-          terms = c("fric")) %>% 
+          terms = c("fric[0:0.42 by = 0.01]")) %>% 
   plot(show_data = TRUE) +
   coord_cartesian(ylim = c(0, 50))
 
@@ -968,7 +968,9 @@ ggpredict(npp_mod_thick_leathery,
           terms = "thick_leathery") %>% 
   plot(show_data = TRUE)
 
-AICc(npp_mod_fric, npp_spp_rich, npp_mod_thick_leathery, npp_mod_leathery_macrophyte)
+AICc(npp_mod_fric, npp_spp_rich)
+r.squaredGLMM(npp_mod_fric)
+r.squaredGLMM(npp_spp_rich)
 
 ggpredict(npp_spp_rich,
           terms = c("spp_rich")) %>% 

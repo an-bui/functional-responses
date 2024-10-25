@@ -26,7 +26,7 @@ benthics_comm_df <- benthics %>%
   summarize(dry_gm2 = sum(dry_gm2, na.rm = TRUE)) %>% 
   ungroup()
 
-benthics_comm_df_wide <- benthic_comm_df %>% 
+benthics_comm_df_wide <- benthics_comm_df %>% 
   widen() %>%   
   # reordering species to be in the same order as in the trait data frame
   select(rownames(trait_matrix_benthics)) %>% 
@@ -56,7 +56,7 @@ benthics_comm_meta <- benthics %>%
   select(sample_ID,
          site, year) %>% 
   unique() %>% 
-  filter(sample_ID %in% rownames(benthic_comm_df_wide))
+  filter(sample_ID %in% rownames(benthics_comm_df_wide))
 
 # substrate
 benthics_substrate <- substrate 
@@ -68,7 +68,7 @@ benthics_substrate <- substrate
 # ⟞ a. calculating metrics ------------------------------------------------
 
 benthics_fd <- dbFD(x = trait_matrix_benthics,
-                    a = benthic_comm_df_wide,
+                    a = benthics_comm_df_wide,
                     corr = "none",
                     print.pco = TRUE)
 
@@ -162,8 +162,8 @@ ggplot(data = benthics_fd_metrics,
 
 # ⟞ a. NPP ~ diversity ----------------------------------------------------
 
-spp_rich_model <- glmmTMB(npp_estimate ~ spp_rich + (1|site) + (1|year),
-                          family = gaussian(link = "log"),
+spp_rich_model <- glmmTMB(log(npp_estimate) ~ spp_rich + (1|site) + (1|year),
+                          # family = gaussian(link = "log"),
                           data = benthics_fd_metrics)
 
 plot(simulateResiduals(spp_rich_model))
@@ -178,8 +178,8 @@ ggpredict(spp_rich_model,
        title = "Species richness predicts understory NPP") +
   theme(panel.grid = element_blank())
 
-fric_model <- glmmTMB(npp_estimate ~ fric + (1|site) + (1|year),
-                          family = gaussian(link = "log"),
+fric_model <- glmmTMB(log(npp_estimate) ~ fric + (1|site) + (1|year),
+                          # family = gaussian(link = "log"),
                           data = benthics_fd_metrics)
 
 plot(simulateResiduals(fric_model))

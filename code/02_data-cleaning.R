@@ -109,17 +109,17 @@ comm_mat_algae <- comm_df %>%
 comm_meta_algae <- comm_meta %>% 
   filter(sample_ID %in% rownames(comm_mat_algae))
 
-comm_mat_continual_algae <- comm_df %>% 
-  filter(new_group == "algae") %>% 
-  # only include sampling from removal plots
-  filter(sample_ID %in% comm_meta_continual$sample_ID) %>% 
-  widen()
-
-comm_mat_control_algae <- comm_df %>% 
-  filter(new_group == "algae") %>% 
-  # only include sampling from control plots
-  filter(sample_ID %in% comm_meta_control$sample_ID) %>% 
-  widen()
+# comm_mat_continual_algae <- comm_df %>% 
+#   filter(new_group == "algae") %>% 
+#   # only include sampling from removal plots
+#   filter(sample_ID %in% comm_meta_continual$sample_ID) %>% 
+#   widen()
+# 
+# comm_mat_control_algae <- comm_df %>% 
+#   filter(new_group == "algae") %>% 
+#   # only include sampling from control plots
+#   filter(sample_ID %in% comm_meta_control$sample_ID) %>% 
+#   widen()
   
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
