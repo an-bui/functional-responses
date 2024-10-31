@@ -354,6 +354,16 @@ fd_metrics_reduced <- algae_fd_reduced$nbsp %>%
   left_join(., ll_group_biomass, by = "season_ID") %>% 
   left_join(., sd_group_biomass, by = "season_ID")
 
+fd_metrics_reduced %>% 
+  group_by(time_since_end, treatment) %>% 
+  summarize(average = mean(fric, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = time_since_end,
+             y = average,
+             color = treatment)) +
+  geom_point() +
+  geom_line()
+
 # ⟞ ⟞ ii. models ----------------------------------------------------------
 
 
@@ -365,11 +375,11 @@ spp_rich_during <- glmmTMB(
   data = fd_metrics_reduced %>% filter(exp_dates == "during")
 )
 
-# spp_rich_during <- glmmTMB(
-#   spp_rich ~ time_since_end*treatment*quality + (1|year),
-#   family = "poisson",
-#   data = fd_metrics_reduced_reduced %>% filter(exp_dates == "during")
-# )
+spp_rich_during <- glmmTMB(
+  spp_rich ~ time_since_end*treatment*quality + (1|year),
+  family = "poisson",
+  data = fd_metrics_reduced_reduced %>% filter(exp_dates == "during")
+)
 
 plot(simulateResiduals(spp_rich_during))
 
@@ -1899,9 +1909,227 @@ ggsave(here::here("figures",
 
 
 
+# ⟞ ⟞ new LRR -------------------------------------------------------------
 
+# look at emily's paper for guidance
 
+fric_lrr <- fd_metrics_reduced %>% 
+  select(fric, treatment, site, date, time_since_end, exp_dates, year, quality) %>% 
+  pivot_wider(names_from = "treatment",
+              values_from = "fric") %>% 
+  mutate(lrr = log(continual/control))
 
+fric_summary <- fd_metrics_reduced %>% 
+  select(fric, treatment, time_since_end, quality) %>% 
+  group_by(time_since_end, quality, treatment) %>% 
+  summarize(mean_fric = mean(fric, na.rm = TRUE)) %>% 
+  ungroup()
 
+spp_rich_lrr <- fd_metrics_reduced %>% 
+  select(spp_rich, treatment, site, date, time_since_end, exp_dates, year, quality) %>% 
+  pivot_wider(names_from = "treatment",
+              values_from = "spp_rich") %>% 
+  mutate(lrr = log(continual/control))
 
+spp_rich_summary <- fd_metrics_reduced %>% 
+  select(spp_rich, treatment, time_since_end, quality) %>% 
+  group_by(time_since_end, quality, treatment) %>% 
+  summarize(mean_spp_rich = mean(spp_rich, na.rm = TRUE)) %>% 
+  ungroup()
 
+ggplot() +
+  geom_point(data = fric_lrr,
+             aes(x = time_since_end,
+                 y = continual),
+             color = "blue") +
+  geom_point(data = fric_lrr,
+             aes(x = time_since_end,
+                 y = control),
+             color = "red")
+
+ggplot() +
+  geom_point(data = spp_rich_lrr,
+             aes(x = time_since_end,
+                 y = continual),
+             color = "blue") +
+  geom_point(data = spp_rich_lrr,
+             aes(x = time_since_end,
+                 y = control),
+             color = "red")
+
+ggplot(data = fric_lrr,
+       aes(x = time_since_end,
+           y = lrr)) +
+  geom_hline(yintercept = 0, linetype = 2, color = "grey") +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(rows = vars(exp_dates))
+
+ggplot(data = spp_rich_lrr,
+       aes(x = time_since_end,
+           y = lrr)) +
+  geom_hline(yintercept = 0, linetype = 2, color = "grey") +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(rows = vars(exp_dates))
+
+ggplot(data = fric_lrr,
+       aes(x = lrr)) +
+  geom_histogram()
+
+spp_rich_lrr_during <- glmmTMB(lrr ~ time_since_end*quality + (1|year),
+                              data = spp_rich_lrr %>% filter(exp_dates == "during"))
+
+plot(simulateResiduals(spp_rich_lrr_during))
+
+spp_rich_lrr_during_predictions <- predict_response(
+  spp_rich_lrr_during,
+  terms = c("time_since_end", "quality")
+) %>% 
+  rename(quality = group)
+
+predict_response(spp_rich_lrr_during,
+                 terms = c("time_since_end", "quality")) %>% 
+  plot(show_data = TRUE)
+
+summary(spp_rich_lrr_during)
+# no significant effect of time????
+
+spp_rich_lrr_after <- glmmTMB(lrr ~ time_since_end*quality + (1|year),
+                               data = spp_rich_lrr %>% filter(exp_dates == "after"))
+
+plot(simulateResiduals(spp_rich_lrr_after))
+
+spp_rich_lrr_after_predictions <- predict_response(
+  spp_rich_lrr_after,
+  terms = c("time_since_end", "quality")
+) %>% 
+  rename(quality = group)
+
+predict_response(spp_rich_lrr_after,
+                 terms = c("time_since_end", "quality")) %>% 
+  plot(show_data = TRUE)
+
+summary(spp_rich_lrr_after)
+# significant effect of time??????
+
+fric_lrr_during <- glmmTMB(lrr ~ time_since_end*quality + (1|year),
+                               data = fric_lrr %>% filter(exp_dates == "during"))
+
+plot(simulateResiduals(fric_lrr_during))
+
+fric_lrr_during_predictions <- predict_response(
+  fric_lrr_during,
+  terms = c("time_since_end", "quality")
+) %>% 
+  rename(quality = group)
+
+predict_response(fric_lrr_during,
+                 terms = c("time_since_end", "quality")) %>% 
+  plot(show_data = TRUE)
+
+summary(fric_lrr_during)
+# no significant effect of time????
+
+fric_lrr_after <- glmmTMB(lrr ~ time_since_end*quality + (1|year),
+                              data = fric_lrr %>% filter(exp_dates == "after"))
+
+plot(simulateResiduals(fric_lrr_after))
+
+fric_lrr_after_predictions <- predict_response(
+  fric_lrr_after,
+  terms = c("time_since_end", "quality")
+) %>% 
+  rename(quality = group)
+
+predict_response(fric_lrr_after,
+                 terms = c("time_since_end", "quality")) %>% 
+  plot(show_data = TRUE)
+
+predict_response(fric_lrr_during,
+                 terms = "time_since_end") %>% 
+  plot(show_data = TRUE) +
+predict_response(fric_lrr_after,
+                 terms = "time_since_end") %>% 
+  plot(show_data = TRUE)
+
+summary(fric_lrr_after)
+# significant effect of time??????
+
+ggplot(data = fric_summary,
+       aes(x = time_since_end,
+           y = mean_fric,
+           group = treatment,
+           color = treatment)) +
+  geom_line() +
+  geom_point() +
+  scale_color_manual(values = c("continual" = continual_col,
+                                "control" = control_col),
+                     labels = c("continual" = "Removal",
+                                "control" = "Reference")) +
+  facet_wrap(~quality) +
+  labs(title = "Functional richness")
+
+ggplot() +
+  geom_hline(yintercept = 0,
+             linetype = 2,
+             color = "grey") +
+  geom_point(data = fric_lrr,
+             aes(x = time_since_end,
+                 y = lrr),
+             alpha = 0.8,
+             shape = 21) +
+  geom_ribbon(data = fric_lrr_after_predictions,
+            aes(x = x, 
+                y = predicted,
+                ymin = conf.low,
+                ymax = conf.high,
+                fill = quality),
+            alpha = 0.2) +
+  geom_line(data = fric_lrr_after_predictions,
+            aes(x = x, 
+                y = predicted,
+                group = quality,
+                color = quality),
+            linewidth = 1) +
+  facet_wrap(~quality) +
+  labs(title = "Functional richness")
+
+ggplot(data = spp_rich_summary,
+       aes(x = time_since_end,
+           y = mean_spp_rich,
+           group = treatment,
+           color = treatment)) +
+  geom_line() +
+  geom_point() +
+  scale_color_manual(values = c("continual" = continual_col,
+                                "control" = control_col),
+                     labels = c("continual" = "Removal",
+                                "control" = "Reference")) +
+  facet_wrap(~quality) +
+  labs(title = "Species richness")
+
+ggplot() +
+  geom_hline(yintercept = 0,
+             linetype = 2,
+             color = "grey") +
+  geom_point(data = spp_rich_lrr,
+             aes(x = time_since_end,
+                 y = lrr),
+             alpha = 0.8,
+             shape = 21) +
+  geom_ribbon(data = spp_rich_lrr_after_predictions,
+              aes(x = x, 
+                  y = predicted,
+                  ymin = conf.low,
+                  ymax = conf.high,
+                  fill = quality),
+              alpha = 0.2) +
+  geom_line(data = spp_rich_lrr_after_predictions,
+            aes(x = x, 
+                y = predicted,
+                group = quality,
+                color = quality),
+            linewidth = 1) +
+  facet_wrap(~quality) +
+  labs(title = "Species richness")

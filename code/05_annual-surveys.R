@@ -156,21 +156,30 @@ ggplot(data = benthics_fd_metrics,
                  color = "black") +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
 
+ggplot(data = benthics_fd_metrics,
+       aes(x = spp_rich)) +
+  geom_histogram(fill = "cornflowerblue",
+                 color = "black") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ------------------------------ 4. modeling ------------------------------
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # ⟞ a. NPP ~ diversity ----------------------------------------------------
 
-spp_rich_model <- glmmTMB(log(npp_estimate) ~ spp_rich + (1|site) + (1|year),
-                          # family = gaussian(link = "log"),
+spp_rich_model <- glmmTMB(npp_estimate ~ spp_rich*total_kelp + 
+                            (1|site) + (1|year),
+                          family = Gamma(link = "log"),
                           data = benthics_fd_metrics)
 
 plot(simulateResiduals(spp_rich_model))
 
+r.squaredGLMM(spp_rich_model)
+
 summary(spp_rich_model)
 
-ggpredict(spp_rich_model,
+predict_response(spp_rich_model,
           terms = "spp_rich") %>% 
   plot(show_data = TRUE) +
   labs(x = "Species richness",
@@ -178,21 +187,29 @@ ggpredict(spp_rich_model,
        title = "Species richness predicts understory NPP") +
   theme(panel.grid = element_blank())
 
-fric_model <- glmmTMB(log(npp_estimate) ~ fric + (1|site) + (1|year),
-                          # family = gaussian(link = "log"),
+ggpredict(spp_rich_model,
+          terms = "total_kelp") %>% 
+  plot(show_data = TRUE)
+
+fric_model <- glmmTMB(npp_estimate ~ fric*total_kelp + (1|site) + (1|year),
+                          family = Gamma(link = "log"),
                           data = benthics_fd_metrics)
 
 plot(simulateResiduals(fric_model))
 
 summary(fric_model)
 
-ggpredict(fric_model,
+predict_response(fric_model,
           terms = c("fric[0.01:0.42 by = 0.01]")) %>% 
   plot(show_data = TRUE) +
   labs(x = "Functional richness",
        y = "NPP (estimate)",
        title = "Functional richness predicts understory NPP") +
   theme(panel.grid = element_blank())
+
+ggpredict(fric_model,
+          terms = c("total_kelp")) %>% 
+  plot(show_data = TRUE)
 
 AICc(spp_rich_model, fric_model)
 
@@ -211,7 +228,7 @@ ggplot(data = benthics_fd_metrics,
 
 ggplot(data = benthics_fd_metrics,
        aes(x = total_kelp,
-           y = fric)) +
+           y = spp_rich)) +
   geom_point()
 
 asy_model <- nls(spp_rich ~ SSasymp(total_kelp, Asym, R0, lrc),
@@ -246,9 +263,22 @@ ggpredict(asy_model,
   theme(panel.grid = element_blank())
 
 
-fric_kelp_model <- glmmTMB(fric ~ total_kelp,
-                           family = beta_family(link = "logit"),
-                           ziformula = ~1,
+
+
+benthics_fd_metrics$kelp_01 <- ifelse(
+  benthics_fd_metrics$total_kelp > 0, "present", "absent"
+)
+
+benthics_fd_metrics$total_kelp_corrected <- ifelse(
+  benthics_fd_metrics$total_kelp == 0, NA, benthics_fd_metrics$total_kelp
+)
+
+
+fric_kelp_model <- glmmTMB(log(fric) ~ log(total_kelp_corrected),
+                           # family = gaussian(link = "log"),
+                           # family = beta_family(link = "logit"),
+                           # ziformula = ~1,
+                           na.action = na.exclude,
                            data = benthics_fd_metrics)
 hist(resid(fric_kelp_model))
 
@@ -256,8 +286,13 @@ plot(simulateResiduals(fric_kelp_model))
 
 summary(fric_kelp_model)
 
+ggplot(data = benthics_fd_metrics,
+       aes(x = log(total_kelp_corrected),
+           y = log(fric))) +
+  geom_point()
+
 ggpredict(fric_kelp_model,
-          terms = "total_kelp") %>% 
+          terms = "total_kelp_corrected") %>% 
   plot(show_data = TRUE)
 
 AICc(asy_model, fric_kelp_model)
