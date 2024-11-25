@@ -61,3 +61,13 @@ read_data_package_archive(substrateID, path = here("data", "SBC-LTER"))
 # unzips file
 unzip(zipfile = here("data", "SBC-LTER", "knb-lter-sbc.138.5.zip"),
       exdir = here("data", "SBC-LTER", "knb-lter-sbc.138.5"))
+
+# photosynthesis parameters
+photosynthesisID <- "knb-lter-sbc.127.3"
+
+# downloads zipped file
+read_data_package_archive(photosynthesisID, path = here("data", "SBC-LTER"))
+
+# unzips file
+unzip(zipfile = here("data", "SBC-LTER", "knb-lter-sbc.127.3.zip"),
+      exdir = here("data", "SBC-LTER", "knb-lter-sbc.127.3"))

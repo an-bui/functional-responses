@@ -48,7 +48,8 @@ benthics_biomass <- benthics %>%
 benthics_kelp <- benthics %>% 
   filter(sp_code == "MAPY") %>% 
   group_by(sample_ID) %>% 
-  summarize(total_kelp = sum(dry_gm2, na.rm = TRUE)) %>% 
+  summarize(total_kelp_biomass = sum(dry_gm2, na.rm = TRUE),
+            total_kelp_density = sum(density, na.rm = TRUE)) %>% 
   ungroup()
 
 # metadata
@@ -59,7 +60,20 @@ benthics_comm_meta <- benthics %>%
   filter(sample_ID %in% rownames(benthics_comm_df_wide))
 
 # substrate
-benthics_substrate <- substrate 
+benthics_substrate <- substrate %>% 
+  # create a sample ID
+  unite("sample_ID", site, year, remove = FALSE) %>% 
+  # create a new column with "hard" and "soft" substrate
+  # these are based on Miller et al. 2018 groupings
+  mutate(substrate_new = case_match(
+    common_name,
+    c("bedrock", "boulder large", "boulder medium", "boulder small", "cobble") ~ "hard",
+    c("sand", "shell debris", "shallow sand") ~ "soft"
+  )) %>% 
+  filter(substrate_new == "hard") %>% 
+  group_by(sample_ID) %>% 
+  summarize(mean_hard_pc = mean(percent_cover, na.rm = TRUE)) %>% 
+  ungroup() 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # -------------------- 3. functional diversity metrics --------------------
@@ -71,6 +85,7 @@ benthics_fd <- dbFD(x = trait_matrix_benthics,
                     a = benthics_comm_df_wide,
                     corr = "none",
                     print.pco = TRUE)
+# some help with distances: https://stat.ethz.ch/pipermail/r-sig-ecology/2016-January/005264.html
 
 # messages:
 # Species x species distance was not Euclidean, but no correction was applied. Only the PCoA axes with positive eigenvalues were kept. 
@@ -108,29 +123,52 @@ benthics_fd_metrics <- benthics_fd$nbsp %>%
   # rough estimate of NPP from Shannon's paper
   mutate(npp_estimate = 2.77*total_biomass + 0.14) %>% 
   left_join(., benthics_kelp, by = "sample_ID") %>% 
+  left_join(., benthics_substrate, by = "sample_ID") %>% 
   # filter out the 4 surveys that have too few species to calculate FRic
   # Hondo 2020, Hondo 2018, SCTW 2005, SCTW 2023
   drop_na(fric) %>% 
   # calculating variation in kelp
   group_by(site) %>% 
-  mutate(mean_kelp = mean(total_kelp),
-         diff_from_mean = total_kelp - mean_kelp) %>% 
+  mutate(mean_kelp = mean(total_kelp_biomass),
+         diff_from_mean = total_kelp_biomass - mean_kelp) %>% 
   ungroup()
 
 # ⟞ c. exploratory visualization ------------------------------------------
 
 ggplot(data = benthics_fd_metrics,
+       aes(x = total_kelp_biomass,
+           y = fric)) +
+  geom_point()
+
+ggplot(data = benthics_fd_metrics,
+       aes(x = mean_hard_pc,
+           y = spp_rich)) +
+  geom_point()
+
+ggplot(data = benthics_fd_metrics,
+       aes(x = mean_hard_pc,
+           y = npp_estimate)) +
+  geom_point()
+
+ggplot(data = benthics_fd_metrics,
        aes(x = fric,
            y = npp_estimate, 
-           size = total_kelp,
-           color = total_kelp)) +
+           size = total_kelp_biomass,
+           color = total_kelp_biomass)) +
+  geom_point()
+
+ggplot(data = benthics_fd_metrics,
+       aes(x = fric,
+           y = npp_estimate, 
+           size = total_kelp_density,
+           color = total_kelp_density)) +
   geom_point()
 
 ggplot(data = benthics_fd_metrics,
        aes(x = spp_rich,
            y = npp_estimate, 
-           size = total_kelp,
-           color = total_kelp)) +
+           size = total_kelp_biomass,
+           color = total_kelp_biomass)) +
   geom_point()
 
 ggplot(data = benthics_fd_metrics,
@@ -145,7 +183,7 @@ ggplot(data = benthics_fd_metrics,
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
 
 ggplot(data = benthics_fd_metrics,
-       aes(x = total_kelp)) +
+       aes(x = total_kelp_biomass)) +
   geom_histogram(fill = "cornflowerblue",
                  color = "black") +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
@@ -168,7 +206,7 @@ ggplot(data = benthics_fd_metrics,
 
 # ⟞ a. NPP ~ diversity ----------------------------------------------------
 
-spp_rich_model <- glmmTMB(npp_estimate ~ spp_rich*total_kelp + 
+spp_rich_model <- glmmTMB(npp_estimate ~ spp_rich + 
                             (1|site) + (1|year),
                           family = Gamma(link = "log"),
                           data = benthics_fd_metrics)
@@ -187,11 +225,7 @@ predict_response(spp_rich_model,
        title = "Species richness predicts understory NPP") +
   theme(panel.grid = element_blank())
 
-ggpredict(spp_rich_model,
-          terms = "total_kelp") %>% 
-  plot(show_data = TRUE)
-
-fric_model <- glmmTMB(npp_estimate ~ fric*total_kelp + (1|site) + (1|year),
+fric_model <- glmmTMB(npp_estimate ~ fric + (1|site) + (1|year),
                           family = Gamma(link = "log"),
                           data = benthics_fd_metrics)
 
@@ -200,21 +234,53 @@ plot(simulateResiduals(fric_model))
 summary(fric_model)
 
 predict_response(fric_model,
-          terms = c("fric[0.01:0.42 by = 0.01]")) %>% 
+          terms = c("fric[0.01:0.35 by = 0.001")) %>% 
   plot(show_data = TRUE) +
   labs(x = "Functional richness",
        y = "NPP (estimate)",
        title = "Functional richness predicts understory NPP") +
   theme(panel.grid = element_blank())
 
-ggpredict(fric_model,
-          terms = c("total_kelp")) %>% 
-  plot(show_data = TRUE)
-
 AICc(spp_rich_model, fric_model)
 
 r.squaredGLMM(spp_rich_model)
 r.squaredGLMM(fric_model)
+
+spp_rich_and_fric <- glmmTMB(
+  npp_estimate ~ spp_rich * fric +
+    (1|site) + (1|year),
+  family = Gamma(link = "log"),
+  data = benthics_fd_metrics
+)
+
+plot(simulateResiduals(spp_rich_and_fric))
+
+summary(spp_rich_and_fric)
+
+ggpredict(spp_rich_and_fric,
+          terms = c("spp_rich")) %>% 
+  plot(show_data = TRUE)
+
+ggpredict(spp_rich_and_fric,
+          terms = c("fric")) %>% 
+  plot(show_data = TRUE)
+
+hard_substrate <- glmmTMB(
+  npp_estimate ~ mean_hard_pc +
+    (1|site) + (1|year),
+  family = Gamma(link = "log"),
+  data = benthics_fd_metrics
+)
+
+plot(simulateResiduals(hard_substrate))
+
+ggpredict(hard_substrate,
+          terms = c("mean_hard_pc")) %>% 
+  plot(show_data = TRUE)
+
+summary(hard_substrate)
+
+AICc(spp_rich_model, fric_model, spp_rich_and_fric)
 
 
 # ⟞ b. diversity ~ kelp ---------------------------------------------------
@@ -226,20 +292,15 @@ ggplot(data = benthics_fd_metrics,
   labs(x = "Total kelp biomass",
        y = "Species richness")
 
-ggplot(data = benthics_fd_metrics,
-       aes(x = total_kelp,
-           y = spp_rich)) +
-  geom_point()
+# asy_model <- nls(spp_rich ~ SSasymp(total_kelp, Asym, R0, lrc),
+#                  data = benthics_fd_metrics)
+# summary(asy_model)
+# ggpredict(asy_model,
+#           terms = c("total_kelp[0:10000, by = 100]")) %>% 
+#   plot(show_data = TRUE)
 
-asy_model <- nls(spp_rich ~ SSasymp(total_kelp, Asym, R0, lrc),
-                 data = benthics_fd_metrics)
-summary(asy_model)
-ggpredict(asy_model,
-          terms = c("total_kelp[0:10000, by = 100]")) %>% 
-  plot(show_data = TRUE)
-
-spp_rich_kelp_model <- glmmTMB(spp_rich ~ total_kelp,
-                               family = poisson(link = "log"),
+spp_rich_kelp_model <- glmmTMB(spp_rich ~ total_kelp + (1|site) + (1|year),
+                               family = nbinom2(link = "log"),
                                data = benthics_fd_metrics)
 
 plot(simulateResiduals(spp_rich_kelp_model))
@@ -250,50 +311,170 @@ ggpredict(spp_rich_kelp_model,
           terms = "total_kelp[0:10000, by = 100]") %>% 
   plot(show_data = TRUE)
 
-asy_model <- nls(fric ~ SSasymp(total_kelp, Asym, R0, lrc),
-                 data = benthics_fd_metrics)
-hist(resid(asy_model))
-summary(asy_model)
-ggpredict(asy_model,
-          terms = c("total_kelp[0:10000, by = 100]")) %>% 
-  plot(show_data = TRUE) +
-  labs(x = "Total kelp biomass",
-       y = "Functional richness",
-       title = "Total kelp biomass has an asymptotic relationship with functional richness") +
-  theme(panel.grid = element_blank())
-
-
-
-
-benthics_fd_metrics$kelp_01 <- ifelse(
-  benthics_fd_metrics$total_kelp > 0, "present", "absent"
-)
-
-benthics_fd_metrics$total_kelp_corrected <- ifelse(
-  benthics_fd_metrics$total_kelp == 0, NA, benthics_fd_metrics$total_kelp
-)
-
-
-fric_kelp_model <- glmmTMB(log(fric) ~ log(total_kelp_corrected),
-                           # family = gaussian(link = "log"),
-                           # family = beta_family(link = "logit"),
-                           # ziformula = ~1,
-                           na.action = na.exclude,
-                           data = benthics_fd_metrics)
-hist(resid(fric_kelp_model))
+fric_kelp_model <- glmmTMB(fric ~ total_kelp + 
+                             (1|site) + (1|year),
+                               family = beta_family(link = "logit"),
+                               data = benthics_fd_metrics)
 
 plot(simulateResiduals(fric_kelp_model))
 
 summary(fric_kelp_model)
 
-ggplot(data = benthics_fd_metrics,
-       aes(x = log(total_kelp_corrected),
-           y = log(fric))) +
-  geom_point()
-
 ggpredict(fric_kelp_model,
-          terms = "total_kelp_corrected") %>% 
+          terms = "total_kelp[0:10000, by = 100]") %>% 
   plot(show_data = TRUE)
 
-AICc(asy_model, fric_kelp_model)
+fric_spp_rich_model <- glmmTMB(fric ~ spp_rich +
+                             (1|site) + (1|year),
+                           family = beta_family(link = "logit"),
+                           data = benthics_fd_metrics)
 
+plot(simulateResiduals(fric_spp_rich_model))
+
+summary(fric_spp_rich_model)
+
+ggpredict(fric_spp_rich_model,
+          terms = "spp_rich") %>% 
+  plot(show_data = TRUE)
+
+fric_kelp_spp_rich_model <- glmmTMB(fric ~ total_kelp + spp_rich +
+                                      (1|site) + (1|year),
+                                    family = beta_family(link = "logit"),
+                                    data = benthics_fd_metrics)
+
+plot(simulateResiduals(fric_kelp_spp_rich_model))
+
+summary(fric_kelp_spp_rich_model)
+
+ggpredict(fric_kelp_spp_rich_model,
+          terms = "total_kelp") %>% 
+  plot(show_data = TRUE)
+
+ggpredict(fric_kelp_spp_rich_model,
+          terms = "spp_rich") %>% 
+  plot(show_data = TRUE)
+
+# asy_model <- nls(fric ~ SSasymp(total_kelp, Asym, R0, lrc),
+#                  data = benthics_fd_metrics)
+# hist(resid(asy_model))
+# summary(asy_model)
+# ggpredict(asy_model,
+#           terms = c("total_kelp[0:10000, by = 100]")) %>% 
+#   plot(show_data = TRUE) +
+#   labs(x = "Total kelp biomass",
+#        y = "Functional richness",
+#        title = "Total kelp biomass has an asymptotic relationship with functional richness") +
+#   theme(panel.grid = element_blank())
+
+
+
+
+# benthics_fd_metrics$kelp_01 <- ifelse(
+#   benthics_fd_metrics$total_kelp > 0, "present", "absent"
+# )
+# 
+# benthics_fd_metrics$total_kelp_corrected <- ifelse(
+#   benthics_fd_metrics$total_kelp == 0, NA, benthics_fd_metrics$total_kelp
+# )
+# 
+# 
+# fric_kelp_model <- glmmTMB(log(fric) ~ log(total_kelp_corrected),
+#                            # family = gaussian(link = "log"),
+#                            # family = beta_family(link = "logit"),
+#                            # ziformula = ~1,
+#                            na.action = na.exclude,
+#                            data = benthics_fd_metrics)
+# hist(resid(fric_kelp_model))
+# 
+# plot(simulateResiduals(fric_kelp_model))
+# 
+# summary(fric_kelp_model)
+# 
+# ggplot(data = benthics_fd_metrics,
+#        aes(x = log(total_kelp_corrected),
+#            y = log(fric))) +
+#   geom_point()
+# 
+# ggpredict(fric_kelp_model,
+#           terms = "total_kelp_corrected") %>% 
+#   plot(show_data = TRUE)
+# 
+# AICc(asy_model, fric_kelp_model)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ---------------------------- 5. piecewise SEM ---------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+library(piecewiseSEM)
+
+algae_psem <- psem(
+  
+  # species richness as function of kelp
+  glmmTMB(spp_rich ~ total_kelp_biomass + 
+            (1|site) + (1|year),
+         family = nbinom2(link = "log"),
+         na.action = na.omit,
+          data = benthics_fd_metrics),
+  
+  # functional richness as function of kelp and species richness and hard substrate
+  glmmTMB(fric ~ total_kelp_biomass + spp_rich +
+            (1|site) + (1|year),
+          family = beta_family(link = "logit"),
+          na.action = na.omit,
+          data = benthics_fd_metrics),
+
+  # NPP as function of functional richness and species richness and hard substrate
+  glmmTMB(npp_estimate ~ spp_rich + fric +
+            (1|site) + (1|year),
+          family = Gamma(link = "log"),
+          na.action = na.omit,
+          data = benthics_fd_metrics)
+  
+)
+
+algae_psem_gaussian <- psem(
+  
+  # species richness as function of kelp
+  lmer(spp_rich ~ total_kelp_biomass + 
+            (1|site) + (1|year),
+          na.action = na.omit,
+          data = benthics_fd_metrics),
+  
+  # functional richness as function of kelp and species richness
+  lmer(fric ~ total_kelp_biomass + spp_rich + 
+            (1|site) + (1|year),
+          na.action = na.omit,
+          data = benthics_fd_metrics),
+  
+  # NPP as function of functional richness and species richness
+  lmer(npp_estimate ~ spp_rich + fric +
+            (1|site) + (1|year),
+          na.action = na.omit,
+          data = benthics_fd_metrics)
+  
+)
+
+summary(algae_psem, conserve = TRUE)
+summary(algae_psem_gaussian, conserve = TRUE)
+gaussian_sem_plot <- plot(algae_psem_gaussian)
+gaussian_sem_plot
+performance::check_singularity(algae_psem_gaussian)
+
+
+# model <- lmer(scale(fric) ~ scale(total_kelp) + scale(spp_rich) +
+#                 (1|site) + (1|year),
+#               # family = Gamma(link = "log"),
+#               na.action = na.omit,
+#               data = benthics_fd_metrics)
+# 
+# summary(model)
+# 
+# model <- glmmTMB(fric ~ total_kelp + spp_rich +
+#                      (1|site) + (1|year),
+#                    family = beta_family(link = "logit"),
+#                    na.action = na.omit,
+#                    data = benthics_fd_metrics)
+# 
+# plot(simulateResiduals(model))
+# 
+# summary(model)

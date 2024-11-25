@@ -252,10 +252,37 @@ axes_12_position <- ggplot(data = spp_pcoa_scores,
 axes_12_phyla <- ggplot(data = spp_pcoa_scores,
                         aes(x = Axis.1,
                             y = Axis.2,
-                            color = taxon_phylum,
-                            shape = taxon_phylum)) +
-  geom_point(size = 3)
+                            color = taxon_phylum)) +
+  geom_point(size = 3) +
+  stat_ellipse()
 # axes_12_phyla
+
+axes_12_sp_code <- ggplot(data = spp_pcoa_scores,
+                        aes(x = Axis.1,
+                            y = Axis.2,
+                            color = sd_growth_form,
+                            label = sp_code)) +
+  geom_text(size = 3) +
+  stat_ellipse()
+
+# growth forms are different in traits
+adonis2(trait_gower ~ sd_growth_form, 
+        data = spp_pcoa_scores, 
+        method = "bray")
+
+# no difference in dispersion - differences between phyla are due to trait differences
+anova(betadisper(trait_gower, 
+                 group = spp_pcoa_scores$sd_growth_form, 
+                 bias.adjust = TRUE, 
+                 type = "centroid"))
+
+axes_12_cn <- ggplot(data = spp_pcoa_scores,
+                        aes(x = Axis.1,
+                            y = Axis.2,
+                            color = cn_new)) +
+  geom_point(size = 3)
+# axes_12_cn
+
 
 # ⟞ a. `FD` ---------------------------------------------------------------
 
@@ -265,15 +292,15 @@ axes_12_phyla <- ggplot(data = spp_pcoa_scores,
 # `FD::dbFD()`. It takes the original trait matrix and goes through the Gower
 # and PCoA steps internally, choosing 2 axes.
 
-algae_fd <- dbFD(x = trait_matrix,
-                 a = comm_mat_algae,
-                 corr = "none",
-                 print.pco = TRUE)
+# algae_fd <- dbFD(x = trait_matrix,
+#                  a = comm_mat_algae,
+#                  corr = "none",
+#                  print.pco = TRUE)
 
-algae_fd_bin <- dbFD(x = trait_matrix,
-                 a = comm_mat_bin,
-                 corr = "none",
-                 print.pco = TRUE)
+# algae_fd_bin <- dbFD(x = trait_matrix,
+#                  a = comm_mat_bin,
+#                  corr = "none",
+#                  print.pco = TRUE)
 
 algae_fd_reduced <- dbFD(x = trait_matrix_reduced,
                      a = comm_mat_algae,
@@ -286,7 +313,7 @@ algae_fd_reduced <- dbFD(x = trait_matrix_reduced,
 # FDis: Equals 0 in communities with only one functionally singular species. 
 # FRic: To respect s > t, FRic could not be calculated for communities with <3 functionally singular species. 
 # FRic: Dimensionality reduction was required. The last 16 PCoA axes (out of 18 in total) were removed. 
-# FRic: Quality of the reduced-space representation (taking into account the negative eigenvalues) = 0.2849965 
+# FRic: Quality of the reduced-space representation (taking into account the negative eigenvalues) = 0.2219565 
 # FDiv: Could not be calculated for communities with <3 functionally singular species. 
 
 algae_div <- vegan::diversity(x = comm_mat_algae,
@@ -316,24 +343,24 @@ sd_group_biomass <- biomass %>%
   pivot_wider(names_from = sd_growth_form,
               values_from = group_bio)
 
-fd_metrics <- algae_fd$nbsp %>% 
-  enframe() %>% 
-  rename(sample_ID = name,
-         spp_rich = value) %>% 
-  left_join(., enframe(algae_fd$FRic), by = c("sample_ID" = "name")) %>% 
-  rename(fric = value) %>% 
-  left_join(., enframe(algae_fd$RaoQ), by = c("sample_ID" = "name")) %>% 
-  rename(raoq = value) %>% 
-  left_join(., enframe(algae_fd$FDis), by = c("sample_ID" = "name")) %>% 
-  rename(fdis = value) %>%  
-  left_join(., enframe(algae_fd$FEve), by = c("sample_ID" = "name")) %>% 
-  rename(feve = value) %>% 
-  left_join(., algae_div, by = c("sample_ID" = "name")) %>% 
-  mutate(redund = simpson - raoq) %>% 
-  left_join(., comm_meta, by = "sample_ID") %>% 
-  left_join(., npp, by = "season_ID") %>% 
-  left_join(., ll_group_biomass, by = "season_ID") %>% 
-  left_join(., sd_group_biomass, by = "season_ID")
+# fd_metrics <- algae_fd$nbsp %>% 
+#   enframe() %>% 
+#   rename(sample_ID = name,
+#          spp_rich = value) %>% 
+#   left_join(., enframe(algae_fd$FRic), by = c("sample_ID" = "name")) %>% 
+#   rename(fric = value) %>% 
+#   left_join(., enframe(algae_fd$RaoQ), by = c("sample_ID" = "name")) %>% 
+#   rename(raoq = value) %>% 
+#   left_join(., enframe(algae_fd$FDis), by = c("sample_ID" = "name")) %>% 
+#   rename(fdis = value) %>%  
+#   left_join(., enframe(algae_fd$FEve), by = c("sample_ID" = "name")) %>% 
+#   rename(feve = value) %>% 
+#   left_join(., algae_div, by = c("sample_ID" = "name")) %>% 
+#   mutate(redund = simpson - raoq) %>% 
+#   left_join(., comm_meta, by = "sample_ID") %>% 
+#   left_join(., npp, by = "season_ID") %>% 
+#   left_join(., ll_group_biomass, by = "season_ID") %>% 
+#   left_join(., sd_group_biomass, by = "season_ID")
 
 fd_metrics_reduced <- algae_fd_reduced$nbsp %>% 
   enframe() %>% 
@@ -354,89 +381,106 @@ fd_metrics_reduced <- algae_fd_reduced$nbsp %>%
   left_join(., ll_group_biomass, by = "season_ID") %>% 
   left_join(., sd_group_biomass, by = "season_ID")
 
-fd_metrics_reduced %>% 
-  group_by(time_since_end, treatment) %>% 
-  summarize(average = mean(fric, na.rm = TRUE)) %>% 
-  ungroup() %>% 
-  ggplot(aes(x = time_since_end,
-             y = average,
-             color = treatment)) +
-  geom_point() +
-  geom_line()
-
 # ⟞ ⟞ ii. models ----------------------------------------------------------
 
+# ⟞ ⟞ ⟞ species richness --------------------------------------------------
 
-# ⟞ ⟞ ⟞ richness ----------------------------------------------------------
-
-spp_rich_during <- glmmTMB(
-  spp_rich ~ treatment*quality + (1|site) + (1|year),
-  family = "poisson",
-  data = fd_metrics_reduced %>% filter(exp_dates == "during")
+spp_rich_mod <- glmmTMB(
+  spp_rich ~ time_since_zero*treatment*exp_dates + (1|site) + (1|year),
+  family = nbinom2(link = "log"),
+  data = fd_metrics_reduced
 )
 
-spp_rich_during <- glmmTMB(
-  spp_rich ~ time_since_end*treatment*quality + (1|year),
-  family = "poisson",
-  data = fd_metrics_reduced_reduced %>% filter(exp_dates == "during")
+plot(simulateResiduals(spp_rich_mod))
+
+ggpredict(spp_rich_mod,
+          terms = c("time_since_zero", "treatment", "exp_dates")) %>% 
+  plot(show_data = TRUE)
+
+spp_rich_means <- bind_rows(
+  ggpredict(spp_rich_mod,
+            terms = c("time_since_zero[0]", "treatment", "exp_dates")),
+  ggpredict(spp_rich_mod,
+            terms = c("time_since_zero[6.5]", "treatment", "exp_dates"))
+) %>% 
+  as_tibble() %>% 
+  rename("time_since_zero" = "x",
+         "treatment" = "group",
+         "exp_dates" = "facet") 
+
+spp_rich_means %>% 
+  filter(time_since_zero == 6.5) %>% 
+  ggplot() +
+  geom_pointrange(aes(x = treatment,
+                      y = predicted,
+                      ymin = conf.low,
+                      ymax = conf.high)) +
+  facet_wrap(~exp_dates)
+
+summary(spp_rich_mod)
+# after and time
+# after and treatment
+# time and treatment and after
+
+# ⟞ ⟞ ⟞ functional richness -----------------------------------------------
+
+ggplot(data = fd_metrics_reduced,
+       aes(x = fric)) +
+  geom_histogram(bins = 13,
+                 color = "black",
+                 fill = "cornflowerblue") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
+
+fric_mod <- glmmTMB(
+  fric ~ time_since_zero*treatment*exp_dates + (1|site) + (1|year),
+  # family = beta_family(link = "logit"),
+  na.action = na.omit,
+  data = fd_metrics_reduced
 )
 
-plot(simulateResiduals(spp_rich_during))
+plot(simulateResiduals(fric_mod))
+# significant interaction of time, treatment, and exp_dates
+# treatment and exp dates
+# time and exp dates
+# time and treatment
 
-spp_rich_after <- glmmTMB(
-  spp_rich ~ treatment*quality + (1|site) + (1|year),
-  family = poisson(link = "log"),
-  data = fd_metrics_reduced %>% filter(exp_dates == "after")
-)
+ggpredict(fric_mod,
+          terms = c("time_since_zero", "treatment", "exp_dates")) %>% 
+  plot(show_data = TRUE)
 
-# spp_rich_after <- glmmTMB(
-#   spp_rich ~ time_since_end*treatment*quality + (1|year),
-#   family = "poisson",
-#   data = fd_metrics_reduced_reduced %>% filter(exp_dates == "after")
-# )
+fric_means <- bind_rows(
+  ggpredict(fric_mod,
+            terms = c("time_since_zero[0]", "treatment", "exp_dates")),
+  ggpredict(fric_mod,
+            terms = c("time_since_zero[6.5]", "treatment", "exp_dates"))
+) %>% 
+  as_tibble() %>% 
+  rename("time_since_zero" = "x",
+         "treatment" = "group",
+         "exp_dates" = "facet") 
 
-plot(simulateResiduals(spp_rich_after))
+fric_means %>% 
+  filter(time_since_zero == 6.5) %>% 
+  ggplot() +
+  geom_pointrange(aes(x = treatment,
+                      y = predicted,
+                      ymin = conf.low,
+                      ymax = conf.high)) +
+  facet_wrap(~exp_dates)
 
-fric_during <- glmmTMB(
-  fric ~ treatment*quality + (1|site) + (1|year),
-  family = beta_family(link = "logit"),
-  data = fd_metrics_reduced %>% filter(exp_dates == "during")
-)
+summary(fric_mod)
 
-# fric_during <- glmmTMB(
-#   fric ~ time_since_end*treatment*quality + (1|year),
+# fd_metrics_reduced %>% 
+#   filter(exp_dates == "during") %>% 
+#   ggplot(aes(x = redund)) +
+#   geom_histogram(bins = 12)
+# 
+# feve_during <- glmmTMB(
+#   feve ~ treatment*quality + (1|site) + (1|year),
 #   family = beta_family(link = "logit"),
+#   ziformula = ~ 1,
 #   data = fd_metrics_reduced %>% filter(exp_dates == "during")
 # )
-
-plot(simulateResiduals(fric_during))
-
-fric_after <- glmmTMB(
-  fric ~ treatment*quality + (1|site) + (1|year),
-  # family = beta_family(link = "logit"),
-  data = fd_metrics_reduced %>% filter(exp_dates == "after")
-)
-
-# fric_after <- glmmTMB(
-#   fric ~ time_since_end*treatment*quality + (1|site) + (1|year),
-#   family = beta_family(link = "logit"),
-#   data = fd_metrics_reduced %>% filter(exp_dates == "after")
-# )
-
-plot(simulateResiduals(fric_after))
-plotResiduals(fric_after, form = (fd_metrics_reduced %>% filter(exp_dates == "after"))$treatment)
-
-fd_metrics_reduced %>% 
-  filter(exp_dates == "during") %>% 
-  ggplot(aes(x = redund)) +
-  geom_histogram(bins = 12)
-
-feve_during <- glmmTMB(
-  feve ~ treatment*quality + (1|site) + (1|year),
-  family = beta_family(link = "logit"),
-  ziformula = ~ 1,
-  data = fd_metrics_reduced %>% filter(exp_dates == "during")
-)
 
 # redund_during <- glmmTMB(
 #   redund ~ time_since_end*treatment*quality + (1|year),
@@ -445,14 +489,14 @@ feve_during <- glmmTMB(
 #   data = fd_metrics_reduced %>% filter(exp_dates == "during")
 # )
 
-plot(simulateResiduals(feve_during))
-
-feve_after <- glmmTMB(
-  feve ~ treatment*quality + (1|site) + (1|year),
-  family = beta_family(link = "logit"),
-  ziformula = ~1,
-  data = fd_metrics_reduced %>% filter(exp_dates == "after")
-)
+# plot(simulateResiduals(feve_during))
+# 
+# feve_after <- glmmTMB(
+#   feve ~ treatment*quality + (1|site) + (1|year),
+#   family = beta_family(link = "logit"),
+#   ziformula = ~1,
+#   data = fd_metrics_reduced %>% filter(exp_dates == "after")
+# )
 
 # redund_after <- glmmTMB(
 #   redund ~ time_since_end*treatment*quality + (1|year),
@@ -461,260 +505,260 @@ feve_after <- glmmTMB(
 #   data = fd_metrics_reduced %>% filter(exp_dates == "after")
 # )
 
-plot(simulateResiduals(feve_after)) 
-
-summary(spp_rich_during)
-Anova(spp_rich_during, type = "II")
-pairs(emmeans(object = spp_rich_during, 
-              specs = c("treatment", "quality")),
-      adjust = "bh")
-ggpredict(spp_rich_during,
-          terms = c("quality", "treatment")) %>% 
-  plot(show_data = TRUE, jitter = TRUE)
+# plot(simulateResiduals(feve_after)) 
+# 
+# summary(spp_rich_during)
+# Anova(spp_rich_during, type = "II")
+# pairs(emmeans(object = spp_rich_during, 
+#               specs = c("treatment", "quality")),
+#       adjust = "bh")
+# ggpredict(spp_rich_during,
+#           terms = c("quality", "treatment")) %>% 
+#   plot(show_data = TRUE, jitter = TRUE)
 # significant interaction of treatment and quality
 
-summary(spp_rich_after)
-Anova(spp_rich_after, type = "II")
-pairs(emmeans(spp_rich_after, c("treatment", "quality")),
-      adjust = "bh")
-ggpredict(spp_rich_after,
-          terms = c("quality", "treatment")) %>% 
-  plot(show_data = TRUE, jitter = TRUE)
+# summary(spp_rich_after)
+# Anova(spp_rich_after, type = "II")
+# pairs(emmeans(spp_rich_after, c("treatment", "quality")),
+#       adjust = "bh")
+# ggpredict(spp_rich_after,
+#           terms = c("quality", "treatment")) %>% 
+#   plot(show_data = TRUE, jitter = TRUE)
 # effect of treatment but not of quality
 
-summary(fric_during)
-Anova(fric_during, type = "II")
-pairs(emmeans(fric_during, c("treatment", "quality")),
-      adjust = "bh")
-ggpredict(fric_during,
-          terms = c("quality", "treatment")) %>% 
-  plot(show_data = TRUE, jitter = TRUE)
+# summary(fric_during)
+# Anova(fric_during, type = "II")
+# pairs(emmeans(fric_during, c("treatment", "quality")),
+#       adjust = "bh")
+# ggpredict(fric_during,
+#           terms = c("quality", "treatment")) %>% 
+#   plot(show_data = TRUE, jitter = TRUE)
 # significant effect of treatment and quality
 # fric different in high quality habitats between treatment and removal, not in low quality habitats
 
-summary(fric_after)
-Anova(fric_after, type = "II")
-pairs(emmeans(fric_after, c("treatment", "quality")),
-      adjust = "bh")
-ggpredict(fric_after,
-          terms = c("quality", "treatment")) %>% 
-  plot(show_data = TRUE, jitter = TRUE)
+# summary(fric_after)
+# Anova(fric_after, type = "II")
+# pairs(emmeans(fric_after, c("treatment", "quality")),
+#       adjust = "bh")
+# ggpredict(fric_after,
+#           terms = c("quality", "treatment")) %>% 
+#   plot(show_data = TRUE, jitter = TRUE)
 # significant effect of treatment only
 
-summary(feve_during)
-Anova(feve_during, type = "II")
-pairs(emmeans(feve_during, c("treatment", "quality")),
-      adjust = "bh")
-ggpredict(feve_during,
-          terms = c("quality", "treatment")) %>% 
-  plot(show_data = TRUE, jitter = TRUE)
+# summary(feve_during)
+# Anova(feve_during, type = "II")
+# pairs(emmeans(feve_during, c("treatment", "quality")),
+#       adjust = "bh")
+# ggpredict(feve_during,
+#           terms = c("quality", "treatment")) %>% 
+#   plot(show_data = TRUE, jitter = TRUE)
 # significant effect of treatment and quality
 # feve different in high quality habitats between treatment and removal, not in low quality habitats
 
-summary(feve_after)
-Anova(feve_after, type = "II")
-pairs(emmeans(feve_after, c("treatment", "quality")),
-      adjust = "bh")
-ggpredict(feve_after,
-          terms = c("quality", "treatment")) %>% 
-  plot(show_data = TRUE, jitter = TRUE)
+# summary(feve_after)
+# Anova(feve_after, type = "II")
+# pairs(emmeans(feve_after, c("treatment", "quality")),
+#       adjust = "bh")
+# ggpredict(feve_after,
+#           terms = c("quality", "treatment")) %>% 
+#   plot(show_data = TRUE, jitter = TRUE)
 # interactions are not significant, going to type II
 # significant interaction between treatment and quality, time and quality
 
-spp_rich_pred_during <- ggpredict(spp_rich_during,
-                              terms = c("treatment", "quality")) %>% 
-  rename(treatment = x,
-         quality = group)
-
-ggemmeans(spp_rich_during, 
-          terms = c("treatment", "quality")) %>% plot()
-
-spp_rich_pred_after <- ggpredict(spp_rich_after,
-                             terms = c("treatment", "quality")) %>% 
-  rename(treatment = x,
-         quality = group)
-
-ggemmeans(spp_rich_after, 
-          terms = c("treatment", "quality")) %>% plot()
-
-fric_pred_during <- ggpredict(fric_during,
-                                terms = c("treatment", "quality")) %>% 
-  rename(treatment = x,
-         quality = group)
-
-ggemmeans(fric_during,
-          terms = c("treatment", "quality")) %>% 
-  plot() +
-  coord_cartesian(ylim = c(0, 0.35))
-
-fric_pred_after <- ggpredict(fric_after,
-                               terms = c("treatment", "quality")) %>% 
-  rename(treatment = x,
-         quality = group)
-
-ggemmeans(fric_after,
-          terms = c("treatment", "quality")) %>% 
-  plot()
-
-feve_pred_during <- ggpredict(feve_during,
-                                terms = c("treatment", "quality")) %>% 
-  rename(treatment = x,
-         quality = group)
-
-ggemmeans(feve_during,
-          terms = c("treatment", "quality")) %>% plot()
-
-feve_pred_after <- ggpredict(feve_after,
-                               terms = c("treatment", "quality")) %>% 
-  rename(treatment = x,
-         quality = group)
-
-ggemmeans(feve_after,
-          terms = c("treatment", "quality")) %>% plot()
-
-spp_rich_during_plot <- ggplot() +
-  geom_point(data = fd_metrics_reduced %>% filter(exp_dates == "during"),
-             aes(x = treatment,
-                 y = spp_rich,
-                 color = treatment),
-             alpha = 0.2,
-             shape = 21,
-             position = position_jitter(width = 0.1, 
-                                        seed = 666)) +
-  geom_pointrange(data = spp_rich_pred_during,
-                  aes(x = treatment,
-                      y = predicted,
-                      ymin = conf.low,
-                      ymax = conf.high,
-                      color = treatment)) +
-  model_preds_theme() +
-  model_preds_aesthetics +
-  labs(y = "Species richness",
-       title = "During kelp removal") +
-  facet_grid(cols = vars(quality)) +
-  theme(legend.position = "none") +
-  scale_y_continuous(limits = c(0, 20))
-
-spp_rich_after_plot <- ggplot() +
-  geom_point(data = fd_metrics_reduced %>% filter(exp_dates == "after"),
-             aes(x = treatment,
-                 y = spp_rich,
-                 color = treatment),
-             alpha = 0.2,
-             shape = 21,
-             position = position_jitter(width = 0.1, 
-                                        seed = 666)) +
-  geom_pointrange(data = spp_rich_pred_after,
-                  aes(x = treatment,
-                      y = predicted,
-                      ymin = conf.low,
-                      ymax = conf.high,
-                      color = treatment)) +
-  model_preds_theme() +
-  model_preds_aesthetics +
-  labs(y = "Species richness",
-       title = "Kelp recovery") +
-  facet_grid(cols = vars(quality)) +
-  theme(legend.position = "none") +
-  scale_y_continuous(limits = c(0, 20))
-
-spp_rich_during_plot / spp_rich_after_plot
-
-fric_during_plot <- ggplot() +
-  geom_point(data = fd_metrics_reduced %>% filter(exp_dates == "during"),
-             aes(x = treatment,
-                 y = fric,
-                 color = treatment),
-             alpha = 0.2,
-             shape = 21,
-             position = position_jitter(width = 0.1, 
-                                        seed = 666)) +
-  geom_pointrange(data = fric_pred_during,
-                  aes(x = treatment,
-                      y = predicted,
-                      ymin = conf.low,
-                      ymax = conf.high,
-                      color = treatment)) +
-  model_preds_theme() +
-  model_preds_aesthetics +
-  labs(y = "Functional richness",
-       title = "During kelp removal") +
-  facet_grid(cols = vars(quality)) +
-  theme(legend.position = "none") +
-  scale_y_continuous(limits = c(0, 0.42))
-
-fric_after_plot <- ggplot() +
-  geom_point(data = fd_metrics_reduced %>% filter(exp_dates == "after"),
-             aes(x = treatment,
-                 y = fric,
-                 color = treatment),
-             alpha = 0.2,
-             shape = 21,
-             position = position_jitter(width = 0.1, 
-                                        seed = 666)) +
-  geom_pointrange(data = fric_pred_after,
-                  aes(x = treatment,
-                      y = predicted,
-                      ymin = conf.low,
-                      ymax = conf.high,
-                      color = treatment)) +
-  model_preds_theme() +
-  model_preds_aesthetics +
-  labs(y = "Functional richness",
-       title = "Kelp recovery") +
-  facet_grid(cols = vars(quality)) +
-  theme(legend.position = "none") +
-  scale_y_continuous(limits = c(0, 0.42))
-
-fric_during_plot / fric_after_plot
-
-feve_during_plot <- ggplot() +
-  geom_point(data = fd_metrics_reduced %>% filter(exp_dates == "during"),
-             aes(x = treatment,
-                 y = feve,
-                 color = treatment),
-             alpha = 0.2,
-             shape = 21,
-             position = position_jitter(width = 0.1, 
-                                        seed = 666)) +
-  geom_pointrange(data = feve_pred_during,
-                  aes(x = treatment,
-                      y = predicted,
-                      ymin = conf.low,
-                      ymax = conf.high,
-                      color = treatment)) +
-  model_preds_theme() +
-  model_preds_aesthetics +
-  labs(y = "Functional evenness",
-       title = "During kelp removal") +
-  facet_grid(cols = vars(quality)) +
-  theme(legend.position = "none") +
-  scale_y_continuous(limits = c(0, 1))
-
-feve_after_plot <- ggplot() +
-  geom_point(data = fd_metrics_reduced %>% filter(exp_dates == "after"),
-             aes(x = treatment,
-                 y = feve,
-                 color = treatment),
-             alpha = 0.2,
-             shape = 21,
-             position = position_jitter(width = 0.1, 
-                                        seed = 666)) +
-  geom_pointrange(data = feve_pred_after,
-                  aes(x = treatment,
-                      y = predicted,
-                      ymin = conf.low,
-                      ymax = conf.high,
-                      color = treatment)) +
-  model_preds_theme() +
-  model_preds_aesthetics +
-  labs(y = "Functional evenness",
-       title = "Kelp recovery") +
-  facet_grid(cols = vars(quality)) +
-  theme(legend.position = "none") +
-  scale_y_continuous(limits = c(0, 1))
-
-feve_during_plot / feve_after_plot
+# spp_rich_pred_during <- ggpredict(spp_rich_during,
+#                               terms = c("treatment", "quality")) %>% 
+#   rename(treatment = x,
+#          quality = group)
+# 
+# ggemmeans(spp_rich_during, 
+#           terms = c("treatment", "quality")) %>% plot()
+# 
+# spp_rich_pred_after <- ggpredict(spp_rich_after,
+#                              terms = c("treatment", "quality")) %>% 
+#   rename(treatment = x,
+#          quality = group)
+# 
+# ggemmeans(spp_rich_after, 
+#           terms = c("treatment", "quality")) %>% plot()
+# 
+# fric_pred_during <- ggpredict(fric_during,
+#                                 terms = c("treatment", "quality")) %>% 
+#   rename(treatment = x,
+#          quality = group)
+# 
+# ggemmeans(fric_during,
+#           terms = c("treatment", "quality")) %>% 
+#   plot() +
+#   coord_cartesian(ylim = c(0, 0.35))
+# 
+# fric_pred_after <- ggpredict(fric_after,
+#                                terms = c("treatment", "quality")) %>% 
+#   rename(treatment = x,
+#          quality = group)
+# 
+# ggemmeans(fric_after,
+#           terms = c("treatment", "quality")) %>% 
+#   plot()
+# 
+# feve_pred_during <- ggpredict(feve_during,
+#                                 terms = c("treatment", "quality")) %>% 
+#   rename(treatment = x,
+#          quality = group)
+# 
+# ggemmeans(feve_during,
+#           terms = c("treatment", "quality")) %>% plot()
+# 
+# feve_pred_after <- ggpredict(feve_after,
+#                                terms = c("treatment", "quality")) %>% 
+#   rename(treatment = x,
+#          quality = group)
+# 
+# ggemmeans(feve_after,
+#           terms = c("treatment", "quality")) %>% plot()
+# 
+# spp_rich_during_plot <- ggplot() +
+#   geom_point(data = fd_metrics_reduced %>% filter(exp_dates == "during"),
+#              aes(x = treatment,
+#                  y = spp_rich,
+#                  color = treatment),
+#              alpha = 0.2,
+#              shape = 21,
+#              position = position_jitter(width = 0.1, 
+#                                         seed = 666)) +
+#   geom_pointrange(data = spp_rich_pred_during,
+#                   aes(x = treatment,
+#                       y = predicted,
+#                       ymin = conf.low,
+#                       ymax = conf.high,
+#                       color = treatment)) +
+#   model_preds_theme() +
+#   model_preds_aesthetics +
+#   labs(y = "Species richness",
+#        title = "During kelp removal") +
+#   facet_grid(cols = vars(quality)) +
+#   theme(legend.position = "none") +
+#   scale_y_continuous(limits = c(0, 20))
+# 
+# spp_rich_after_plot <- ggplot() +
+#   geom_point(data = fd_metrics_reduced %>% filter(exp_dates == "after"),
+#              aes(x = treatment,
+#                  y = spp_rich,
+#                  color = treatment),
+#              alpha = 0.2,
+#              shape = 21,
+#              position = position_jitter(width = 0.1, 
+#                                         seed = 666)) +
+#   geom_pointrange(data = spp_rich_pred_after,
+#                   aes(x = treatment,
+#                       y = predicted,
+#                       ymin = conf.low,
+#                       ymax = conf.high,
+#                       color = treatment)) +
+#   model_preds_theme() +
+#   model_preds_aesthetics +
+#   labs(y = "Species richness",
+#        title = "Kelp recovery") +
+#   facet_grid(cols = vars(quality)) +
+#   theme(legend.position = "none") +
+#   scale_y_continuous(limits = c(0, 20))
+# 
+# spp_rich_during_plot / spp_rich_after_plot
+# 
+# fric_during_plot <- ggplot() +
+#   geom_point(data = fd_metrics_reduced %>% filter(exp_dates == "during"),
+#              aes(x = treatment,
+#                  y = fric,
+#                  color = treatment),
+#              alpha = 0.2,
+#              shape = 21,
+#              position = position_jitter(width = 0.1, 
+#                                         seed = 666)) +
+#   geom_pointrange(data = fric_pred_during,
+#                   aes(x = treatment,
+#                       y = predicted,
+#                       ymin = conf.low,
+#                       ymax = conf.high,
+#                       color = treatment)) +
+#   model_preds_theme() +
+#   model_preds_aesthetics +
+#   labs(y = "Functional richness",
+#        title = "During kelp removal") +
+#   facet_grid(cols = vars(quality)) +
+#   theme(legend.position = "none") +
+#   scale_y_continuous(limits = c(0, 0.42))
+# 
+# fric_after_plot <- ggplot() +
+#   geom_point(data = fd_metrics_reduced %>% filter(exp_dates == "after"),
+#              aes(x = treatment,
+#                  y = fric,
+#                  color = treatment),
+#              alpha = 0.2,
+#              shape = 21,
+#              position = position_jitter(width = 0.1, 
+#                                         seed = 666)) +
+#   geom_pointrange(data = fric_pred_after,
+#                   aes(x = treatment,
+#                       y = predicted,
+#                       ymin = conf.low,
+#                       ymax = conf.high,
+#                       color = treatment)) +
+#   model_preds_theme() +
+#   model_preds_aesthetics +
+#   labs(y = "Functional richness",
+#        title = "Kelp recovery") +
+#   facet_grid(cols = vars(quality)) +
+#   theme(legend.position = "none") +
+#   scale_y_continuous(limits = c(0, 0.42))
+# 
+# fric_during_plot / fric_after_plot
+# 
+# feve_during_plot <- ggplot() +
+#   geom_point(data = fd_metrics_reduced %>% filter(exp_dates == "during"),
+#              aes(x = treatment,
+#                  y = feve,
+#                  color = treatment),
+#              alpha = 0.2,
+#              shape = 21,
+#              position = position_jitter(width = 0.1, 
+#                                         seed = 666)) +
+#   geom_pointrange(data = feve_pred_during,
+#                   aes(x = treatment,
+#                       y = predicted,
+#                       ymin = conf.low,
+#                       ymax = conf.high,
+#                       color = treatment)) +
+#   model_preds_theme() +
+#   model_preds_aesthetics +
+#   labs(y = "Functional evenness",
+#        title = "During kelp removal") +
+#   facet_grid(cols = vars(quality)) +
+#   theme(legend.position = "none") +
+#   scale_y_continuous(limits = c(0, 1))
+# 
+# feve_after_plot <- ggplot() +
+#   geom_point(data = fd_metrics_reduced %>% filter(exp_dates == "after"),
+#              aes(x = treatment,
+#                  y = feve,
+#                  color = treatment),
+#              alpha = 0.2,
+#              shape = 21,
+#              position = position_jitter(width = 0.1, 
+#                                         seed = 666)) +
+#   geom_pointrange(data = feve_pred_after,
+#                   aes(x = treatment,
+#                       y = predicted,
+#                       ymin = conf.low,
+#                       ymax = conf.high,
+#                       color = treatment)) +
+#   model_preds_theme() +
+#   model_preds_aesthetics +
+#   labs(y = "Functional evenness",
+#        title = "Kelp recovery") +
+#   facet_grid(cols = vars(quality)) +
+#   theme(legend.position = "none") +
+#   scale_y_continuous(limits = c(0, 1))
+# 
+# feve_during_plot / feve_after_plot
 
 
 
@@ -839,144 +883,130 @@ feve_during_plot / feve_after_plot
 # 
 # plots_together <- rich_time / fric_time / redund_time
 
-ggsave(filename = here::here(
-  "figures",
-  "model-predictions",
-  paste0("div-models_", today(), ".jpg")),
-  plots_together,
-  height = 14,
-  width = 16,
-  units = "cm",
-  dpi = 300)
+# ggsave(filename = here::here(
+#   "figures",
+#   "model-predictions",
+#   paste0("div-models_", today(), ".jpg")),
+#   plots_together,
+#   height = 14,
+#   width = 16,
+#   units = "cm",
+#   dpi = 300)
 
-# ⟞ ⟞ ⟞  redundancy -------------------------------------------------------
-
-rich_mod <- glmmTMB(fric ~ spp_rich,
-                    data = fd_metrics,
-                    family = beta_family(link = "logit"))
-
-plot(simulateResiduals(rich_mod))
-
-summary(rich_mod)
-
-ggpredict(rich_mod,
-          terms = "spp_rich") %>% 
-  plot(show_data = TRUE) 
-
-ggplot(data = fd_metrics,
-       aes(x = spp_rich,
-           y = fric)) +
-  geom_point() +
-  geom_smooth()
-
-asy_model <- nls(fric ~ SSasymp(spp_rich, Asym, R0, lrc),
-    data = fd_metrics)
-summary(asy_model)
-ggpredict(asy_model,
-          terms = c("spp_rich")) %>% 
-  plot(show_data = TRUE)
-
-AICc(asy_model, rich_mod)
-
-asy_preds <- propagate::predictNLS(asy_model,
-                                   newdata = data.frame(spp_rich = seq(3, 19, by = 1)))
-
-asy_preds_df <- enframe(asy_preds)
+# rich_mod <- glmmTMB(fric ~ spp_rich,
+#                     data = fd_metrics,
+#                     family = beta_family(link = "logit"))
+# 
+# plot(simulateResiduals(rich_mod))
+# 
+# summary(rich_mod)
+# 
+# ggpredict(rich_mod,
+#           terms = "spp_rich") %>% 
+#   plot(show_data = TRUE) 
+# 
+# ggplot(data = fd_metrics,
+#        aes(x = spp_rich,
+#            y = fric)) +
+#   geom_point() +
+#   geom_smooth()
+# 
+# asy_model <- nls(fric ~ SSasymp(spp_rich, Asym, R0, lrc),
+#     data = fd_metrics)
+# summary(asy_model)
+# ggpredict(asy_model,
+#           terms = c("spp_rich")) %>% 
+#   plot(show_data = TRUE)
+# 
+# AICc(asy_model, rich_mod)
+# 
+# asy_preds <- propagate::predictNLS(asy_model,
+#                                    newdata = data.frame(spp_rich = seq(3, 19, by = 1)))
+# 
+# asy_preds_df <- enframe(asy_preds)
 
 # ⟞ ⟞ ⟞ NPP ---------------------------------------------------------------
 
-ggplot(data = fd_metrics %>% filter(exp_dates == "during"),
+ggplot(data = fd_metrics_reduced %>% filter(exp_dates == "during"),
        aes(x = (total_npp))) +
   geom_histogram(bins = 12,
                  fill = "cornflowerblue",
                  color = "black") # log normal?
 
-ggplot(data = fd_metrics %>% filter(exp_dates == "after"),
+ggplot(data = fd_metrics_reduced %>% filter(exp_dates == "after"),
        aes(x = (total_npp))) +
   geom_histogram(bins = 12,
                  fill = "cornflowerblue",
                  color = "black") # log normal?
 
-npp_df <- fd_metrics_reduced %>% 
-  drop_na(fric) %>% 
-  filter(sample_ID != "napl_control_2023-05-18")
+ggplot(data = fd_metrics_reduced,
+       aes(x = fric,
+           y = total_npp)) +
+  geom_point()
 
-npp_fdis <- glmmTMB(total_npp ~ fdis + (1|site) + (1|year) + (1|season),
-                    family = lognormal(link = "log"),
-                    na.action = na.fail,
-                    data = npp_df)
-plot(simulateResiduals(npp_fdis))
-summary(npp_fdis)
-r.squaredGLMM(npp_fdis)
-ggpredict(npp_fdis,
-          terms = c("fdis")) %>% 
-  plot(show_data = TRUE) +
-  coord_cartesian(ylim = c(0, 50))
+ggplot(data = fd_metrics_reduced,
+       aes(x = spp_rich,
+           y = total_npp)) +
+  geom_point()
 
-npp_spp_rich <- glmmTMB(log(total_npp) ~ spp_rich + (1|site) + (1|year) + (1|season),
-                   # family = lognormal(link = "log"),
+npp_spp_rich <- glmmTMB(total_npp ~ spp_rich + (1|site) + (1|year) + (1|season),
+                   family = lognormal(link = "log"),
                    na.action = na.fail,
-                   data = npp_df)
+                   data = fd_metrics_reduced)
 plot(simulateResiduals(npp_spp_rich))
 summary(npp_spp_rich)
 r.squaredGLMM(npp_spp_rich)
 ggpredict(npp_spp_rich,
-          terms = c("spp_rich[3:19 by = 0.5]")) %>% 
+          terms = c("spp_rich")) %>% 
   plot(show_data = TRUE) +
-  coord_cartesian(ylim = c(0, 50))
+  coord_cartesian(ylim = c(0, 55))
 
-ggplot(data = fd_metrics,
-       aes(x = spp_rich,
-           y = total_npp)) +
-  geom_point() +
-  geom_smooth()
-
-npp_mod_fric <- glmmTMB(log(total_npp) ~ fric + (1|site) + (1|year) + (1|season),
-                   # family = lognormal(link = "log"),
-                   data = npp_df)
+npp_mod_fric <- glmmTMB(total_npp ~ fric + (1|site) + (1|year) + (1|season),
+                        family = lognormal(link = "log"),
+                   data = fd_metrics_reduced)
 plot(simulateResiduals(npp_mod_fric))
 summary(npp_mod_fric)
-Anova(npp_mod_fric, type = "III")
+r.squaredGLMM(npp_mod_fric)
 ggpredict(npp_mod_fric,
-          terms = c("fric[0:0.42 by = 0.01]")) %>% 
+          terms = c("fric")) %>% 
   plot(show_data = TRUE) +
   coord_cartesian(ylim = c(0, 50))
 
-npp_mod_redund <- glmmTMB(total_npp ~ redund + (1|site) + (1|year) + (1|season),
-                   family = lognormal(link = "log"),
-                   data = npp_df)
-plot(simulateResiduals(npp_mod_redund))
-summary(npp_mod_redund)
-Anova(npp_mod_redund, type = "III")
-ggpredict(npp_mod_redund,
-          terms = c("redund")) %>% 
-  plot(show_data = TRUE) +
-  coord_cartesian(ylim = c(0, 50))
-
-npp_mod_thick_leathery <- glmmTMB(total_npp ~ thick_leathery + (1|site) + (1|year) + (1|season),
-                                  family = lognormal(link = "log"),
-                                  na.action = na.fail,
-                                  data = npp_df)
-plot(simulateResiduals(npp_mod_thick_leathery))
-summary(npp_mod_thick_leathery)
-
-npp_mod_leathery_macrophyte <- glmmTMB(total_npp ~ leathery_macrophyte + (1|site) + (1|year) + (1|season),
-                                       family = lognormal(link = "log"),
-                                       na.action = na.fail,
-                                       data = npp_df)
-
-plot(simulateResiduals(npp_mod_leathery_macrophyte))
-summary(npp_mod_leathery_macrophyte)
-
-ggplot(data = npp_df %>% 
-         filter(sample_ID != "napl_control_2023-05-18"), 
-       aes(x = thick_leathery,
-           y = total_npp)) +
-  geom_point()
-
-ggpredict(npp_mod_thick_leathery,
-          terms = "thick_leathery") %>% 
-  plot(show_data = TRUE)
+# npp_mod_redund <- glmmTMB(total_npp ~ redund + (1|site) + (1|year) + (1|season),
+#                    family = lognormal(link = "log"),
+#                    data = npp_df)
+# plot(simulateResiduals(npp_mod_redund))
+# summary(npp_mod_redund)
+# Anova(npp_mod_redund, type = "III")
+# ggpredict(npp_mod_redund,
+#           terms = c("redund")) %>% 
+#   plot(show_data = TRUE) +
+#   coord_cartesian(ylim = c(0, 50))
+# 
+# npp_mod_thick_leathery <- glmmTMB(total_npp ~ thick_leathery + (1|site) + (1|year) + (1|season),
+#                                   family = lognormal(link = "log"),
+#                                   na.action = na.fail,
+#                                   data = npp_df)
+# plot(simulateResiduals(npp_mod_thick_leathery))
+# summary(npp_mod_thick_leathery)
+# 
+# npp_mod_leathery_macrophyte <- glmmTMB(total_npp ~ leathery_macrophyte + (1|site) + (1|year) + (1|season),
+#                                        family = lognormal(link = "log"),
+#                                        na.action = na.fail,
+#                                        data = npp_df)
+# 
+# plot(simulateResiduals(npp_mod_leathery_macrophyte))
+# summary(npp_mod_leathery_macrophyte)
+# 
+# ggplot(data = npp_df %>% 
+#          filter(sample_ID != "napl_control_2023-05-18"), 
+#        aes(x = thick_leathery,
+#            y = total_npp)) +
+#   geom_point()
+# 
+# ggpredict(npp_mod_thick_leathery,
+#           terms = "thick_leathery") %>% 
+#   plot(show_data = TRUE)
 
 AICc(npp_mod_fric, npp_spp_rich)
 r.squaredGLMM(npp_mod_fric)
@@ -996,85 +1026,6 @@ ggplot(data = fd_metrics,
 ggpredict(npp_mod_fric,
           terms = c("fric")) %>% 
   plot(show_data = TRUE)
-
-npp_mod <- glmmTMB(total_npp ~ spp_rich + (1|site) + (1|year) + (1|season),
-                   family = lognormal(link = "log"),
-                   data = fd_metrics %>% filter(exp_dates == "after"))
-plot(simulateResiduals(npp_mod))
-summary(npp_mod)
-Anova(npp_mod, type = "III")
-ggpredict(npp_mod,
-          terms = c("spp_rich")) %>% 
-  plot(show_data = TRUE)
-
-npp_mod <- glmmTMB(total_npp ~ fric*quality*treatment + (1|site) + (1|year) + (1|season),
-                   family = lognormal(link = "log"),
-                   data = fd_metrics %>% filter(exp_dates == "after"))
-plot(simulateResiduals(npp_mod))
-summary(npp_mod)
-Anova(npp_mod, type = "III")
-
-ggpredict(npp_mod,
-          terms = c("fric", "treatment", "quality")) %>% 
-  plot(show_data = TRUE)
-
-npp_mod <- glmmTMB(total_npp ~ redund*quality*treatment + (1|site) + (1|year) + (1|season),
-                   family = lognormal(link = "log"),
-                   data = fd_metrics %>% filter(exp_dates == "after"))
-plot(simulateResiduals(npp_mod))
-summary(npp_mod)
-Anova(npp_mod, type = "III")
-
-ggpredict(npp_mod,
-          terms = c("redund", "treatment", "quality")) %>% 
-  plot(show_data = TRUE)
-
-npp_mod <- glmmTMB(total_npp ~ fric*quality*treatment + (1|site) + (1|year) + (1|season),
-                   family = lognormal(link = "log"),
-                   data = fd_metrics %>% filter(exp_dates == "after"))
-plot(simulateResiduals(npp_mod))
-plotResiduals(npp_mod, form = fd_metrics$redund)
-
-summary(npp_mod)
-Anova(npp_mod, type = "II")
-
-ggpredict(npp_mod,
-          terms = c("fric", "treatment", "quality")) %>% 
-  plot(show_data = TRUE)
-
-
-# ⟞ ⟞ ⟞ change in richness ------------------------------------------------
-
-cont_redund <- fd_metrics %>% 
-  filter(treatment == "continual") %>% 
-  unite("yss", year, quarter, site, sep = "_", remove = FALSE)
-
-delta_richness <- fd_metrics %>% 
-  select(year, quarter, site, date, treatment, fric) %>% 
-  pivot_wider(names_from = treatment,
-              values_from = fric) %>% 
-  replace_na(list(continual = 0,
-                  control = 0)) %>% 
-  mutate(delta_fric = continual - control) %>% 
-  unite("yss", year, quarter, site, sep = "_") %>% 
-  left_join(., cont_redund, by = "yss")
-
-ggplot(data = delta_richness,
-       aes(x = redund,
-           y = delta_fric)) +
-  geom_hline(yintercept = 0) +
-  geom_point() +
-  geom_smooth(method = "lm")
-
-delta_mod <- glmmTMB(delta_fric ~ redund + (1|site) + (1|year),
-                     data = delta_richness)
-plot(simulateResiduals(delta_mod))
-summary(delta_mod)
-ggpredict(delta_mod,
-          terms = c("redund")) %>% 
-  plot(show_data = TRUE) +
-  coord_cartesian(xlim = c(0, 0.8))
-
 
 # ⟞ ⟞ iii. other plots ----------------------------------------------------
 
@@ -1295,67 +1246,7 @@ fric_mfd <- ggplot(data = fun_div_df,
 
 cowplot::plot_grid(sprich_mfd, fric_mfd, redundancy, nrow = 3)
 
-
-# ⟞ c. `fundiversity` -----------------------------------------------------
-
-library(fundiversity)
-
-# same as results from FD
-fric_fundiversity <- fd_fric(traits = trait_pcoa$vectors[, 1:2], 
-        sp_com = comm_mat_algae) %>% 
-  rename(sample_ID = site) %>% 
-  left_join(., comm_meta, by = c("sample_ID"))
-
-# different from FD!!!!
-raoq_fundiversity <- fd_raoq(traits = trait_pcoa$vectors[, 1:2], 
-                             sp_com = comm_mat_algae) %>% 
-  rename(sample_ID = site) %>% 
-  left_join(., comm_meta, by = c("sample_ID"))
-
-ggplot(data = fric_fundiversity %>% filter(treatment == "continual"),
-       aes(x = quality,
-           y = FRic)) +
-  geom_point(alpha = 0.1) +
-  stat_summary(geom = "pointrange",
-               fun.data = "mean_cl_boot",
-               color = "red") +
-  facet_wrap(~exp_dates, ncol = 2)
-
-
-# ⟞ ⟞ d. SYNCSA -----------------------------------------------------------
-
-library(SYNCSA)
-
-# different raoQ, different redundancy
-syncsa_metrics <- rao.diversity(comm = comm_mat_algae,
-                                traits = trait_matrix) 
-
-syncsa_metrics_df <- bind_cols(
-  enframe(syncsa_metrics$Simpson),
-  enframe(syncsa_metrics$FunRao),
-  enframe(syncsa_metrics$FunRedundancy)
-) %>% 
-  rename(sample_ID = name...1,
-         simpson = value...2,
-         raoq = value...4,
-         redund = value...6) %>% 
-  select(sample_ID, simpson, raoq, redund) %>% 
-  left_join(., comm_meta, by = "sample_ID")
-
-syncsa_metrics_df %>% 
-  filter(treatment == "continual") %>% 
-  ggplot(aes(x = quality,
-             y = redund)) +
-  geom_point(alpha = 0.1,
-             position = position_jitter(width = 0.1, seed = 666)) +
-  stat_summary(geom = "pointrange",
-               fun.data = "mean_cl_boot",
-               color = "red") +
-  facet_wrap(~exp_dates)
-
-
-
-# ⟞ d. functional space plots ---------------------------------------------
+# ⟞ c. functional space plots ---------------------------------------------
 
 # ⟞ ⟞ i. global species pool ----------------------------------------------
 
@@ -1456,107 +1347,94 @@ spp_by_survey <- species_presence %>%
   select(!presence) %>% 
   left_join(., comm_meta, by = "sample_ID")
 
-during_space <- ggplot() +
-  theme(panel.background = element_rect(fill = "lightgrey")) +
-  # global species pool
+trait_space_aesthetics <- list(
+  theme(panel.background = element_rect(fill = "lightgrey")),
   geom_polygon(data = ch,
                aes(x = x,
                    y = y),
-               fill = "#FFFFFF") +
-  geom_point(data = m,
-             aes(x = Axis.1,
-                 y = Axis.2),
-             color = "grey",
-             shape = 21,
-             alpha = 0.5) +
-  geom_polygon(data = hulls %>% 
-                 filter(exp_dates == "during" & quality == "high"),
-               aes(x = x,
-                   y = y,
-                   group = sample_ID),
-               alpha = 0.025,
-               fill = high_col
-  ) +
-  geom_polygon(data = hulls %>% 
-                 filter(exp_dates == "during" & quality == "medium"),
-               aes(x = x,
-                   y = y,
-                   group = sample_ID),
-               alpha = 0.025,
-               fill = medium_col
-  ) +
-  geom_polygon(data = hulls %>% 
-                 filter(exp_dates == "during" & quality == "low"),
-               aes(x = x,
-                   y = y,
-                   group = sample_ID),
-               alpha = 0.03,
-               fill = low_col
-  ) +
-  facet_grid(cols = vars(quality), vars(treatment)) +
-  labs(title = "Removal period",
-       x = "PCoA 1",
-       y = "PCoA 2") +
-  theme(strip.background = element_blank(),
-        strip.text = element_text(size = 12))
+               fill = "#FFFFFF"),
+    geom_point(data = m,
+               aes(x = Axis.1,
+                   y = Axis.2),
+               color = "grey",
+               shape = 21,
+               alpha = 0.5),
+  labs(x = "PCoA 1",
+       y = "PCoA 2")
+)
 
-after_space <- ggplot() +
-  theme(panel.background = element_rect(fill = "lightgrey")) +
-  # global species pool
-  geom_polygon(data = ch,
-               aes(x = x,
-                   y = y),
-               fill = "#FFFFFF") +
-  geom_point(data = m,
-             aes(x = Axis.1,
-                 y = Axis.2),
-             color = "grey",
-             shape = 21,
-             alpha = 0.5) +
-  geom_polygon(data = hulls %>% 
-                 filter(exp_dates == "after" & quality == "high"),
-               aes(x = x,
+trait_space_during_reference <- hulls %>% 
+  filter(treatment == "Reference" & exp_dates == "during") %>% 
+  ggplot() +
+  trait_space_aesthetics +
+  geom_polygon(aes(x = x,
                    y = y,
                    group = sample_ID),
                alpha = 0.025,
-               fill = high_col
+               fill = "cornflowerblue"
   ) +
-  geom_polygon(data = hulls %>% 
-                 filter(exp_dates == "after" & quality == "medium"),
-               aes(x = x,
-                   y = y,
-                   group = sample_ID),
-               alpha = 0.025,
-               fill = medium_col
-  ) +
-  geom_polygon(data = hulls %>% 
-                 filter(exp_dates == "after" & quality == "low"),
-               aes(x = x,
-                   y = y,
-                   group = sample_ID),
-               alpha = 0.03,
-               fill = low_col
-  ) +
-  facet_grid(cols = vars(quality), vars(treatment)) +
-  labs(title = "Recovery period",
-       x = "PCoA 1",
-       y = "PCoA 2") +
-  theme(strip.background = element_blank(),
-        strip.text = element_text(size = 12))
+  labs(title = "Reference | During")
 
-space_together <- during_space + after_space
+trait_space_during_reference
+
+trait_space_after_reference <- hulls %>% 
+  filter(treatment == "Reference" & exp_dates == "after") %>% 
+  ggplot() +
+  trait_space_aesthetics +
+  geom_polygon(aes(x = x,
+                   y = y,
+                   group = sample_ID),
+               alpha = 0.025,
+               fill = "cornflowerblue"
+  ) +
+  labs(title = "Reference | After")
+
+trait_space_after_reference
+
+trait_space_during_removal <- hulls %>% 
+  filter(treatment == "Removal" & exp_dates == "during") %>% 
+  ggplot() +
+  trait_space_aesthetics +
+  geom_polygon(aes(x = x,
+                   y = y,
+                   group = sample_ID),
+               alpha = 0.025,
+               fill = "goldenrod"
+  ) +
+  labs(title = "Removal | During")
+
+trait_space_during_removal
+
+trait_space_after_removal <- hulls %>% 
+  filter(treatment == "Removal" & exp_dates == "after") %>% 
+  ggplot() +
+  trait_space_aesthetics +
+  geom_polygon(aes(x = x,
+                   y = y,
+                   group = sample_ID),
+               alpha = 0.025,
+               fill = "goldenrod"
+  ) +
+  labs(title = "Removal | After")
+
+trait_space_after_removal
+
+trait_space <- (trait_space_during_reference + trait_space_during_removal) +
+  (trait_space_after_reference) + (trait_space_after_removal)
+
+trait_space
 
 ggsave(here::here("figures",
                   "trait-space",
                   paste0("exp-dates-comparison_reduced_", today(), ".jpg")),
-       space_together,
-       width = 24,
-       height = 10,
+       trait_space,
+       width = 18,
+       height = 18,
        units = "cm",
        dpi = 200)
 
 
-# ⟞ e. log response ratio -------------------------------------------------
+# ⟞ d. log response ratio -------------------------------------------------
 
 log_response_ratios <- fd_metrics %>% 
   nest(.by = c(exp_dates, quality),
@@ -1914,149 +1792,132 @@ ggsave(here::here("figures",
 # look at emily's paper for guidance
 
 fric_lrr <- fd_metrics_reduced %>% 
-  select(fric, treatment, site, date, time_since_end, exp_dates, year, quality) %>% 
+  select(fric, treatment, site, date, 
+         time_since_end, time_since_start, 
+         exp_dates, year, quality) %>% 
   pivot_wider(names_from = "treatment",
               values_from = "fric") %>% 
-  mutate(lrr = log(continual/control))
+  mutate(lrr = log(continual/control)) %>% 
+  mutate(time_since_zero = case_when(
+    time_since_end < 0 ~ time_since_start,
+    TRUE ~ time_since_end
+  ))
 
-fric_summary <- fd_metrics_reduced %>% 
-  select(fric, treatment, time_since_end, quality) %>% 
-  group_by(time_since_end, quality, treatment) %>% 
-  summarize(mean_fric = mean(fric, na.rm = TRUE)) %>% 
-  ungroup()
+
+# fric_summary <- fd_metrics_reduced %>% 
+#   select(fric, treatment, time_since_end, quality) %>% 
+#   group_by(time_since_end, quality, treatment) %>% 
+#   summarize(mean_fric = mean(fric, na.rm = TRUE)) %>% 
+#   ungroup()
 
 spp_rich_lrr <- fd_metrics_reduced %>% 
-  select(spp_rich, treatment, site, date, time_since_end, exp_dates, year, quality) %>% 
+  select(spp_rich, treatment, site, date, 
+         time_since_end, time_since_start,
+         exp_dates, year, quality) %>% 
   pivot_wider(names_from = "treatment",
               values_from = "spp_rich") %>% 
-  mutate(lrr = log(continual/control))
+  mutate(lrr = log(continual/control)) %>% 
+  mutate(time_since_zero = case_when(
+    time_since_end < 0 ~ time_since_start,
+    TRUE ~ time_since_end
+  ))
 
-spp_rich_summary <- fd_metrics_reduced %>% 
-  select(spp_rich, treatment, time_since_end, quality) %>% 
-  group_by(time_since_end, quality, treatment) %>% 
-  summarize(mean_spp_rich = mean(spp_rich, na.rm = TRUE)) %>% 
-  ungroup()
 
-ggplot() +
-  geom_point(data = fric_lrr,
-             aes(x = time_since_end,
-                 y = continual),
-             color = "blue") +
-  geom_point(data = fric_lrr,
-             aes(x = time_since_end,
-                 y = control),
-             color = "red")
+# spp_rich_summary <- fd_metrics_reduced %>% 
+#   select(spp_rich, treatment, time_since_end, quality) %>% 
+#   group_by(time_since_end, quality, treatment) %>% 
+#   summarize(mean_spp_rich = mean(spp_rich, na.rm = TRUE)) %>% 
+#   ungroup()
 
-ggplot() +
-  geom_point(data = spp_rich_lrr,
-             aes(x = time_since_end,
-                 y = continual),
-             color = "blue") +
-  geom_point(data = spp_rich_lrr,
-             aes(x = time_since_end,
-                 y = control),
-             color = "red")
+# ggplot() +
+#   geom_point(data = fric_lrr,
+#              aes(x = time_since_end,
+#                  y = continual),
+#              color = "blue") +
+#   geom_point(data = fric_lrr,
+#              aes(x = time_since_end,
+#                  y = control),
+#              color = "red")
+
 
 ggplot(data = fric_lrr,
-       aes(x = time_since_end,
+       aes(x = time_since_zero,
            y = lrr)) +
   geom_hline(yintercept = 0, linetype = 2, color = "grey") +
   geom_point() +
   geom_smooth(method = "lm") +
-  facet_grid(rows = vars(exp_dates))
+  facet_grid(cols = vars(exp_dates))
 
 ggplot(data = spp_rich_lrr,
-       aes(x = time_since_end,
+       aes(x = time_since_zero,
            y = lrr)) +
   geom_hline(yintercept = 0, linetype = 2, color = "grey") +
   geom_point() +
   geom_smooth(method = "lm") +
-  facet_grid(rows = vars(exp_dates))
+  facet_grid(cols = vars(exp_dates))
 
 ggplot(data = fric_lrr,
        aes(x = lrr)) +
   geom_histogram()
 
-spp_rich_lrr_during <- glmmTMB(lrr ~ time_since_end*quality + (1|year),
-                              data = spp_rich_lrr %>% filter(exp_dates == "during"))
+spp_rich_lrr_mod <- lmer(lrr ~ time_since_zero*exp_dates + (1|year),
+                     data = spp_rich_lrr)
 
-plot(simulateResiduals(spp_rich_lrr_during))
+plot(simulateResiduals(spp_rich_lrr_mod))
+check_model(spp_rich_lrr_mod)
+check_outliers(spp_rich_lrr_mod)
 
 spp_rich_lrr_during_predictions <- predict_response(
   spp_rich_lrr_during,
-  terms = c("time_since_end", "quality")
+  terms = c("time_since_zero", "exp_dates")
 ) %>% 
   rename(quality = group)
 
 predict_response(spp_rich_lrr_during,
-                 terms = c("time_since_end", "quality")) %>% 
+                 terms = c("time_since_zero", "exp_dates")) %>% 
   plot(show_data = TRUE)
 
 summary(spp_rich_lrr_during)
+
+
+fric_lrr_mod <- lmerTest::lmer(lrr ~ time_since_zero*exp_dates + (1|site) + (1|year),
+                               data = fric_lrr)
+
+plot(simulateResiduals(fric_lrr_mod))
+check_model(fric_lrr_mod)
+
+# fric_lrr_during_predictions <- predict_response(
+#   fric_lrr_during,
+#   terms = c("time_since_end", "quality")
+# ) %>% 
+#   rename(quality = group)
+
+predict_response(fric_lrr_mod,
+                 terms = c("time_since_zero", "exp_dates")) %>% 
+  plot(show_data = TRUE)
+
+summary(fric_lrr_mod)
 # no significant effect of time????
 
-spp_rich_lrr_after <- glmmTMB(lrr ~ time_since_end*quality + (1|year),
-                               data = spp_rich_lrr %>% filter(exp_dates == "after"))
-
-plot(simulateResiduals(spp_rich_lrr_after))
-
-spp_rich_lrr_after_predictions <- predict_response(
-  spp_rich_lrr_after,
-  terms = c("time_since_end", "quality")
-) %>% 
-  rename(quality = group)
-
-predict_response(spp_rich_lrr_after,
-                 terms = c("time_since_end", "quality")) %>% 
-  plot(show_data = TRUE)
-
-summary(spp_rich_lrr_after)
+# fric_lrr_after <- glmmTMB(lrr ~ time_since_end + (1|site) + (1|year),
+#                               data = fric_lrr %>% filter(exp_dates == "after"))
+# 
+# plot(simulateResiduals(fric_lrr_after))
+# 
+# fric_lrr_after_predictions <- predict_response(
+#   fric_lrr_after,
+#   terms = c("time_since_end", "quality")
+# ) %>% 
+#   rename(quality = group)
+# 
+# predict_response(fric_lrr_after,
+#                  terms = c("time_since_end")) %>% 
+#   plot(show_data = TRUE)
+# 
+# summary(fric_lrr_after)
 # significant effect of time??????
 
-fric_lrr_during <- glmmTMB(lrr ~ time_since_end*quality + (1|year),
-                               data = fric_lrr %>% filter(exp_dates == "during"))
-
-plot(simulateResiduals(fric_lrr_during))
-
-fric_lrr_during_predictions <- predict_response(
-  fric_lrr_during,
-  terms = c("time_since_end", "quality")
-) %>% 
-  rename(quality = group)
-
-predict_response(fric_lrr_during,
-                 terms = c("time_since_end", "quality")) %>% 
-  plot(show_data = TRUE)
-
-summary(fric_lrr_during)
-# no significant effect of time????
-
-fric_lrr_after <- glmmTMB(lrr ~ time_since_end*quality + (1|year),
-                              data = fric_lrr %>% filter(exp_dates == "after"))
-
-plot(simulateResiduals(fric_lrr_after))
-
-fric_lrr_after_predictions <- predict_response(
-  fric_lrr_after,
-  terms = c("time_since_end", "quality")
-) %>% 
-  rename(quality = group)
-
-predict_response(fric_lrr_after,
-                 terms = c("time_since_end", "quality")) %>% 
-  plot(show_data = TRUE)
-
-predict_response(fric_lrr_during,
-                 terms = "time_since_end") %>% 
-  plot(show_data = TRUE) +
-predict_response(fric_lrr_after,
-                 terms = "time_since_end") %>% 
-  plot(show_data = TRUE)
-
-summary(fric_lrr_after)
-# significant effect of time??????
-
-ggplot(data = fric_summary,
+ggplot(data = fric_summary %>% filter(quality %in% c("medium", "high")),
        aes(x = time_since_end,
            y = mean_fric,
            group = treatment,
@@ -2074,11 +1935,24 @@ ggplot() +
   geom_hline(yintercept = 0,
              linetype = 2,
              color = "grey") +
-  geom_point(data = fric_lrr,
+  geom_point(data = fric_lrr %>% filter(quality %in% c("medium", "high")),
              aes(x = time_since_end,
                  y = lrr),
              alpha = 0.8,
              shape = 21) +
+  geom_ribbon(data = fric_lrr_during_predictions,
+              aes(x = x, 
+                  y = predicted,
+                  ymin = conf.low,
+                  ymax = conf.high,
+                  fill = quality),
+              alpha = 0.2) +
+  geom_line(data = fric_lrr_during_predictions,
+            aes(x = x, 
+                y = predicted,
+                group = quality,
+                color = quality),
+            linewidth = 1) +
   geom_ribbon(data = fric_lrr_after_predictions,
             aes(x = x, 
                 y = predicted,
@@ -2095,7 +1969,7 @@ ggplot() +
   facet_wrap(~quality) +
   labs(title = "Functional richness")
 
-ggplot(data = spp_rich_summary,
+ggplot(data = spp_rich_summary %>% filter(quality %in% c("medium", "high")),
        aes(x = time_since_end,
            y = mean_spp_rich,
            group = treatment,
@@ -2113,11 +1987,24 @@ ggplot() +
   geom_hline(yintercept = 0,
              linetype = 2,
              color = "grey") +
-  geom_point(data = spp_rich_lrr,
+  geom_point(data = spp_rich_lrr %>% filter(quality %in% c("medium", "high")),
              aes(x = time_since_end,
                  y = lrr),
              alpha = 0.8,
              shape = 21) +
+  geom_ribbon(data = spp_rich_lrr_during_predictions,
+              aes(x = x, 
+                  y = predicted,
+                  ymin = conf.low,
+                  ymax = conf.high,
+                  fill = quality),
+              alpha = 0.2) +
+  geom_line(data = spp_rich_lrr_during_predictions,
+            aes(x = x, 
+                y = predicted,
+                group = quality,
+                color = quality),
+            linewidth = 1) +
   geom_ribbon(data = spp_rich_lrr_after_predictions,
               aes(x = x, 
                   y = predicted,
@@ -2133,3 +2020,142 @@ ggplot() +
             linewidth = 1) +
   facet_wrap(~quality) +
   labs(title = "Species richness")
+
+
+# ⟞ f. species change through time ----------------------------------------
+
+# column 1: species
+# column 2: treatment
+# column 3: exp_dates
+# column 4: present or absent
+
+present_absent <- comm_df %>% 
+  # algae only
+  filter(new_group == "algae" & sp_code != "MAPY") %>% 
+  # filter(exp_dates == "during") %>% 
+  select(sample_ID, treatment, exp_dates, scientific_name, dry_gm2) %>% 
+  filter(!(scientific_name %in% pull(excluded_spp, scientific_name))) %>% 
+  group_by(treatment, exp_dates, scientific_name) %>% 
+  summarize(mean_dry = mean(dry_gm2, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  mutate(present_absent = case_when(
+    mean_dry > 0 ~ "present",
+    TRUE ~ "absent"
+  )) %>% 
+  mutate(present_absent = fct_relevel(present_absent, "absent", "present")) %>% 
+  arrange(present_absent, mean_dry) %>% 
+  mutate(scientific_name = fct_inorder(scientific_name))
+
+# spp_factors <- present_absent %>% 
+#   # group_by(scientific_name) %>% 
+#   count(scientific_name, present_absent) %>% 
+#   mutate(present_absent = fct_relevel(present_absent, "present", "absent")) %>% 
+#   arrange(present_absent, -n) %>% 
+#   # mutate(scientific_name = fct_inorder(scientific_name)) %>% 
+#   pull(scientific_name)
+
+pa_plot <- ggplot(data = present_absent,
+       aes(x = treatment,
+           y = scientific_name,
+           fill = present_absent,
+           alpha = mean_dry)) +
+  geom_tile(color = "black") +
+  scale_fill_manual(values = c("present" = "cornflowerblue",
+                               "absent" = "goldenrod")) +
+  scale_alpha_continuous(breaks = seq(from = 0, to = 40, by = 5)) +
+  theme(legend.position = "none") +
+  facet_wrap(~exp_dates) 
+
+trait_table <- trait_matrix_reduced %>% 
+  rownames_to_column("scientific_name") %>% 
+  mutate(size_cm = case_when(
+    is.na(size_cm) ~ "no size data",
+    TRUE ~ paste0(size_cm, " cm")
+  ),
+  position_to_benthos = case_match(
+    position_to_benthos,
+    "upright" ~ "upright posture",
+    "upright or crustose" ~ "upright or crustose posture",
+    "flexible" ~ "flexible posture",
+    "crustose" ~ "crustose posture",
+    "upright or prostrate" ~ "upright or prostrate posture"
+  ),
+  stipe = case_match(
+    stipe,
+    "n" ~ "no stipe",
+    "y" ~ "stipate"
+  ),
+  branching = case_match(
+    branching,
+    "irregular" ~ "irregular branching",
+    "dichotomous" ~ "dichotomous branching",
+    "pinnate" ~ "pinnate branching",
+    .default = branching
+  ),
+  branch_shape = case_match(
+    branch_shape,
+    "flattened" ~ "flattened branch shape",
+    "terete" ~ "terete branch shape",
+    "none" ~ "no branch shape (because no branching)",
+    "varied" ~ "varied branch shape"
+  ),
+  blade_category = case_match(
+    blade_category,
+    "many small" ~ "many small blades",
+    "none" ~ "no blades",
+    "single" ~ "single blade",
+    "many large" ~ "many large blades"
+  ),
+  calcification = case_match(
+    calcification,
+    "y" ~ "calcified",
+    "n" ~ "not calcified"
+  ),
+  longevity = case_when(
+    is.na(longevity) ~ "unknown longevity",
+    .default = longevity
+  ),
+  attachment = case_match(
+    attachment,
+    "stolon" ~ "stoloniferous attachment",
+    "rhizoidal" ~ "rhizoidal attachment",
+    "discoid" ~ "discoid attachment",
+    "crustose" ~ "crustose",
+    "rhizomal" ~ "rhizomal attachment",
+    "hapterous" ~ "hapterous attachment"
+  ),
+  cn_new = case_when(
+    is.na(cn_new) ~ "no C:N data",
+    .default = paste0(cn_new, " C:N")
+  )) %>% 
+  mutate(table_trait = paste(size_cm, position_to_benthos, stipe, branching,
+                             branch_shape, blade_category, calcification, 
+                             longevity, attachment, cn_new, 
+                             sep = ", ")) %>% 
+  select(scientific_name, table_trait) %>% 
+  arrange(factor(scientific_name, 
+                 levels = rev(pull(present_absent, scientific_name) %>% 
+                   unique()))) 
+
+trait_table %>% 
+  flextable() %>% 
+  autofit() %>% 
+  fit_to_width(7) %>% 
+  save_as_docx(path = here("tables",
+                    "trait-table",
+                    paste0("species-trait-table_", today(), ".docx")))
+
+library(ggpmisc)
+
+my_table_plot <- ggplot() +
+  theme_void() +
+  annotate(geom = "table", x = 1, y = 1, label = list(trait_table), hjust = 0)
+
+library(gridExtra)
+
+tbl1 <- tableGrob(trait_table, theme=ttheme_minimal(), rows=NULL)
+
+library(patchwork)
+
+free(pa_plot | my_table_plot) +
+  plot_layout(heights = c(1, 0.4))

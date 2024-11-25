@@ -16,23 +16,56 @@ source(here::here("code", "01_source.R"))
 # ------------------------------- 2. traits -------------------------------
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+photosynthesis_clean <- photosynthesis %>% 
+  # take out the juveniles of large brown species that use MAPY as proxy
+  filter(pe_spp != "MPJ") %>% 
+  # take out CYOS reproductive parts
+  filter(pe_spp != "CYOS_R") %>% 
+  # create new column to match species
+  # if the values for Pmax, alpha, etc. are not for that specific species, remove
+  mutate(pe_matched_spp = case_when(
+    sp_code == pe_spp ~ "match",
+    TRUE ~ "no match"
+  )) %>% 
+  mutate(chn_matched_spp = case_when(
+    sp_code == chn_spp ~ "match",
+    TRUE ~ "no match"
+  )) %>% 
+  filter(pe_matched_spp == "match" | chn_matched_spp == "match") %>% 
+  mutate(pmax_new = case_when(
+    pe_matched_spp == "match" ~ pmax,
+    pe_matched_spp == "no match" ~ NA
+  ),
+  pe_alpha_new = case_when(
+    pe_matched_spp == "match" ~ pe_alpha,
+    pe_matched_spp == "no match" ~ NA
+  ),
+  cn_new = case_when(
+    chn_matched_spp == "match" ~ cn,
+    chn_matched_spp == "no match" ~ NA
+  )) %>% 
+  select(scientific_name, pmax_new, pe_alpha_new, cn_new) %>% 
+  unique()
+
 traits_clean <- traits %>% 
   # subset of traits
   # select(scientific_name,
   #        thickness, position_to_benthos, stipe, branching, 
   #        blades, blade_category, attachment, calcification) %>% 
   # all traits
-  select(scientific_name,
+  select(scientific_name, 
          size_cm, thickness, position_to_benthos, articulated, stipe,
-         midrib, branching, branch_shape, blades, blade_category,
+         midrib, branching, branch_shape, blades, blade_category, longevity,
          coenocyte, attachment, tissue_complexity, growth, calcification) %>%
-  filter(!(scientific_name %in% pull(excluded_spp, scientific_name)))
+  filter(!(scientific_name %in% pull(excluded_spp, scientific_name))) %>% 
+  left_join(., coarse_traits, by = "scientific_name") %>% 
+  left_join(., photosynthesis_clean, by = "scientific_name") 
 
 # turns the cleaned trait data frame into a matrix for dissimilarity stuff
 trait_matrix <- traits_clean %>% 
   filter(scientific_name != "Macrocystis pyrifera") %>% 
   column_to_rownames("scientific_name") %>% 
-  mutate(across(.cols = thickness:calcification, as_factor))
+  mutate(across(.cols = thickness:ll_func_form, as_factor)) 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ------------------------- 3. community matrices -------------------------
@@ -52,8 +85,8 @@ comm_df <- biomass %>%
     site_full, 
     "Arroyo Quemado", "Naples", "Mohawk", "Carpinteria")) %>%
   # create new sample ID with treatment
-  unite("sample_ID", site, treatment, date, remove = FALSE) %>% 
-  mutate(across(where(is.character), as.factor))
+  unite("sample_ID", site, treatment, date, remove = FALSE) # %>% 
+  # mutate(across(where(is.character), as.factor))
 
 # metadata for all plots
 comm_meta <- comm_df %>% 
@@ -61,7 +94,16 @@ comm_meta <- comm_df %>%
          treatment, exp_dates, quarter, time_yrs, 
          time_since_start, time_since_end, kelp_year, 
          comp_1yrs, comp_2yrs, comp_3yrs, quality, site_full, season) %>% 
-  unique()
+  unique() %>% 
+  mutate(time_since_zero = case_when(
+    time_since_end < 0 ~ time_since_start,
+    TRUE ~ time_since_end
+  )) %>% 
+  mutate(treatment = case_match(
+    treatment,
+    "continual" ~ "Removal",
+    "control" ~ "Reference"
+  ))
 
 
 # widening function
@@ -241,14 +283,17 @@ algae_traits_cat <- colnames(trait_matrix) %>%
     "attachment" ~ "N",
     "tissue_complexity" ~ "N",
     "growth" ~ "N",
-    "calcification" ~ "N"
+    "calcification" ~ "N",
+    "longevity" ~ "N"
   ))
 
 # reduced trait matrix
 trait_matrix_reduced <- trait_matrix %>% 
   select(size_cm, position_to_benthos,
-         stipe, midrib, branching, branch_shape,
-         blade_category, attachment, growth, calcification)
+         stipe, branching, branch_shape, blade_category,
+         calcification, longevity, attachment, # pmax_new, pe_alpha_new, 
+         cn_new
+         )
 
 # reduced trait categories
 algae_traits_cat_reduced <- algae_traits_cat %>% 

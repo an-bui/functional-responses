@@ -533,7 +533,7 @@ my_fviz_nbclust <- function(x, print.summary = TRUE, barfill = "steelblue", barc
 # categorical traits 
 traits <- read_csv(here("data", 
                         "functional-traits",
-                        "joe-traits-lter_2024-09-27.csv"))
+                        "joe-traits-lter_2024-11-14.csv"))
 
 # Steneck and Dethier and Littler and Littler traits
 coarse_traits <- repmis::source_data("https://www.dropbox.com/scl/fi/s1gb2f3f13ry1oqtzoyyj/00-coarse_traits.csv?rlkey=tgd6j5q3y7bfsdxz7sgs77klb&st=moyfpk93&dl=1") %>% 
@@ -566,7 +566,8 @@ biomass <- read_csv(
   # replace all -99999 values with NA
   mutate(dry_gm2 = replace(dry_gm2, dry_gm2 < 0, NA),
          wm_gm2 = replace(wm_gm2, wm_gm2 < 0, NA),
-         density = replace(density, density < 0, NA)) %>%
+         density = replace(density, density < 0, NA),
+         percent_cover = replace(percent_cover, percent_cover < 0, NA)) %>%
   # change to lower case
   mutate_at(c("group", "mobility", "growth_morph", "treatment", "site"), str_to_lower) %>% 
   # create a sample_ID for each sampling date at each treatment at each site
@@ -698,6 +699,15 @@ substrate <- read_csv(here(
   clean_names() %>% 
   mutate(across(where(is.character), str_to_lower))
 
+# ⟞ f. photosynthesis parameters ------------------------------------------
+
+photosynthesis <- read_csv(here(
+  "data", 
+  "SBC-LTER", 
+  "knb-lter-sbc.127.3",
+  "Algal_Biomass_Relationships_NPP_calculation_20210113.csv"
+)) %>% 
+  clean_names()
 
 ##########################################################################-
 # 4. objects --------------------------------------------------------------
@@ -754,7 +764,8 @@ excluded_spp <- tribble(
     "Unidentifiable juvenile kelp",
     "small Ceramiaceae spp.",
     "Unidentifiable small brown blade",
-    "Unidentified Erect Coralline spp."
+    "Unidentified Erect Coralline spp.",
+  "Cryptopleura spp."
   ) %>% 
   left_join(., algae_spp, by = "scientific_name")
 # 16 excluded species
