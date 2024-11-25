@@ -1,0 +1,7 @@
+Manifest file for knb-lter-sbc.127.3.zip created on Wed Nov 13 18:31:57 UTC 2024
+Algal_Biomass_Relationships_NPP_calculation_20210113.csv (11685 bytes)
+Invertebrate_Biomass_Relationships_20210113.csv (11203 bytes)
+SBCLTER_Fish_Biomass_relationship_20210113.csv (9238 bytes)
+knb-lter-sbc.127.3.xml (67455 bytes)
+knb-lter-sbc.127.3.txt (32701 bytes)
+knb-lter-sbc.127.3.report.xml (69099 bytes)

@@ -1,0 +1,1454 @@
+
+  
+    
+      uid=SBC,o=EDI,dc=ecoinformatics,dc=org
+      all
+    
+    
+      uid=lkui,o=EDI,dc=ecoinformatics,dc=org
+      all
+    
+    
+      public
+      read
+    
+  
+  
+    doi:10.6073/pasta/0fe9233dabe35df5d61fb3b07f8fb51eBiomass relationships for kelp forest species
+    SBC LTER: Reef: Coefficients for estimating biomass from body size or percent cover for kelp forest species
+    
+      Santa Barbara Coastal LTER
+      			Marine Science Institute University of California
+			Santa Barbara, CA 93106  USA
+      sbclter@msi.ucsb.edu
+    
+    
+      Clint J Nelson
+      			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+      805-893-7295
+      clint.nelson@lifesci.ucsb.edu
+    
+    
+      Daniel C Reed
+      			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+      805-893-8363
+      dan.reed@lifesci.ucsb.edu
+      https://orcid.org/0000-0003-3015-8717
+    
+    
+      Shannon Harrer
+      			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+      805-893-7295
+      harrer@msi.ucsb.edu
+    
+    
+      Robert J Miller
+      			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+      805-893-6174
+      rjmiller@ucsb.edu
+      https://orcid.org/0000-0002-8350-3759
+    
+    2021-02-03
+    English
+    
+      
+        
+    These data provide coefficients to estimate the biomass of
+    macroalgae, invertebrates and fish from field measurements of body
+    size or percent cover. We developed quantitative relationships
+    between mass and length or mass and percent cover, and conversion
+    factors for transforming wet mass into dry mass, shell free and
+    decalcified dry mass, and ash-free dry mass for taxa of benthic
+    macroalgae and macroinvertebrates common to giant kelp forests in
+    southern California. We also compiled literature-based relationships
+    between mass and total length for reef fish common to giant kelp
+    forests in southern California.
+  
+      
+    
+    
+      populations
+      LTER Core Research Areas
+    
+    
+      benthic
+      biomass
+      length
+      macroinvertebrates
+      organism
+      percent cover
+      populations
+      size
+      LTER Controlled Vocabulary v1
+    
+    
+      populations
+      Reef
+      SBC-LTER Controlled Vocabulary
+    
+    
+      Biomass
+      fish
+      Global Change Master Directory (GCMD) v6.0.0.0.0
+    
+    
+      Biomass
+      fish
+      Knowledge Network for Biocomplexity
+    
+    
+      Biomass
+      Cover
+      NBII Biocomplexity
+    
+    
+      biomass
+      giant kelp forest
+      length-weight relationship
+      none
+    
+    
+      
+  This data package is released under the Creative Commons License
+  Attribution 4.0 International (CC BY 4.0, see
+  https://creativecommons.org/licenses/by/4.0/). This license states
+  that consumers ("Data Users" herein) may distribute, adapt,
+  reuse, remix, and build upon this work, as long as they give
+  appropriate credit, provide a link to the license, and indicate if
+  changes were made. If redistributed, a Data User may not apply
+  additional restrictions or technological measures that prevent access.
+
+      
+  The Data User has an ethical obligation to cite the data source
+  appropriately in any publication or product that results from its use,
+  and notify the data contact or creator. Communication, collaboration,
+  or co-authorship (as appropriate) with the creators of this data
+  package is encouraged to prevent duplicate research or publication.
+  The Data User is urged to contact the authors of these data if any
+  questions about methodology or results occur. The Data User should
+  realize that these data may be actively used by others for ongoing
+  research and that coordination may be necessary to prevent duplication
+  or inappropriate use. The Data User should realize that
+  misinterpretation may occur if data are used outside of the context of
+  the original study. The Data User should be aware that data are
+  updated periodically and it is the responsibility of the Data User to
+  check for new versions of the data.
+
+      
+  While substantial efforts are made to ensure the accuracy of data and
+  associated documentation, complete accuracy of data sets cannot be
+  guaranteed. This data package (with its components) is made available
+  “as is” and with no warranty of accuracy or fitness for use. The
+  creators of this data package and the repository where these data were
+  obtained shall not be liable for any damages resulting from
+  misinterpretation, use or misuse of the data package or its
+  components.
+
+    
+    
+      
+        http://sbc.lternet.edu/
+      
+    
+    
+      
+        Arroyo Burro reef: Arroyo Burro Reef is located on the Santa Barbara Channel near the mouth of Arroyo Burro Creek and Beach. Depth ranges from 5.4 to 7 meters.
+        
+          -119.822502
+          -119.822502
+          34.4138298
+          34.4138298
+        
+      
+      
+        Arroyo Hondo Reef: Arroyo Hondo Reef is located on the Santa Barbara Channel near the east end of Gaviota State Park, CA. Depth ranges from -4.3m to -6.6 meters. 
+        
+          -120.144402
+          -120.144402
+          34.4724007
+          34.4724007
+        
+      
+      
+        Arroyo Quemado Reef: Arroyo Quemado Reef is located on the Santa Barbara Channel near the mouth of Arroyo Quemada Creek, Santa Barbara County, CA. Depth ranges from -5.4 to -10.7 meters.
+        
+          -120.121498
+          -120.121498
+          34.4688301
+          34.4688301
+        
+      
+      
+        Bulito Reef: Bulito Reef is located on the Santa Barbara Channel between Gaviota and Pt. Conception, CA. Depth ranges from -5.5 to -7.3 meters.
+        
+          -120.333603
+          -120.333603
+          34.4561996
+          34.4561996
+        
+      
+      
+        Carpinteria reef: Carpinteria Reef is located on the Santa Barbara Channel offshore of the Carpinteria Salt Marsh. Depth range is from -2.2 to -8.8 meters. 
+        
+          -119.539902
+          -119.539902
+          34.3902016
+          34.3902016
+        
+      
+      
+        Goleta Bay: Goleta Bay is located on the Santa Barbara Channel east of Goleta Pier. Depth range is -4.2 to -5 meters.
+        
+          -119.822403
+          -119.822403
+          34.4137993
+          34.4137993
+        
+      
+      
+        Isla Vista Reef: Isla Vista (IV) Reef is located on the Santa Barbara Channel near the University of California Santa Barbara, CA. Depth range is from -8.2 to -8.8 meters
+        
+          -119.857803
+          -119.857803
+          34.4137993
+          34.4137993
+        
+      
+      
+        Mohawk Reef: Mohawk Reef is located on the Santa Barbara Channel, east of Arroyo Burro Beach, Santa Barbara, CA. Depth range from 4.5m to 6.0 m
+        
+          -119.730003
+          -119.730003
+          34.3943291
+          34.3943291
+        
+      
+      
+        Naples Reef: Naples Reef is located on the Santa Barbara Channel near the community of Naples and Dos Pueblos Canyon, Santa Barbara County, CA. Depth ranges from -5.9 to -13.4 meters.
+        
+          -119.949997
+          -119.949997
+          34.4239006
+          34.4239006
+        
+      
+      
+        Santa Cruz Island, Diablo Canyon Reef: Diablo Reef is located the north shore of Santa Cruz Island, in the Santa Barbara Channel Islands, CA. Depth ranges from -3.5 to -15 meters
+        
+          -119.7575
+          -119.7575
+          34.0587997
+          34.0587997
+        
+      
+      
+        Santa Cruz Island, Twin Harbor West reef: Twin Harbor West Reef is located on the north shore of Santa Cruz Island, in the Santa Barbara Channel Islands, CA. Depth ranges from -3.0 to -15 meters.
+        
+          -119.7155
+          -119.7155
+          34.0444984
+          34.0444984
+        
+      
+      
+        
+          
+            2000-01-01
+          
+          
+            2019-01-01
+          
+        
+      
+    
+    
+      http://purl.obolibrary.org/obo/IAO_000136
+      http://purl.obolibrary.org/obo/ENVO_00000447
+    
+    
+      http://purl.obolibrary.org/obo/IAO_000136
+      http://purl.obolibrary.org/obo/ENVO_01000058
+    
+    
+      http://purl.obolibrary.org/obo/IAO_000136
+      http://purl.obolibrary.org/obo/ENVO_01000155
+    
+    
+      Information Manager, Santa Barbara Coastal LTER
+      			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+      805 893 2071
+      sbclter@msi.ucsb.edu
+      https://sbclter.msi.ucsb.edu/
+    
+    
+    Environmental Data Initiativeinfo@environmentaldatainitiative.orghttps://environmentaldatainitiative.orgEnvironmental Data Initiative
+      
+        
+          
+            
+    See detail method document in the protocol section below.
+  
+          
+        
+        
+          SBC LTER biomass coefficients for kelp forest species
+          
+             Reed
+          
+          
+            
+              https://sbclter.msi.ucsb.edu/external/Reef/Protocols/Kelp_Forest_Community_Dynamics/SBC_LTER_protocol_Biomass_coefficients_for_kelp_forest_species_20191115.pdf
+            
+          
+        
+      
+    
+    
+      Santa Barbara Coastal Long Term Ecological Research Project
+      
+        Dr. Robert Miller
+        			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+        805 893 6174
+        miller@msi.ucsb.edu
+        Principal Investigator
+      
+      
+        Dr. Dan Reed
+        			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+        805 893 8363
+        dan.reed@lifesci.ucsb.edu
+        Co-principal Investigator
+      
+      
+        Dr. Adrian Stier
+        			Department of Ecology, Evolution and Marine Biology
+			University of California
+			Santa Barbara, California 93106-9260  United States
+        805 893 5467
+        adrian.stier@lifesci.ucsb.edu
+        Co-principal Investigator
+      
+      
+        Dr. Gretchen Hoffman
+        			Department of Ecology, Evolution and Marine Biology
+			University of California
+			Santa Barbara, California 93106-9620  United States
+        805 893 6175
+        hofmann@lifesci.ucsb.edu
+        Co-principal Investigator
+      
+      
+        Dr. David Siegel
+        			Institute for Computational Earth System Science
+			University of California
+			Santa Barbara, California 93106-3060  United States
+        805 893 4547
+        davey@icess.ucsb.edu
+        Co-principal Investigator
+      
+      
+        
+          The primary research objective of the Santa Barbara Coastal LTER is to investigate
+            the importance of land and ocean processes in structuring giant kelp
+              (Macrocystis pyrifera ) forest ecosystems. As in many temperate
+            regions, the shallow rocky reefs in the Santa Barbara Channel, California, are dominated
+            by giant kelp forests. Because of their close proximity to shore, kelp forests are
+            influenced by physical and biological processes occurring on land as well as in the open
+            ocean. SBC LTER research focuses on measuring and modeling the patterns, transport, and
+            processing of material constituents (e.g., nutrients, carbon, sediment, organisms, and
+            pollutants) from terrestrial watersheds and the coastal ocean to these reefs.
+            Specifically, we are examining the effects of these material inputs on the primary
+            production of kelp, and the population dynamics, community structure, and trophic
+            interactions of kelp forest ecosystems.
+        
+      
+      
+        
+          NSF Award OCE-9982105, OCE-0620276, OCE-1232779, OCE-1831937
+        
+      
+    
+    
+      Algal biomass relationships
+      Coefficients for estimating biomass of macroalgae and the CHN component
+      
+        Algal_Biomass_Relationships_NPP_calculation_20210113.csv
+        11685
+        fee21853b6f905895fc7135640f19916
+        
+          
+            1
+            \r\n
+            column
+            
+              ,
+              no
+              "
+            
+          
+        
+        
+          
+            https://pasta.lternet.edu/package/data/eml/knb-lter-sbc/127/3/944404e68c894b770bf3d12bb80c23a6
+          
+        
+      
+      
+        
+          SP_CODE
+          Species code
+          Two to six letter species code assigned to a species, species subset (e.g., a size, age group, or structural feature like holdfast) or a taxonomic group (e.g., compound tunicates)
+          string
+          
+            
+              
+                
+                  text
+                
+              
+            
+          
+        
+        
+          SCIENTIFIC_NAME
+          Scientific name
+          taxonomic scientific name
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          Measurement_type
+          Measurement type
+          The measurement done on the species, mainly percent cover or count, with a few exceptions
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          BMASS_SPP
+          Biomass proxy
+          The proxy species code used for biomass calculations
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          density_slope
+          Density slope
+          Slope in biomass relationship model
+          float
+          
+            
+              
+                dimensionless
+              
+              0.01
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+value not recorded or not available
+          
+        
+        
+          bmass_slope
+          Biomass slope
+          Slope in biomass relationship model for species that were not measured by percent or count
+          float
+          
+            
+              
+                dimensionless
+              
+              0.01
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+value not recorded or not available
+          
+        
+        
+          PE_spp
+          PE proxy
+          The proxy species code used for photosyntehsis calculations
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          Pmax
+          P max
+          Mass-specific production rate at saturating irradiance ((mg C hr-1) (g dry mass) -1) 
+          float
+          
+            
+              
+                milligramPerGramPerHour
+              
+              0.001
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+value not recorded or not available
+          
+        
+        
+          PE_alpha
+          Alpha
+          Mass specific production rate at non-saturating irradiance (mg C hr-1) (g dry mass) -1) / (µmol photons m-2 sec-1) 
+          float
+          
+            
+              
+                milligramPerGramPerHourPerPhotonFlux
+              
+              0.001
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+value not recorded or not available
+          
+        
+        
+          PE_RESP
+          Respiration
+          Mass specific respiration rate in the dark in units of (mg C hr-1) (g dry mass) -1) 
+          float
+          
+            
+              
+                milligramPerGramPerHour
+              
+              0.001
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+value not recorded or not available
+          
+        
+        
+          CHN_spp
+          CHN proxy
+          The proxy species code used for CHN calculations
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          AFD_spp
+          AFD proxy
+          The proxy species code used for ash-free dry mass calculations
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          DM_WM
+          DRY_WET
+          The ratio of dry weight over wet weight
+          float
+          
+            
+              
+                dimensionless
+              
+              0.01
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          AFDM_DM
+          AFDM_DM
+          The ratio of ash-free dry weight over dry weight
+          float
+          
+            
+              
+                dimensionless
+              
+              0.01
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          SE_Drywet
+          SE DRY_WET
+          The standard error of the ratio of dry weight over wet weight
+          float
+          
+            
+              
+                dimensionless
+              
+              0.001
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          SE_afd_Dry
+          SE AFDM_DM
+          The standard error of the ratio of ash-free dry weight over dry weight
+          float
+          
+            
+              
+                dimensionless
+              
+              0.001
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          Drywet_N
+          DRY_WET Sample size 
+          Sample size used to build the dry-wet ratio model
+          integer
+          
+            
+              
+                number
+              
+              1
+              
+                integer
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          afd_Dry_N
+          AFDM_DM Sample size
+          Sample size used to build the afd-dry ratio model
+          integer
+          
+            
+              
+                number
+              
+              1
+              
+                integer
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          Carbon
+          PERCENT_CARBON
+          Percent of carbon in the dry mass
+          float
+          
+            
+              
+                percent
+              
+              0.01
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+          
+            http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType
+            http://purl.dataone.org/odo/ECSO_00001127
+          
+        
+        
+          SE_Carbon
+          SE_Carbon
+          The standard error of the percent carbon calculation
+          float
+          
+            
+              
+                dimensionless
+              
+              0.01
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          Nitrogen
+          PERCENT_NITROGEN
+          Percent of nitrogen in the dry mass
+          float
+          
+            
+              
+                percent
+              
+              0.01
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+           
+          
+               http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType
+                http://purl.dataone.org/odo/ECSO_00001145
+          
+        
+        
+          SE_Nitrogen
+          SE_Nitrogen
+          The standard error of the percent nitrogen calculation
+          float
+          
+            
+              
+                dimensionless
+              
+              0.01
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          CN
+          CN ratio
+          Carbon-Nitrogen ratio
+          float
+          
+            
+              
+                dimensionless
+              
+              0.1
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          SE_CN
+          CN
+          The standard error of the CN ratio calculation
+          float
+          
+            
+              
+                dimensionless
+              
+              0.1
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          CN_N
+          CN Sample size
+          Sample size used to build the CN ratio model
+          integer
+          
+            
+              
+                number
+              
+              1
+              
+                integer
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          notes
+          notes
+          notes
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+      
+      78
+    
+    
+      Invertebrate biomass relationships
+      Coefficients for estimating biomass of invertebrates
+      
+        Invertebrate_Biomass_Relationships_20210113.csv
+        11203
+        e4600cdcd49afa4156f2d2a2c78972ad
+        
+          
+            1
+            \r\n
+            column
+            
+              ,
+              no
+              "
+            
+          
+        
+        
+          
+            https://pasta.lternet.edu/package/data/eml/knb-lter-sbc/127/3/1a313493d5a5dccd5339f62a2e16824e
+          
+        
+      
+      
+        
+          SP_CODE
+          Species code
+          Two to six letter species code assigned to a species, species subset (e.g., a size, age group, or structural feature like holdfast) or a taxonomic group (e.g., compound tunicates)
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          SCIENTIFIC_NAME
+          Scientific name
+          taxonomic scientific name
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          BMASS_SPP
+          Biomass proxy
+          The proxy species code used for biomass calculations
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          TYPE
+          Measurement type
+          The measurement done on the species, mainly percent cover or length, with a few exceptions
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          independent_variable
+
+          Independent variable
+          Independent variable for biomass relationship model
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          a
+          a
+          Coefficients for the exponential model, see method for detail
+          float
+          
+            
+              
+                dimensionless
+              
+              1e-05
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          b
+          b
+          Coefficients for the exponential model, see method for detail
+          float
+          
+            
+              
+                dimensionless
+              
+              1e-05
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          slope
+          Slope
+          Slope in biomass relationship model
+          float
+          
+            
+              
+                dimensionless
+              
+              1e-05
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          smearing_estimate
+          smearing estimate
+          Coefficients for the biomass model, see method for detail
+          float
+          
+            
+              
+                dimensionless
+              
+              0.01
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          DM_WM
+          DM_WM
+          The ratio of dry weight over wet weight
+          float
+          
+            
+              
+                dimensionless
+              
+              0.01
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          SFDM_WM
+          SFDM_WM
+          The ratio of shell-free dry weight over wet weight
+          float
+          
+            
+              
+                dimensionless
+              
+              0.01
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          AFDM_WM
+          AFDM_WM
+          The ratio of ash-free dry weight over wet weight
+          float
+          
+            
+              
+                dimensionless
+              
+              0.01
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          Notes
+          notes
+          notes
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+      
+      121
+    
+    
+      Fish biomass relationships
+      Coefficients for estimating biomass of fish
+      
+        SBCLTER_Fish_Biomass_relationship_20210113.csv
+        9238
+        6864171c3e6e2cd4d8d3736bba4b7485
+        
+          
+            1
+            \r\n
+            column
+            
+              ,
+              no
+              "
+            
+          
+        
+        
+          
+            https://pasta.lternet.edu/package/data/eml/knb-lter-sbc/127/3/817be9b1c89d6d68cdd7c6e0a00130be
+          
+        
+      
+      
+        
+          SP_CODE
+          Species code
+          Two to six letter species code assigned to a species, species subset (e.g., a size, age group, or structural feature like holdfast) or a taxonomic group (e.g., compound tunicates)
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          SCIENTIFIC_NAME
+          Scientific name
+          taxonomic scientific name
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          BMASS_SPP
+          Biomass proxy
+          The proxy species code used for biomass calculations
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          X_Variable
+          X variable
+          X variable for biomass relationship model
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          Y_Variable
+          Y variable
+          Y variable for biomass relationship model
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          Slope
+          Slope
+          Slope for the biomass model, see method for detail
+          float
+          
+            
+              
+                dimensionless
+              
+              0.001
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          Intercept
+          Intercept
+          Intercept for the biomass model, see method for detail
+          float
+          
+            
+              
+                dimensionless
+              
+              1e-07
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          r2
+          r2
+          R2 for the biomass model, see method for detail
+          float
+          
+            
+              
+                dimensionless
+              
+              1e-05
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          ConvertoXVar
+          Convert_TL_cm
+          The coefficients used to convert from standard length to total length
+          float
+          
+            
+              
+                dimensionless
+              
+              0.01
+              
+                real
+              
+            
+          
+          
+            .
+            value not recorded or not available
+          
+        
+        
+          FISH_GROUP
+          Fish group
+          The group of fish, separating Chondrichthyes and Actinopterygii for biomass calculation
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          References
+          References
+          The source of reference
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+        
+          Notes
+          notes
+          notes
+          string
+          
+            
+              
+                
+                  any text
+                
+              
+            
+          
+        
+      
+      69
+    
+  
+  
+    
+      
+        
+          a designation asserting the absence of an associated unit
+        
+        
+          mass-specific rate
+        
+        
+          flux-specific mass-specific rate
+        
+        
+          a number
+        
+        
+          ratio of two quantities as percent composition (1:100)
+        
+      
+    
+  

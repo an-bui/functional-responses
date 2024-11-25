@@ -1,0 +1,122 @@
+SP_CODE,SCIENTIFIC_NAME,BMASS_SPP,TYPE,independent_variable,a,b,slope,smearing_estimate,DM_WM,SFDM_WM,AFDM_WM,Notes
+AB,Abietinaria spp.,AB,cover,percent cover,.,.,0.048987,.,23.7,12,9.9,.
+AL,Astrangia haimei,AL,cover,percent cover,.,.,0.047814,.,61.7,35.5,15.9,.
+AR,Eudistoma psammion,AR,cover,percent cover,.,.,1.369994,.,43.8,43.8,3.6,.
+ARUD,Discophyton rudyi,PLUM,cover,percent cover,.,.,0.011834,.,33.1,17.7,11.9,.
+AS,Agalophenia spp. ,AS,cover,percent cover,.,.,0.217055,.,16.8,11.6,10.3,.
+ATM,Ischyroceridae spp.,ATM,cover,percent cover,.,.,0.005235,.,67.1,59.4,7.7,.
+BA,Balanomorpha spp.,BA,cover,percent cover,.,.,0.684517,.,66.3,20.1,7.7,.
+BCAL,Bugulina californica,BCAL,cover,percent cover,.,.,0.391741,.,41.4,6.5,1.9,.
+BN,Bugula neritina,BN,cover,percent cover,.,.,0.189493,.,22.6,10.2,6.1,.
+BOW,Amathia gracilis,TC,cover,percent cover,.,.,0.593865,.,32.9,3.8,2.3,.
+BRSP,Barentsia sp.,TC,cover,percent cover,.,.,0.593865,.,32.9,3.8,2.3,.
+CESP,Cellaria diffusa; Cellaria mandibulata,CESP,cover,percent cover,.,.,0.163665,.,50.3,10,3.5,.
+CHPR,Chelyosoma productum,CHPR,cover,percent cover,.,.,0.717745,.,22.7,22.7,5.2,.
+CILU,Timarete luxuriosa,CILU,cover,percent cover,.,.,0.195084,.,26.1,26.1,18.4,.
+CL,Clavelina huntsmani,CL,cover,percent cover,.,.,0.379235,.,10.3,10.3,3.3,.
+COST,Celleporina robertsoniae,DC,cover,percent cover,.,.,0.89331,.,35.4,2.7,1,.
+CROC,Crisia occidentalis,TC,cover,percent cover,.,.,0.593865,.,32.9,3.8,2.3,.
+CUPI,Cucumaria piperata,CUPI,cover,percent cover,.,.,0.159602,.,22.5,22.5,15.8,"LINU slope, CUPI composition"
+CY,Corynactis californica,CY,cover,percent cover,.,.,0.284462,.,16.8,16.8,12.4,.
+DC,Diaperoforma californica,DC,cover,percent cover,.,.,0.89331,.,35.4,2.7,1,.
+DOFE,Dodecaceria fewkesi,DOFE,cover,percent cover,.,.,0.322149,.,72.2,16.5,3.2,.
+ECB,Unidentified Encrusting Bryozoa spp. ,CESP,cover,percent cover,.,.,0.163665,.,50.3,10,3.5,.
+ES,Unidentified Demospongiae spp.,ES,cover,percent cover,.,.,0.918216,.,27.1,27.1,6.6,.
+EUCL,Euherdmania claviformis,EUCL,cover,percent cover,.,.,0.791576,.,40.8,40.8,3.9,.
+HC,Acanthancora cyanocrypta,ES,cover,percent cover,.,.,0.918216,.,27.1,27.1,6.6,.
+HIP,Primavelans mexicana,DC,cover,percent cover,.,.,0.89331,.,35.4,2.7,1,.
+HPAC,Heteropora pacifica,DC,cover,percent cover,.,.,0.89331,.,35.4,2.7,1,.
+LINU,Lissothuria nutriens,LINU,cover,percent cover,.,.,0.159602,1.05,28.7,28.7,8.4,.
+LNUT,Leucilla nuttingi,LNUT,cover,percent cover,.,.,0.193427,.,34.4,34.4,4.3,.
+MC,Mytilus californianus,MC,cover,shell length,.,.,0.418346,1.26,41.2,5.1,3.4,.
+MISE,Metridium dianthus,CY,cover,percent cover,.,.,0.284462,.,16.8,16.8,12.4,.
+MT,Jellyella tuberculata,CESP,cover,percent cover,.,.,0.163665,.,50.3,10,3.5,.
+OBSP,Obelia spp.,PLUM,cover,percent cover,.,.,0.011834,.,33.1,17.7,11.9,.
+PA,Phragmatopoma californica,PA,cover,percent cover,.,.,0.013583,.,22.8,22.8,16.4,.
+PHOR,Phoronis ijimai,SABW,cover,percent cover,.,.,3.568708,.,18.5,18.5,11.7,.
+PHSP,Actinostella californica,CY,cover,percent cover,.,.,0.284462,.,16.8,16.8,12.4,.
+PIEL,Pista elongata,SABW,cover,percent cover,.,.,3.568708,.,18.5,18.5,11.7,.
+PLAB,Phidolopora labiata,DC,cover,percent cover,.,.,0.89331,.,35.4,2.7,1,.
+PLUM,Plumularia spp.,PLUM,cover,percent cover,.,.,0.011834,.,33.1,17.7,11.9,.
+PYST,Pycnoclavella stanleyi,PYST,cover,percent cover,.,.,0.44879,.,50.1,50.1,5.7,.
+SABW,Sabellidae spp.,SABW,cover,percent cover,.,.,3.568708,.,18.5,18.5,11.7,.
+SC,Spheciospongia confoederata,ES,cover,percent cover,.,.,0.918216,.,27.1,27.1,6.6,.
+SE,Thylacodes squamigerus,SE,cover,percent cover,.,.,0.570825,.,79.2,5.8,3,.
+ST,Salmacina tribranchiata,ST,cover,percent cover,.,.,2.307364,.,41,6.7,0.6,.
+TC,Thalamoporella californica,TC,cover,percent cover,.,.,0.593865,.,32.9,3.8,2.3,.
+UAB,Unidentified Arborescent Bryozoan,TC,cover,percent cover,.,.,0.593865,.,32.9,3.8,2.3,.
+UIH,Ectopleura crocea; Eudendrium californicum; Schuchertinia milleri,UIH,cover,percent cover,.,.,0.029901,.,24.6,24.6,19.3,.
+UM,Arthropoda,ATM,cover,percent cover,.,.,0.005235,.,67.1,59.4,7.7,.
+UNAN,Unidentified anemone,UNAN,cover,percent cover,.,.,0.349238,.,12.8,12.8,9.7,.
+UT,Unidentified Didemnidae spp. ,UT,cover,percent cover,.,.,0.921556,.,27.1,27.1,4.4,.
+WASP,Watersipora subatra,DC,cover,percent cover,.,.,0.89331,.,35.4,2.7,1,.
+DIOR,Diopatra ornata,DIOR,density,count,.,.,0.204769,.,26.5,26.5,21.4,.
+AML,Patiria miniata,AML,length,body diameter,0.000135634,2.712255522,.,1.01,30.6,20.9,14.7,.
+AMS,Patiria miniata,AML,length,body diameter,0.000135634,2.712255522,.,1.01,30.6,20.9,14.7,.
+ANSP,Anthopleura spp.,URLO,length,disc diameter,0.390730643,1.039699562,.,1.04,18.9,18.9,16,.
+APCA,Aplysia californica,APCA,length,retracted length,0.186482691,1.575378871,.,1.16,9.7,9.7,7.3,.
+APVA,Aplysia vaccaria,APCA,length,retracted length,0.186482691,1.575378871,.,1.16,9.7,9.7,7.3,.
+BAEL,Balanophyllia elegans,BAEL,length,disc diameter,0.006024996,2.001406233,.,1.03,65.2,21,12.7,.
+CASP,Cancer spp. ,CASP,length,maximum carapace dimension,4.36E-05,3.360723146,.,1.01,48.8,25.5,16,.
+CECO,Centrostephanus coronatus,SFL,length,test diameter,0.000588783,2.917071365,.,1.02,32.6,9.5,8.2,.
+CHOV,Chaceia ovoidea,CHOV,length,siphon diameter,5.886369208,1.057740773,.,1,72.9,11.8,9.6,.
+COCA,Californiconus californicus,COCA,length,shell length,0.000754956,2.577695842,.,1.01,77.5,10.6,6.7,.
+CRGI,Crassadoma gigantea,CRGI,length,shell length,0.000957554,2.732779609,.,1.08,70.6,5.6,4.9,.
+CUKE,Apostichopus californicus,CUKE,length,retracted length,0.0824891,1.538962218,.,1.28,6.8,6.8,2.7,.
+CUSP,Cucumaria salma; Cucumaria miniata,CUSP,length,tentacle diameter,0.364206047,1.01676052,.,1.01,21.2,21.2,17,.
+CYSP,Neobernaya spadicea,CYSP,length,shell length,0.006134743,2.114060371,.,1.01,74,8.9,6.7,.
+DIL,Dermasterias imbricata,DIL,length,body diameter,7.713043105,0.70130633,.,1.05,20.7,10.4,8.7,.
+DIS,Dermasterias imbricata,DIL,length,body diameter,7.713043105,0.70130633,.,1.05,20.7,10.4,8.7,.
+EUPO,Eudistylia polymorpha,EUPO,length,body diameter,0.229527753,1.426236789,.,1.15,25.6,25.6,22.3,.
+EUQU,Eupentacta quinquesemita,EUQU,length,retracted length,0.000782349,2.235485151,.,1.14,29.6,29.6,14.1,.
+HACO,Haliotis corrugata,HARU,length,shell length,0.000419646,2.796554064,.,1.03,39.7,10.2,8,.
+HACR,Haliotis cracherodii,HARU,length,shell length,0.000419646,2.796554064,.,1.03,39.7,10.2,8,.
+HADE,Halcampa decemtentaculata,HARU,length,shell length,0.000419646,2.796554064,.,1.03,39.7,10.2,8,.
+HAKA,Haliotis kamtschatkana,HARU,length,shell length,0.000419646,2.796554064,.,1.03,39.7,10.2,8,.
+HARU,Haliotis rufescens,HARU,length,shell length,0.000419646,2.796554064,.,1.03,39.7,10.2,8,.
+KEKE,Kelletia kelletii,KEKE,length,shell length,0.000146334,2.931819019,.,1.01,83.5,7.2,5.8,.
+LA,Lytechinus pictus,LA,length,test diameter,0.000318591,3.044364804,.,1.04,35.4,3.3,2.8,.
+LIGL,Pomaulax gibberosus; Megastraea undosa,LIGL,length,shell length,0.000650735,2.823101137,.,1.05,63.4,5.6,4.1,.
+LIGS,Pomaulax gibberosus; Megastraea undosa,LIGL,length,shell length,0.000650735,2.823101137,.,1.05,63.4,5.6,4.1,.
+LOCH,Leptogorgia chilensis,LOCH,length,colony width,0.018278691,1.528850722,.,1.12,71.2,7.7,7.1,.
+LOGR,Loxorhynchus grandis,LOGR,length,maximum carapace dimension,0.080371705,1.972645031,.,1.12,25.2,4.4,3.8,.
+MECR,Megathura crenulata,MECR,length,body length,0.025346063,1.931978718,.,1.01,21.7,14.8,12.3,.
+MIID,Atrimitra idae,MIID,length,shell length,0.000965927,2.376586893,.,1.01,79.9,25.4,24.3,.
+MUCA,Muricea californica,MUCA,length,colony width,0.002148093,2.001022646,.,1.11,41.9,14.5,11.2,.
+MUCAJ,Muricea californica,MUCA,length,colony width,0.002148093,2.001022646,.,1.11,41.9,14.5,11.2,.
+MUFR,Muricea fruticosa,MUCA,length,colony width,0.002148093,2.001022646,.,1.11,41.9,14.5,11.2,.
+NONO,Norrisia norrisii,NONO,length,shell length,0.001381823,2.675969948,.,1.06,75.4,11.7,9.2,.
+OCTO,Octopus spp. ,OCTO,length,arm length,0.022657784,1.630985878,.,1.03,18,18,15.5,.
+OKL,Orthasterias koehleri,PGL,length,body diameter,0.010323665,1.772853526,.,1.02,27.7,8.9,5,.
+OKS,Orthasterias koehleri,PGL,length,body diameter,0.010323665,1.772853526,.,1.02,27.7,8.9,5,.
+OPES,Ophioplocus esmarki,OPES,length,disc diameter,0.003635957,2.252822857,.,1.01,52.9,6.2,5.6,.
+OPSP,Ophiothrix spiculata,OPSP,length,disc diameter,0.005000486,2.318440449,.,1.02,49.9,13.1,11,.
+PACA,Parapholas californica,PACA,length,siphon diameter,4.36443848,0.919244158,.,1.34,70.9,9.6,7.2,.
+PAFI,Pachycerianthus fimbriatus,PAFI,length,disc diameter,0.105604677,1.596721577,.,1.01,17.9,17.9,15,.
+PAIN,Panulirus interruptus,PAIN,length,carapace length,0.001352821,2.913963113,.,1,29.7,15.7,13.8,.
+PAPA,Apostichopus parvimensis,PAPA,length,retracted length,0.008831691,2.123095888,.,1.04,6,6,4.6,.
+PAST,Paracyathus stearnsii,PAST,length,disc diameter,0.00602,2.001406,.,1.03,74,3.5,2,"BAEL paramters, PAST composition"
+PBL,Pisaster brevispinus,PBL,length,body diameter,0.0022451,2.146633794,.,1.06,29.3,5.5,4.3,.
+PBS,Pisaster brevispinus,PBL,length,body diameter,0.0022451,2.146633794,.,1.06,29.3,5.5,4.3,.
+PGL,Pisaster giganteus,PGL,length,body diameter,0.010323665,1.772853526,.,1.02,27.7,8.9,5,.
+PGS,Pisaster giganteus,PGL,length,body diameter,0.010323665,1.772853526,.,1.02,27.7,8.9,5,.
+PHL,Pycnopodia helianthoides,PHL,length,body diameter,3.74E-05,2.969563686,.,1.14,19.4,16.1,12.8,.
+PHS,Pycnopodia helianthoides,PHL,length,body diameter,3.74E-05,2.969563686,.,1.14,19.4,16.1,12.8,.
+POL,Pisaster ochraceus,POL,length,body diameter,0.000222367,2.592366986,.,1.02,33.4,5.8,4.2,.
+POPL,Polyclinum planum,POPL,length,body length,0.002285512,2.224352517,.,1.1,7.5,7.5,3.1,.
+POS,Pisaster ochraceus,POL,length,body diameter,0.000222367,2.592366986,.,1.02,33.4,5.8,4.2,.
+PRUB,Pachythyone rubra,PRUB,length,retracted length,0.000824369,2.135931284,.,1.05,29.1,29.1,12.1,.
+PTTR,Pteropurpura trialata,PTTR,length,shell length,0.000822492,2.366046688,.,1.02,79.4,4.8,3.7,.
+PU,Pholadidae,PU,length,siphon diameter,0.885178677,1.030946651,.,1.25,55.8,16,13.6,.
+PUPR,Pugettia producta,PUPR,length,maximum carapace dimension,0.00148272,2.509564811,.,1.06,33.2,11.4,8.9,.
+SFL,Mesocentrotus franciscanus,SFL,length,test diameter,0.000588783,2.917071365,.,1.02,32.6,9.5,8.2,.
+SFS,Mesocentrotus franciscanus,SFL,length,test diameter,0.000588783,2.917071365,.,1.02,32.6,9.5,8.2,.
+SKE,Kelletia kelletii,KEKE,length,shell length,0.000146334,2.931819019,.,1.01,83.5,7.2,5.8,.
+SPL,Strongylocentrotus purpuratus,SPL,length,test diameter,0.000592598,2.872636198,.,1.01,34.7,16.2,14.2,.
+SPS,Strongylocentrotus purpuratus,SPL,length,test diameter,0.000592598,2.872636198,.,1.01,34.7,16.2,14.2,.
+STMO,Styela montereyensis,STMO,length,siphon diameter,0.028984643,2.210999405,.,1.09,13.7,13.7,9.5,.
+TEAU,Tethya aurantium,TEAU,length,diameter,0.003088035,2.471296857,.,1.02,24.4,24.4,12.3,.
+TESP,Tegula spp. ,TESP,length,shell length,0.003585272,2.365438634,.,1.12,77,21.9,19.2,.
+UM,Arthropoda,ATM,cover,percent cover,.,.,0.005235,.,67.1,59.4,7.7,.
+URLO,Urticina eques,URLO,length,disc diameter,0.390731,1.039700,.,1.04,18.9,18.9,16,.
+URPI,Urticina piscivora,URLO,length,disc diameter,0.390731,1.039700,.,1.04,18.9,18.9,16,.

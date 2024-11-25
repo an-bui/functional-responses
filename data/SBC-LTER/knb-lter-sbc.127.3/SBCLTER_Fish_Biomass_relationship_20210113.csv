@@ -1,0 +1,70 @@
+SP_CODE,SCIENTIFIC_NAME,BMASS_SP,X_Variable,Y_Variable,Slope,Intercept,r2,ConvertoXVar,FISH_GROUP,References,Notes
+AHOL,Alloclinus holderi,CLIN,standard length (mm),Wet mass g,3.21,4.60E-06,.,0.9,Actinopterygii,"Quast, 1968b; Feder et al., 1974*",model = G. metzi
+ANDA,Anisotremus davidsonii,DVAC,total length (mm),Wet mass g,3.19,5.00E-06,.,.,Actinopterygii,DeMartini (unpub. Data)*,
+AUFL,Aulorhynchus flavidus,AUFL,total length (cm),Wet mass g,3.43,4.00E-04,.,.,Actinopterygii, fishbase.org,"Bayer, 1980"
+BFRE,Brachyistius frenatus,BFRE,standard length (mm),Wet mass g,3.17,1.20E-05,.,0.79,Actinopterygii,DeMartini (unpub. Data)*,fish > 65mm SL
+BOTH,Unidentified Flatfish spp.,PCAL,total length (mm),Wet mass g,3.03,8.50E-06,.,.,Actinopterygii,J. Schott (unpub. Data)*,
+BRAY,Myliobatis californica,BRAY,disc width (mm),Wet mass g,3.04,1.40E-05,.,1.35,Chondrichthyes,"Tetratech (unpub. Data); L. Martin, 1982*",
+CAGG,Cymatogaster aggregata,EJAC,standard length (mm),Wet mass g,3.31,8.30E-06,.,0.8,Actinopterygii,"Quast, 1968b; Eckmayer, 1979*",
+CAPR,Caulolatilus princeps,CAPR,total length (cm),Wet mass g,3,0.0239,.,.,Actinopterygii, fishbase.org,
+CLIN,Gibbonsia,CLIN,standard length (mm),Wet mass g,3.21,4.60E-06,.,0.9,Actinopterygii,"Quast, 1968b; Feder et al., 1974*",model = G. metzi
+CNIC,Rhinogobiops nicholsii,CNIC,standard length (mm),Wet mass g,3.1,8.30E-06,.,0.84,Actinopterygii,"Grossman, 1979; Wiley, 1973*",model =  Lepidogobius lepidus (Bay goby)
+COTT,Unidentified Cottidae,CNIC,standard length (mm),Wet mass g,3.1,8.30E-06,.,0.84,Actinopterygii,"Grossman, 1979; Wiley, 1973*",model =  Lepidogobius lepidus (Bay goby)
+CPUN,Chromis punctipinnis,CPUN,standard length (mm),Wet mass g,3.09,1.80E-05,.,0.8,Actinopterygii,"Quast, 1968b; Feder et al., 1974; Gotshall, 1977; Burgess & Axelrod, 1984*",
+CSAT,Cheilotrema saturnum,CSAT,total length (mm),Wet mass g,3.016,0.013,0.93,.,Actinopterygii,fishbase.org,
+CSTI,Citharichthys stigmaeus,PCAL,total length (mm),Wet mass g,3.03,8.50E-06,.,.,Actinopterygii,J. Schott (unpub. Data)*,
+CVEN,Cephaloscyllium ventriosum,HEFR,total length (mm),Wet mass g,3.54,3.00E-07,.,.,Chondrichthyes,"Tetratech (unpub. Data);  McLaughlin & O'Gower, 1971; Taylor, 1972*",
+DVAC,Rhacochilus vacca,DVAC,standard length (mm),Wet mass g,3.03,2.70E-05,.,0.8,Actinopterygii,"Quast, 1968b; Eckmayer, 1979*",fish > 80mm SL
+EJAC,Embiotoca jacksoni,EJAC,standard length (mm),Wet mass g,3.31,8.30E-06,.,0.8,Actinopterygii,"Quast, 1968b; Eckmayer, 1979*",
+ELAT,Embiotoca lateralis,EJAC,standard length (mm),Wet mass g,3.31,8.30E-06,.,0.8,Actinopterygii,"Quast, 1968b; Eckmayer, 1979*",
+EMBI,Unidentified Surfperch spp.,EJAC,standard length (mm),Wet mass g,3.31,8.30E-06,.,0.8,Actinopterygii,"Quast, 1968b; Eckmayer, 1979*",
+GNIG,Girella nigricans,GNIG,standard length (mm),Wet mass g,2.93,5.30E-05,.,0.82,Actinopterygii,"Quast, 1968b; Feder et al., 1974; Gotshall, 1977; Burgess & Axelrod, 1984*",
+GYMO,Gymnothorax mordax,GYMO,total length (mm),Wet mass g,3.13,0.001,.,.,Actinopterygii,fishbase.org,
+HARG,Hyperprosopon argenteum,EJAC,standard length (mm),Wet mass g,3.31,8.30E-06,.,0.8,Actinopterygii,"Quast, 1968b; Eckmayer, 1979*",
+HCAR,Hypsurus caryi,HCAR,standard length (mm),Wet mass g,3.56,2.00E-06,.,0.82,Actinopterygii,"Quast, 1968b; Roedel, 1953; Gotshall, 1981; Burgess & Axelrod, 1984*",
+HDEC,Hexagrammos decagrammus,HDEC,total length (cm),Wet mass g,3,0.0156,.,.,Actinopterygii, fishbase.org,
+HEFR,Heterodontus francisci,HEFR,total length (mm),Wet mass g,3.54,3.00E-07,.,.,Chondrichthyes,"Tetratech (unpub. Data);  McLaughlin & O'Gower, 1971; Taylor, 1972*",
+HEGR,Hexanchus griseus,HEGR,total length (cm),Wet mass g,3,0.0135,.,.,Chondrichthyes, fishbase.org,
+HROS,Heterostichus rostratus,HROS,standard length (mm),Wet mass g,3.33,1.80E-06,.,0.9,Actinopterygii,"Quast, 1968b; Roedel, 1953*",
+HRUB,Hypsypops rubicundus,HRUB,standard length (mm),Wet mass g,3.1,3.60E-05,.,0.78,Actinopterygii,"Quast, 1968b; Clarke, 1970*",
+HSEM,Halichoeres semicinctus,HSEM,total length (mm),Wet mass g,3.24,3.30E-06,.,.,Actinopterygii,DeMartini (unpub. Data)*,
+LDAL,Lythrypnus dalli,LDAL,standard length (mm),Wet mass g,3.1,8.30E-06,.,0.84,Actinopterygii,"Grossman, 1979; Wiley, 1973*",model =  Lepidogobius lepidus (Bay goby)
+LHIR,Leiocottus hirundo,OPIC,standard length (mm),Wet mass g,2.93,3.20E-05,.,0.85,Actinopterygii,"Quast, 1968b; DeMartini (unpub. Data)*",
+MCAL,Medialuna californiensis,MCAL,standard length (mm),Wet mass g,3.26,8.30E-06,.,0.83,Actinopterygii,"Quast, 1968b; Walford, 1974; Feder et al.,1974*",
+NBLA,Neoclinus blanchardi,CNIC,standard length (mm),Wet mass g,3.1,8.30E-06,.,0.84,Actinopterygii,"Grossman, 1979; Wiley, 1973*",model =  Lepidogobius lepidus (Bay goby)
+NOCE,Notorynchus cepedianus,NOCE,total length (cm),Wet mass g,3,0.00668,.,.,Chondrichthyes,fishbase.org,
+OCAL,Oxyjulis californica,OCAL,standard length (mm),Wet mass g,3.5,1.30E-06,.,0.84,Actinopterygii,"Quast, 1968b; Gotshall, 1977; Burgess & Axelrod, 1984*",
+OELO,Ophiodon elongatus,OELO,total length (cm),Wet mass g,3,0.0133,.,.,Actinopterygii, fishbase.org,
+OPIC,Oxylebius pictus,OPIC,standard length (mm),Wet mass g,2.93,3.20E-05,.,0.85,Actinopterygii,"Quast, 1968b; DeMartini (unpub. Data)*",
+PCAL,Paralichthys californicus,PCAL,total length (mm),Wet mass g,3.03,8.50E-06,.,.,Actinopterygii,J. Schott (unpub. Data)*,
+PCLA,Paralabrax clathratus,PCLA,total length (mm),Wet mass g,3.34,1.80E-06,.,.,Actinopterygii,"Young, 1963*",
+PFUR,Phanerodon furcatus,PFUR,standard length (mm),Wet mass g,3.12,1.40E-05,.,0.77,Actinopterygii,"Quast, 1968b; Eckmayer, 1979*",
+PNEB,Paralabrax nebulifer,PNEB,total length (mm),Wet mass g,3.15,5.40E-06,.,.,Actinopterygii,DeMartini (unpub. Data)*,
+PTRY,Platyrhinoidis triseriata,PTRY,disc width (mm),Wet mass g,2.83,0.00012,19.22082238,0.48,Chondrichthyes,Tetratech (unpub. data)*,
+RPRO,Pseudobatos productus,RPRO,total length (mm),Wet mass g,2.91,6.90E-06,.,.,Chondrichthyes,Tetratech (unpub. data)*,
+RTOX,Rhacochilus toxotes,RTOX,standard length (mm),Wet mass g,3.36,4.50E-06,.,0.84,Actinopterygii,"Quast, 1968b; Roedel, 1953; Burgess & Axelrod, 1984*",
+SATR,Sebastes atrovirens,SATR,standard length (mm),Wet mass g,2.92,4.20E-05,.,0.83,Actinopterygii,"Quast, 1968b; Burgess & Axelrod, 1985*",
+SAUR,Sebastes auriculatus,SAUR,total length (cm),Wet mass g,2.74,0.044,0.94,.,Actinopterygii,"Love and Johnson, 1999",
+SCAL,Squatina californica,RPRO,total length (mm),Wet mass g,2.91,6.90E-06,.,.,Chondrichthyes,Tetratech (unpub. data)*,
+SCAR,Sebastes carnatus,SCAR,total length (cm),Wet mass g,3,0.0269,.,.,Actinopterygii, fishbase.org,
+SCAU,Sebastes caurinus,SCAU,total length (cm),Wet mass g,3,0.0175,.,.,Actinopterygii, fishbase.org,
+SCHR,Sebastes chrysomelas,SAUR,total length (cm),Wet mass g,2.74,0.044,0.94,.,Actinopterygii,"Love and Johnson, 1999",
+SCSP,Unidentified YOY Sebastes,SCAR,total length (cm),Wet mass g,3,0.0269,.,.,Actinopterygii, fishbase.org,
+SFLA,Sebastes flavidus,SFLA,total length (cm),Wet mass g,2.78372,0.03231,0.97,.,Actinopterygii,"Love et al, 1990",average of male and female data
+SGIG,Stereolepis gigas,SGIG,total length (cm),Wet mass g,3,0.0221,.,.,Actinopterygii, fishbase.org,
+SGUT,Scorpaena guttata,SGUT,total length (cm),Wet mass g,3.01,0.02,.,.,Actinopterygii,M. Love (unpub. Data)*,
+SMAR,Scorpaenichthys marmoratus,SMAR,total length (cm),Wet mass g,3,0.0291,.,.,Actinopterygii, fishbase.org,
+SMIN,Sebastes miniatus,SMIN,total length (cm),Wet mass g,2.92339,0.02157,0.98345,.,Actinopterygii,"Love et al, 1990",
+SMYS,Sebastes mystinus,SMYS,total length (cm),Wet mass g,3,0.0173,.,.,Actinopterygii, fishbase.org,
+SPAR,Sphyraena argentea,SPAR,total length (cm),Wet mass g,2.98,0.004,.,.,Actinopterygii,"Walford, 1932*",
+SPAU,Sebastes paucispinis,SPAU,total length (cm),Wet mass g,2.97093,0.01215,0.98,.,Actinopterygii,"Love et al, 1990",average of male and female data
+SPUL,Semicossyphus pulcher,SPUL,standard length (mm),Wet mass g,3.16,1.30E-05,.,0.831,Actinopterygii,Fishbase.org,
+SRAS,Sebastes rastrelliger,SRAS,total length (cm),Wet mass g,2.77,0.045,0.98,.,Actinopterygii,"Love and Johnson, 1999",
+SSER,Sebastes serranoides,SSER,standard length (mm),Wet mass g,2.93,1.30E-05,.,0.81,Actinopterygii,"Quast, 1968b; Burgess & Axelrod, 1984*",
+STRE,Sebastes serriceps,SCAR,total length (cm),Wet mass g,3,0.0269,.,.,Actinopterygii, fishbase.org,
+SYNG,Syngnathus spp. ,SYNG,standard length (mm),Wet mass g,3.96,1.60E-09,.,0.98,Actinopterygii,"Quast, 1968b; DeMartini (unpub. Data)*",
+TSEM,Triakis semifasciata,TSEM,total length (mm),Wet mass g,3.41,3.00E-07,.,.,Chondrichthyes,Tetratech (unpub. Data)*,"*references and data from the 1987 report entitled ""The Effects of Operations of the San Onofre Generating Station on Fish"""
+XCAL,Haemulon californiensis,DVAC,standard length (mm),Wet mass g,3.03,2.70E-05,.,0.8,Actinopterygii,"Quast, 1968b; Eckmayer, 1979*",fish > 80mm SL
+PONO,Porichthys notatus,PONO,total length (cm),Wet mass g,3.047,0.008,0.933,.,Actinopterygii,Fishbase.org,
+GAGA,Galeorhinus galeus,GAGA,total length (cm),Wet mass g,2.667,0.0188,0.737,.,Elasmobranchii,Fishbase.org,
+ANOB,Atractoscion nobilis,ANOB,total length (cm),Wet mass g,2.77,0.038,.,.,Actinopterygii,Fishbase.org,

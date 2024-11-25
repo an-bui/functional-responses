@@ -1,0 +1,79 @@
+SP_CODE,SCIENTIFIC_NAME,Measurement_type,BMASS_SPP,density_slope,bmass_slope,PE_spp,Pmax,PE_alpha,PE_RESP,CHN_spp,AFD_spp,DM_WM,AFDM_DM,SE_Drywet,SE_afd_Dry,Drywet_N,afd_Dry_N,Carbon,SE_Carbon,Nitrogen,SE_Nitrogen,CN,SE_CN,CN_N,notes
+AMZO,Amphiroa beauvoisii,Percent Cover,BO,.,2.02,CO,2.991,0.148,-6.440,CO,CF,0.17,0.39,0.006,0.005,0,12,34.71,2.49,3.96,0.18,8.8,0.6,0,.
+ANPA,Anisocladella pacifica,Percent Cover,R,.,1.22,R,1.735,0.068,-0.985,R,R,0.16,0.47,0.005,0.037,112,12,25.96,0.36,3.34,0.04,7.8,0.1,36,.
+AU,Acrosorium ciliolatum,Percent Cover,CF,.,0.7,CF,4.435,0.240,-11.789,BF,BF,0.17,0.26,0.006,0.02,15,12,27.21,0.74,3.21,0.07,8.5,0.4,10,.
+BF,Cryptopleura ruprechtiana,Percent Cover,BF,.,3.88,BF,1.471,0.030,-0.419,BF,BF,0.17,0.26,0.006,0.02,15,12,27.21,0.74,3.21,0.07,8.5,0.4,10,.
+BLD,Unidentifiable juvenile kelp ,Count,MPJ,.,1.16,MPJ,5.409,0.045,-1.467,PTCA,PTCA,0.13,0.32,0.002,0.051,172,12,28.35,0.44,2.13,0.04,13.4,0.2,30,.
+BO,Bossiella orbigniana,Percent Cover,BO,.,2.02,CO,2.991,0.148,-6.440,BO,CF,0.22,0.39,0.14,0.005,10,12,35.45,2.56,5.21,0.42,6.9,0.3,10,.
+BPSE,Botryocladia pseudodichotoma,Percent Cover,POLA,.,3.24,POLA,6.035,0.138,-3.307,R,R,0.16,0.47,0.005,0.037,112,12,25.96,0.36,3.34,0.04,7.8,0.1,36,.
+BR,Halymenia spp.; Schizymenia pacifica,Percent Cover,BR,.,1.24,CC,1.532,0.013,-0.255,CC,POLA,0.15,0.25,0.003,0.01,126,0,25.64,0.35,2.21,0.06,11.9,0.3,46,.
+BRA,Unidentifiable Branching Red Alga,Percent Cover,R,.,1.22,R,1.735,0.068,-0.985,R,R,0.16,0.47,0.005,0.037,112,12,25.96,0.36,3.34,0.04,7.8,0.1,36,.
+CAL,Calliarthron cheilosporioides,Percent Cover,BO,.,2.02,CO,2.991,0.148,-6.440,CO,CF,0.13,0.39,0.012,0.005,0,12,34.71,2.49,3.96,0.18,8.8,0.6,10,.
+CC,Chondracanthus corymbiferus; Chondracanthus exasperatus,Percent Cover,CC,.,1.69,CC,1.532,0.013,-0.255,CC,GS,0.15,0.43,0.003,0.021,126,12,25.64,0.35,2.21,0.06,11.9,0.3,46,.
+CF,Callophyllis flabellulata,Percent Cover,CF,.,0.7,CF,4.435,0.240,-11.789,CF,CF,0.11,0.39,0.005,0.005,36,12,22.03,0.41,2.96,0.07,7.5,0.3,10,.
+CG,Cladophora graminea,Percent Cover,RAT,.,0.67,RAT,4.239,0.254,-2.171,RAT,RAT,0.19,0.38,0.05,0.025,4,12,24.18,1.26,2.91,0.14,8.5,0.7,10,.
+CO,Corallina officinalis,Percent Cover,CO,.,2.13,CO,2.991,0.148,-6.440,CO,CF,0.22,0.39,0.012,0.005,0,12,34.71,2.49,3.96,0.18,8.8,0.6,10,.
+COF,Codium fragile,Percent Cover,GS,.,2.25,GS,2.351,0.025,-3.917,GS,GS,0.09,0.43,0.007,0.021,20,12,16.86,1.69,2.14,0.1,7.7,0.4,10,.
+CP,Colpomenia peregrina,Percent Cover,POLA,.,3.24,POLA,6.035,0.138,-3.307,POLA,POLA,0.13,0.25,0.006,0.012,9,12,23.56,0.51,3.84,0.11,6.1,0.1,10,.
+CRYP,Cryptopleura spp.,Percent Cover,BF,.,3.88,BF,1.471,0.030,-0.419,BF,BF,0.17,0.26,0.006,0.02,15,12,27.21,0.74,3.21,0.07,8.5,0.4,10,.
+CYJ,Stephanocystis osmundacea,Count,CYJ,.,0.13,MPJ,5.409,0.045,-1.467,CYOS,CYOS,0.15,0.35,0.002,0.017,115,24,29.77,0.44,1.53,0.04,19.9,0.7,30,.
+CYOS,Stephanocystis osmundacea,Percent Cover,CYOS,16.94,3.35,CYOS,2.281,0.033,-0.554,CYOS,CYOS,0.15,0.35,0.002,0.017,115,24,29.77,0.44,1.53,0.04,19.9,0.7,30,.
+CYOS_R,Stephanocystis osmundacea,Total Length of Repro Fronds in cm,CYOS_R,.,0.03,CYOS_R,3.064,0.180,-2.359,CYOS,CYOS,0.15,0.35,0.002,0.017,115,24,29.77,0.44,1.53,0.04,19.9,0.7,30,.
+CZ,Chondracanthus spinosus,Percent Cover,CC,.,1.69,CC,1.532,0.013,-0.255,CC,GS,0.15,0.43,0.003,0.021,126,12,25.64,0.35,2.21,0.06,11.9,0.3,46,.
+DIAT,Fragilariaceae,Percent Cover,EC,.,0.33,FB,12.313,0.226,-7.425,FB,FB,0.22,0.38,0.012,0.03,0,0,34.71,2.49,3.96,0.18,8.8,0.6,10,.
+DL,Desmarestia ligulata,Percent Cover,DL,.,2.61,DL,3.414,0.045,-1.995,DL,DL,0.09,0.4,0.006,0.032,7,12,20.25,1.34,2.02,0.12,10.5,1.1,10,.
+DP,Dictyota binghamiae; Dictyota flabellata; Dictyota coriacea,Percent Cover,DP,.,1.08,DP,3.212,0.066,-1.314,DL,DP,0.09,0.34,0.006,0.013,7,12,20.25,1.34,2.02,0.12,10.5,1.1,10,.
+DU,Dictyopteris undulata,Percent Cover,DP,.,1.08,DP,3.212,0.066,-1.314,DL,DP,0.09,0.34,0.006,0.013,7,12,20.25,1.34,2.02,0.12,10.5,1.1,10,.
+EA,Eisenia arborea,No. Blades > 30cm,EA,80.05,2.99,PTCA,1.473,0.011,-0.424,PTCA,PTCA,0.13,0.32,0.002,0.051,172,12,28.35,0.44,2.13,0.04,13.4,0.2,30,.
+EAJ,Eisenia arborea,Count,EAJ,.,5.02,PTCA,1.473,0.011,-0.424,PTCA,PTCA,0.13,0.32,0.002,0.051,172,12,28.35,0.44,2.13,0.04,13.4,0.2,30,.
+EC,crustose coralline algae spp.,Percent Cover,EC,.,0.33,EC,1.295,0.024,-0.262,CO,CF,0.22,0.38,0.012,0.03,0,0,34.71,2.49,3.96,0.18,8.8,0.6,10,.
+EGJ,Egregia menziesii,Count,MPJ33,.,0.37,MPJ,5.409,0.045,-1.467,PTCA,PTCA,0.13,0.32,0.002,0.051,172,12,28.35,0.44,2.13,0.04,13.4,0.2,30,.
+EGME,Egregia menziesii,Number of fronds at 1m,EGME,127.94,56.63,EGME,1.855,0.008,-0.240,PTCA,PTCA,0.13,0.32,0.002,0.051,172,12,28.35,0.44,2.13,0.04,13.4,0.2,30,.
+ER,Hildenbrandia spp.,Percent Cover,EC,.,0.33,EC,1.295,0.024,-0.262,CO,CF,0.22,0.39,0.012,0.005,0,12,34.71,2.49,3.96,0.18,8.8,0.6,10,.
+FASP,Gloiocladia fryeana,Percent Cover,R,.,1.22,R,1.735,0.068,-0.985,R,R,0.16,0.47,0.005,0.037,112,12,25.96,0.36,3.34,0.04,7.8,0.1,36,.
+FB,Ectocarpaceae spp.,Percent Cover,FB,.,0.33,FB,12.313,0.226,-7.425,DL,FB,0.09,0.49,0.006,0.036,7,12,20.25,1.34,2.02,0.12,10.5,1.1,10,.
+FG,Ulva spp.; Sponogomorpha spp.,Percent Cover,FR,.,0.8,FB,12.313,0.226,-7.425,DL,FB,0.09,0.49,0.006,0.036,7,12,20.25,1.34,2.02,0.12,10.5,1.1,10,.
+FR,Rhodophyta,Percent Cover,FR,.,0.8,RAT,4.239,0.254,-2.171,RAT,RAT,0.14,0.39,0.03,0.05,0,0,24.18,1.26,2.91,0.14,8.5,0.68,10,.
+FTHR,Neoptilota spp.; Ptilota spp.; Rhodoptilum spp.,Percent Cover,CF,.,0.7,RAT,4.239,0.254,-2.171,RAT,RAT,0.1,0.39,0.014,0.05,0,0,24.18,1.26,2.91,0.14,8.5,0.68,10,.
+GEL,Gelidium,Percent Cover,GS,.,2.25,GS,2.351,0.025,-3.917,GS,GS,0.09,0.43,0.007,0.021,20,12,16.86,1.69,2.14,0.1,7.7,0.4,10,.
+GR,Gelidium spp. ,Percent Cover,GS,.,2.25,GS,2.351,0.025,-3.917,GS,GS,0.09,0.43,0.007,0.021,20,12,16.86,1.69,2.14,0.1,7.7,0.4,10,.
+GS,Gracilaria spp.,Percent Cover,GS,.,2.25,GS,2.351,0.025,-3.917,GS,GS,0.09,0.43,0.007,0.021,20,12,16.86,1.69,2.14,0.1,7.7,0.4,10,.
+GYSP,Gymnogongrus spp.,Percent Cover,R,.,1.22,CC,1.532,0.013,-0.255,GYSP,R,0.2,0.47,0.02,0.037,3,0,29.97,1.53,2.91,0.15,10.3,0,2,.
+HAGL,Halosaccion glandiforme,Percent Cover,POLA,.,3.24,POLA,6.035,0.138,-3.307,R,R,0.16,0.47,0.005,0.037,112,12,25.96,0.36,3.34,0.04,7.8,0.1,36,.
+IR,Mazzaella spp. ,Percent Cover,CC,.,1.69,CC,1.532,0.013,-0.255,CC,BF,0.15,0.39,0.003,0.09,126,0,25.64,0.35,2.21,0.06,11.9,0.3,46,.
+LAFA,Laminaria farlowii,Mean blade length in cm,LAFA,37.66,0.31,LAFA,1.125,0.005,-0.229,LAFA,LAFA,0.13,0.35,0.007,0.018,56,12,24.97,0.85,2.03,0.06,12.3,0.3,10,.
+LFJ,Laminaria farlowii,Count,LFJ,.,0.56,MPJ,5.409,0.045,-1.467,LAFA,LAFA,0.13,0.35,0.007,0.018,56,12,24.97,0.85,2.03,0.06,12.3,0.3,10,.
+LI,Lithothrix aspergillum,Percent Cover,CO,.,2.13,CO,2.991,0.148,-6.440,CO,CF,0.22,0.39,0.012,0.005,0,12,34.71,2.49,3.96,0.18,8.8,0.6,10,.
+LS,Laurencia spp.,Percent Cover,LS,.,1.96,LS,3.738,0.094,-8.044,RAT,LS,0.14,0.51,0.03,0.017,0,0,24.18,1.26,2.91,0.14,8.5,0.68,0,.
+LX,Osmundea spectabilis,Percent Cover,LS,.,1.96,LS,3.738,0.094,-8.044,RAT,LS,0.14,0.51,0.03,0.017,0,0,24.18,1.26,2.91,0.14,8.5,0.68,0,.
+MAPY,Macrocystis pyrifera,Count,MPJ,.,1.16,MPJ,5.409,0.045,-1.467,MAPY,MAPY,0.13,0.27,0.002,0.23,172,12,31.86,0.16,2.21,0.03,16.5,0.24,941,.
+MPJ,Macrocystis pyrifera,Count,MPJ,.,1.16,MPJ,5.409,0.045,-1.467,MAPY,MAPY,0.13,0.27,0.002,0.23,172,12,28.35,0.44,2.13,0.04,13.4,0.2,941,.
+MPJ33,Macrocystis pyrifera,Count,MPJ33,.,0.37,MPJ,5.409,0.045,-1.467,MAPY,MAPY,0.13,0.27,0.002,0.23,172,12,28.35,0.44,2.13,0.04,13.4,0.2,941,.
+MPJ66,Macrocystis pyrifera,Count,MPJ66,.,1.86,MPJ,5.409,0.045,-1.467,MAPY,MAPY,0.13,0.27,0.002,0.23,172,12,28.35,0.44,2.13,0.04,13.4,0.2,941,.
+MPJ99,Macrocystis pyrifera,Count,MPJ99,.,4.76,MPJ,5.409,0.045,-1.467,MAPY,MAPY,0.13,0.27,0.002,0.23,172,12,28.35,0.44,2.13,0.04,13.4,0.2,941,.
+NA,Nienburgia andersoniana,Percent Cover,BF,.,3.88,BF,1.471,0.030,-0.419,BF,BF,0.17,0.26,0.006,0.02,15,12,27.21,0.74,3.21,0.07,8.5,0.4,10,.
+NEO,Agardhiella subulata,Percent Cover,GS,.,2.25,GS,2.351,0.025,-3.917,GS,GS,0.09,0.43,0.007,0.021,20,12,16.86,1.69,2.14,0.1,7.7,0.4,10,.
+PHSE,Phycodrys setchellii,Percent Cover,R,.,1.22,CF,4.435,0.240,-11.789,BF,BF,0.17,0.26,0.006,0.02,15,12,27.21,0.74,3.21,0.07,8.5,0.4,10,.
+PHTO,Phyllospadix torreyi,Percent Cover,DL,.,2.61,DP,3.212,0.066,-1.314,ZOMA,ZOMA,0.224,0.7027,.,0.314,.,6,31.14,1.22,1.24,0.2,25.52,.,6,"AFDM, C, & N from van Lent et al. 1991 Aquatic Botany 41:353-367; Dry_wet from Wickham et al. 2019 Aquatic Botany 152:27-31"
+PL,Prionitis lanceolata,Percent Cover,CC,.,1.69,CF,4.435,0.240,-11.789,GYSP,R,0.2,0.47,0.02,0.037,3,0,29.97,1.53,2.91,0.15,10.3,0,2,.
+POLA,Polyneura latissima,Percent Cover,POLA,.,3.24,POLA,6.035,0.138,-3.307,POLA,POLA,0.13,0.25,0.006,0.012,9,12,23.56,0.51,3.84,0.11,6.1,0.1,10,.
+PRSP,Prionitis linearis,Percent Cover,CC,.,1.69,CC,1.532,0.013,-0.255,GYSP,R,0.2,0.47,0.02,0.037,3,0,29.97,1.53,2.91,0.15,10.3,0,2,.
+PTCA,Pterygophora californica,No. Blades > 30cm,PTCA,50.81,5.15,PTCA,1.473,0.011,-0.424,PTCA,PTCA,0.13,0.32,0.002,0.051,172,12,28.35,0.44,2.13,0.04,13.4,0.2,30,.
+PTJ,Pterygophora californica,Count,PTJ,.,0.51,MPJ,5.409,0.045,-1.467,PTCA,PTCA,0.13,0.32,0.002,0.051,172,12,28.35,0.44,2.13,0.04,13.4,0.2,30,.
+PTL,Pterygophora californica,Count,PTL,.,1.37,MPJ,5.409,0.045,-1.467,PTCA,PTCA,0.13,0.32,0.002,0.051,172,12,28.35,0.44,2.13,0.04,13.4,0.2,30,.
+R,Rhodymenia californica,Percent Cover,R,.,1.22,R,1.735,0.068,-0.985,R,R,0.16,0.47,0.005,0.037,112,12,25.96,0.36,3.34,0.04,7.8,0.1,36,.
+RAT,small Ceramiaceae spp.,Percent Cover,RAT,.,0.67,RAT,4.239,0.254,-2.171,RAT,RAT,0.19,0.39,0.05,0.005,0,0,24.18,1.26,2.91,0.14,8.5,0.68,10,.
+SAFU,Sarcodiotheca furcata,Percent Cover,CF,.,0.7,CF,4.435,0.240,-11.789,CF,CF,0.11,0.39,0.005,0.005,36,12,22.03,0.41,2.96,0.07,7.5,0.3,10,.
+SAGA,Sarcodiotheca gaudichaudii,Percent Cover,GS,.,2.25,GS,2.351,0.025,-3.917,GS,GS,0.09,0.43,0.007,0.021,20,12,16.86,1.69,2.14,0.1,7.7,0.4,10,.
+SAHO,Sargassum horneri,Frond length in cm,SHJ,.,0.062,SHJ,3.758,0.104,-3.674,CYOS,CYOS,0.14,0.35,0.002,0.02,172,12,28.35,0.44,2.13,0.04,13.4,0.2,30,.
+SAMU,Sargassum muticum,Frond length in cm,SAMU,15.48,0.215,SAMU,5.766,0.171,-17.831,CYOS,CYOS,0.14,0.35,0.002,0.02,172,12,28.35,0.44,2.13,0.04,13.4,0.2,30,.
+SCCA,Scinaia confusa,Percent Cover,GS,.,2.25,GS,2.351,0.025,-3.917,GS,GS,0.09,0.43,0.007,0.021,20,12,16.86,1.69,2.14,0.1,7.7,0.4,10,.
+SELO,Scytosiphon lomentaria,Percent Cover,DP,.,1.08,DP,3.212,0.066,-1.314,DL,DL,0.09,0.4,0.006,0.032,7,12,20.25,1.34,2.02,0.12,10.5,1.1,10,.
+SHJ,Sargassum horneri,Count,SHJ,.,0.06,SHJ,3.758,0.104,-3.674,CYOS,CYOS,0.14,0.35,0.002,0.02,172,12,28.35,0.44,2.13,0.04,13.4,0.2,30,.
+SMJ,Sargassum muticum,Count,SMJ,.,0.23,SAMU,5.766,0.171,-17.831,CYOS,CYOS,0.14,0.35,0.002,0.02,172,12,28.35,0.44,2.13,0.04,13.4,0.2,30,.
+STIN,Stenogramma californicum,Percent Cover,R,.,1.22,R,1.735,0.068,-0.985,R,R,0.16,0.47,0.005,0.037,112,12,25.96,0.36,3.34,0.04,7.8,0.1,36,.
+TALE,Taonia lennebackerae,Percent Cover,DP,.,1.08,DP,3.212,0.066,-1.314,DL, DP,0.09,0.34,0.006,0.013,7,12,20.25,1.34,2.02,0.12,10.5,1.1,10,.
+UBB,Unidentifiable small brown blade,Percent Cover,BR,.,1.24,CYOS,2.281,0.033,-0.554,CYOS,CYOS,0.15,0.35,0.002,0.017,115,24,29.77,0.44,1.53,0.04,19.9,0.7,30,.
+UEC,Amphiroa beauvoisii,Percent Cover,CO,.,2.13,CO,2.991,0.148,-6.440,CO,CF,0.22,0.39,0.012,0.005,0,12,34.71,2.49,3.96,0.18,8.8,0.6,10,.
+UV,Ulva spp.,Percent Cover,DP,.,1.08,DP,3.212,0.066,-1.314,DL,DL,0.09,0.4,0.006,0.032,7,12,20.25,1.34,2.02,0.12,10.5,1.1,10,.
+ZOMA,Zostera marina,Percent Cover,DL,.,2.61,DP,3.212,0.066,-1.314,ZOMA,ZOMA,0.224,0.7027,.,0.314,.,6,31.14,1.22,1.24,0.2,25.52,.,6,"AFDM, C, & N from van Lent et al. 1991 Aquatic Botany 41:353-367; Dry_wet from Wickham et al. 2019 Aquatic Botany 152:27-31"
