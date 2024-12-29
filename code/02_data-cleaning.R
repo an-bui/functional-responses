@@ -291,7 +291,7 @@ algae_traits_cat <- colnames(trait_matrix) %>%
 trait_matrix_reduced <- trait_matrix %>% 
   select(size_cm, position_to_benthos,
          stipe, branching, branch_shape, blade_category,
-         calcification, longevity, attachment, # pmax_new, pe_alpha_new, 
+         calcification, longevity, attachment, pmax_new, pe_alpha_new, 
          cn_new
          )
 

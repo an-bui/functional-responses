@@ -540,6 +540,11 @@ coarse_traits <- repmis::source_data("https://www.dropbox.com/scl/fi/s1gb2f3f13r
   mutate(scientific_name = str_replace(scientific_name, "_", " ")) %>% 
   select(scientific_name, sd_growth_form, ll_func_form)
 
+# write_rds(coarse_traits,
+#           file = here("data",
+#                       "functional-traits",
+#                       "coarse-traits.RDS"))
+
 guilds <- read_csv(here::here("data", "SBC-LTE", "LTE_guild_data.csv")) %>% 
   mutate(sp.code = replace_na(sp.code, "Nandersoniana")) %>% 
   rename("new_group" = biomass.guild) %>% 
@@ -685,7 +690,7 @@ benthics <- read_csv(
   mutate_at(c("group", "mobility", "growth_morph", "site"), str_to_lower) %>% 
   left_join(., guilds, by = c("sp_code" = "sp.code")) %>% 
   # create a sample ID
-  unite("sample_ID", site, year, sep = "_", remove = FALSE)
+  unite("sample_ID", site, year, transect, sep = "_", remove = FALSE)
 
 
 # ⟞ e. substrate from annual surveys --------------------------------------
@@ -854,20 +859,24 @@ theme_set(theme_bw() +
                   panel.grid = element_blank()))
 
 model_preds_aesthetics <- list(
-  scale_color_manual(values = c(control = control_col, 
-                                continual = continual_col),
-                     labels = c(control = "Reference", 
-                                continual = "Removal")),
-  scale_linetype_manual(values = c(control = "22", 
-                                   continual = "solid"),
-                        labels = c(control = "Reference", 
-                                   continual = "Removal")) 
+  scale_color_manual(values = c(Reference = control_col, 
+                                Removal = continual_col),
+                     labels = c(Reference = "Reference", 
+                                Removal = "Removal")),
+  scale_linetype_manual(values = c(Reference = "22", 
+                                   Removal = "solid"),
+                        labels = c(Reference = "Reference", 
+                                   Removal = "Removal")),
+  scale_fill_manual(values = c(Reference = control_col, 
+                                Removal = continual_col),
+                     labels = c(Reference = "Reference", 
+                                Removal = "Removal"))
 )
 
 model_preds_theme <- function() {
   theme_bw() +
-    theme(axis.text = element_text(size = 10),
-          axis.title = element_text(size = 12),
+    theme(axis.text = element_text(size = 8),
+          axis.title = element_text(size = 10),
           panel.grid = element_blank())
 }
 
