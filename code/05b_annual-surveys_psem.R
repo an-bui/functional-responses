@@ -53,7 +53,7 @@ benthics <- read_csv(
   mutate_at(c("group", "mobility", "growth_morph", "site"), str_to_lower) %>% 
   left_join(., guilds, by = c("sp_code" = "sp.code")) %>% 
   # create a sample ID
-  unite("sample_ID", site, year, sep = "_", remove = FALSE)
+  unite("sample_ID", site, year, transect, sep = "_", remove = FALSE)
 
 photosynthesis_clean <- photosynthesis %>% 
   # take out the juveniles of large brown species that use MAPY as proxy
@@ -174,7 +174,7 @@ algae_traits_cat <- colnames(trait_matrix) %>%
 trait_matrix_reduced <- trait_matrix %>% 
   select(size_cm, position_to_benthos,
          stipe, branching, branch_shape, blade_category,
-         calcification, longevity, attachment, # pmax_new, pe_alpha_new, 
+         calcification, longevity, attachment, pmax_new, pe_alpha_new, 
          cn_new
   )
 
@@ -194,28 +194,21 @@ trait_matrix_benthics <- trait_matrix_reduced %>%
 
 # benthics is created in the source script
 benthics_comm_df <- benthics %>%
+  # filter out SCI sites
+  filter(!(site %in% c("sctw", "scdi"))) %>% 
   # only include species that are in the trait matrix
   filter(scientific_name %in% rownames(trait_matrix_benthics)) %>%
   # create a sample ID
-  unite("sample_ID", site, year, remove = FALSE) %>% 
-  # sum biomass for all transects at a site in a given year
-  group_by(sample_ID, scientific_name) %>% 
-  summarize(dry_gm2 = sum(dry_gm2, na.rm = TRUE)) %>% 
-  ungroup()
-
-widen <- function(df) {
-  df %>% 
-    # select columns of interest
-    select(sample_ID, scientific_name, dry_gm2) %>% 
-    # get into wide format for community analysis 
-    pivot_wider(names_from = scientific_name, values_from = dry_gm2) %>% 
-    # make sample_ID column row names
-    column_to_rownames("sample_ID") %>% 
-    replace(is.na(.), 0)
-}
+  unite("sample_ID", site, year, transect, remove = FALSE)
 
 benthics_comm_df_wide <- benthics_comm_df %>% 
-  widen() %>%   
+  # select columns of interest
+  select(sample_ID, scientific_name, dry_gm2) %>% 
+  # get into wide format for community analysis 
+  pivot_wider(names_from = scientific_name, values_from = dry_gm2) %>% 
+  # make sample_ID column row names
+  column_to_rownames("sample_ID") %>% 
+  replace(is.na(.), 0) %>%  
   # reordering species to be in the same order as in the trait data frame
   select(rownames(trait_matrix_benthics)) %>% 
   # filter out surveys where there were no species
@@ -235,15 +228,13 @@ benthics_biomass <- benthics %>%
 # kelp biomass
 benthics_kelp <- benthics %>% 
   filter(sp_code == "MAPY") %>% 
-  group_by(sample_ID) %>% 
-  summarize(total_kelp_biomass = sum(dry_gm2, na.rm = TRUE),
-            total_kelp_density = sum(density, na.rm = TRUE)) %>% 
-  ungroup()
+  select(sample_ID, dry_gm2) %>% 
+  rename("total_kelp_biomass" = "dry_gm2")
 
 # metadata
 benthics_comm_meta <- benthics %>%
   select(sample_ID,
-         site, year) %>% 
+         site, year, transect) %>% 
   unique() %>% 
   filter(sample_ID %in% rownames(benthics_comm_df_wide))
 
@@ -283,9 +274,8 @@ benthics_fd_metrics <- benthics_fd$nbsp %>%
   drop_na(fric) %>% 
   # calculating variation in kelp
   group_by(site) %>% 
-  mutate(mean_kelp = mean(total_kelp_biomass),
-         diff_from_mean = total_kelp_biomass - mean_kelp) %>% 
-  ungroup()
+  ungroup() %>% 
+  drop_na(spp_rich, fric, total_kelp_biomass, npp_estimate)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # --------------------------------- 3. SEM --------------------------------
@@ -298,21 +288,21 @@ algae_psem <- psem(
   
   # species richness as function of kelp
   glmmTMB(spp_rich ~ total_kelp_biomass + 
-            (1|site) + (1|year),
+            (1|site/transect) + (1|year),
           family = nbinom2(link = "log"),
           na.action = na.omit,
           data = benthics_fd_metrics),
   
   # functional richness as function of kelp and species richness and hard substrate
-  glmmTMB(fric ~ total_kelp_biomass + spp_rich +
-            (1|site) + (1|year),
-          family = beta_family(link = "logit"),
-          na.action = na.omit,
-          data = benthics_fd_metrics),
+  lmer(fric ~ total_kelp_biomass + spp_rich +
+         (1|site/transect) + (1|year),
+       # family = beta_family(link = "logit"),
+       na.action = na.omit,
+       data = benthics_fd_metrics),
   
   # NPP as function of functional richness and species richness and hard substrate
-  glmmTMB(npp_estimate ~ spp_rich + fric +
-            (1|site) + (1|year),
+  glmmTMB(npp_estimate ~ spp_rich + fric + total_kelp_biomass +
+            (1|site/transect) + (1|year),
           family = Gamma(link = "log"),
           na.action = na.omit,
           data = benthics_fd_metrics)
@@ -323,19 +313,19 @@ algae_psem_gaussian <- psem(
   
   # species richness as function of kelp
   lmer(spp_rich ~ total_kelp_biomass + 
-         (1|site) + (1|year),
+         (1|site/transect) + (1|year),
        na.action = na.omit,
        data = benthics_fd_metrics),
   
   # functional richness as function of kelp and species richness
   lmer(fric ~ total_kelp_biomass + spp_rich + 
-         (1|site) + (1|year),
+         (1|site/transect) + (1|year),
        na.action = na.omit,
        data = benthics_fd_metrics),
   
   # NPP as function of functional richness and species richness
-  lmer(npp_estimate ~ spp_rich + fric +
-         (1|site) + (1|year),
+  lmer(npp_estimate ~ spp_rich + fric + total_kelp_biomass +
+         (1|site/transect) + (1|year),
        na.action = na.omit,
        data = benthics_fd_metrics)
   
