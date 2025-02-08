@@ -2464,7 +2464,7 @@ spp_timeseries <- comm_df %>%
 sci_name_files <- spp_timeseries %>% 
   select(scientific_name) %>% 
   unnest(cols = c(scientific_name)) %>% 
-  mutate(filename = word(.$scientific_name, 1)) %>% 
+  mutate(filename = paste(word(.$scientific_name, 1), word(.$scientific_name, 2), sep = "-")) %>% 
   pull(filename) %>% 
   as.list()
 
@@ -2472,7 +2472,7 @@ sci_name_files <- spp_timeseries %>%
 # for(i in 1:length(sci_name_files)) {
 #   ggsave(here("figures",
 #               "LTE-species-timeseries",
-#               paste0("LTE-species_timeseries_", sci_name_files[[i]], "_", today(), ".jpg")),
+#               paste0("LTE-species-timeseries_", sci_name_files[[i]], "_", today(), ".jpg")),
 #          plot = spp_timeseries[[4]][[i]],
 #          width = 16,
 #          height = 8,
