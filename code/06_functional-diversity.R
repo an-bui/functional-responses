@@ -321,6 +321,12 @@ algae_div <- vegan::diversity(x = comm_mat_algae,
   enframe() %>% 
   rename(simpson = value)
 
+algae_shannon <- vegan::diversity(x = comm_mat_algae,
+                                  index = "shannon") %>% 
+  enframe() %>% 
+  rename(shannon = value)
+
+
 ll_group_biomass <- biomass %>% 
   filter(new_group == "algae") %>% 
   filter(!(sp_code %in% pull(excluded_spp, sp_code))) %>%
@@ -376,10 +382,11 @@ fd_metrics_reduced <- algae_fd_reduced$nbsp %>%
   rename(feve = value) %>% 
   left_join(., algae_div, by = c("sample_ID" = "name")) %>% 
   mutate(redund = simpson - raoq) %>% 
+  left_join(., algae_shannon, by = c("sample_ID" = "name")) %>% 
   left_join(., comm_meta, by = "sample_ID") %>% 
   left_join(., npp, by = "season_ID") %>% 
   left_join(., ll_group_biomass, by = "season_ID") %>% 
-  left_join(., sd_group_biomass, by = "season_ID")
+  left_join(., sd_group_biomass, by = "season_ID") 
 
 # ⟞ ⟞ ii. models ----------------------------------------------------------
 
@@ -394,8 +401,29 @@ spp_rich_mod <- glmmTMB(
 plot(simulateResiduals(spp_rich_mod))
 
 ggpredict(spp_rich_mod,
-          terms = c("time_since_zero", "treatment", "exp_dates")) %>% 
+          terms = c("time_since_zero", "treatment", "exp_dates"), 
+          bias_correction = TRUE) %>% 
   plot(show_data = TRUE)
+
+test_predictions(spp_rich_mod, c("time_since_zero", "treatment", "exp_dates")) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2))) %>% 
+  mutate(ci = paste0("[", conf.low, ", ", conf.high, "]")) %>% 
+  select(treatment, Contrast, ci, p.value) %>% 
+  flextable() %>% 
+  autofit() %>% 
+  fit_to_width(8) %>% 
+  set_header_labels("treatment" = "Treatment",
+                    "contrast" = "Contrast",
+                    "ci" = "95% confidence interval",
+                    "p.value" = "p-value") %>% 
+  font(part = "all",
+       fontname = "Times New Roman") %>% 
+  save_as_docx(path = here("tables", 
+                           "model-summaries", 
+                           paste0("spp-rich-slopes_", today(), ".docx")))
+
+# variance co-variance matrix
+vcov(spp_rich_mod)$cond
 
 spp_rich_means <- bind_rows(
   ggpredict(spp_rich_mod,
@@ -421,6 +449,108 @@ summary(spp_rich_mod)
 # after and time
 # after and treatment
 # time and treatment and after
+
+spp_rich_preds <- ggpredict(spp_rich_mod,
+                            terms = c("time_since_zero", 
+                                      "treatment", 
+                                      "exp_dates"), 
+                            bias_correction = TRUE) %>% 
+  rename("time_since_zero" = "x",
+         "treatment"  = "group",
+         "exp_dates" = "facet")
+
+spp_rich_plot <- ggplot() +
+  geom_point(data = fd_metrics_reduced,
+             aes(x = time_since_zero,
+                 y = spp_rich,
+                 color = treatment),
+             shape = 21,
+             alpha = 0.4) +
+  geom_ribbon(data = spp_rich_preds,
+            aes(x = time_since_zero,
+                y = predicted,
+                ymin = conf.low,
+                ymax = conf.high,
+                fill = treatment,
+                group = treatment),
+            alpha = 0.1) +
+  geom_line(data = spp_rich_preds,
+            aes(x = time_since_zero,
+                y = predicted,
+                color = treatment,
+                group = treatment,
+                linetype = treatment),
+            linewidth = 1) +
+  facet_grid(~ exp_dates,
+             labeller = labeller(exp_dates = c("during" = "(a) Experimental removal",
+                                               "after" = "(b) Recovery"))) +
+  model_preds_aesthetics +
+  model_preds_theme() +
+  theme(legend.position = "inside",
+        legend.position.inside = c(0.9, 0.8),
+        legend.background = element_blank(),
+        strip.background = element_blank(),
+        strip.text = element_text(hjust = 0)) +
+  labs(x = "Time since start of experiment (years)",
+       y = "Species richness")
+
+spp_rich_plot
+
+ggsave(here("figures",
+            "model-predictions",
+            paste0("spp-rich_", today(), ".jpg")),
+       plot = spp_rich_plot,
+       width = 14,
+       height = 8,
+       units = "cm",
+       dpi = 300)
+
+
+# ⟞ ⟞ ⟞ species diversity -------------------------------------------------
+
+# quick visual
+ggplot(data = fd_metrics_reduced,
+       aes(x = time_since_zero,
+           y = shannon,
+           group = treatment,
+           color = treatment)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~exp_dates)
+
+ggplot(data = fd_metrics_reduced,
+       aes(x = shannon)) +
+  geom_histogram()
+
+shan_mod <- glmmTMB(
+  shannon ~ time_since_zero*treatment*exp_dates + (1|site) + (1|year),
+  na.action = na.omit,
+  data = fd_metrics_reduced %>% filter(shannon > 0)
+)
+
+plot(simulateResiduals(shan_mod))
+
+summary(shan_mod)
+
+plot(ggpredict(shan_mod, terms = c("time_since_zero", "treatment", "exp_dates")),
+     show_data = TRUE)
+
+test_predictions(shan_mod, c("time_since_zero", "treatment", "exp_dates")) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 3))) %>% 
+  mutate(ci = paste0("[", conf.low, ", ", conf.high, "]")) %>% 
+  select(treatment, Contrast, ci, p.value) %>% 
+  flextable() %>% 
+  autofit() %>% 
+  fit_to_width(8) %>% 
+  set_header_labels("treatment" = "Treatment",
+                    "contrast" = "Contrast",
+                    "ci" = "95% confidence interval",
+                    "p.value" = "p-value") %>% 
+  font(part = "all",
+       fontname = "Times New Roman") %>% 
+  save_as_docx(path = here("tables", 
+                           "model-summaries", 
+                           paste0("spp-div-slopes_", today(), ".docx")))
 
 # ⟞ ⟞ ⟞ functional richness -----------------------------------------------
 
@@ -448,6 +578,23 @@ ggpredict(fric_mod,
           terms = c("time_since_zero", "treatment", "exp_dates")) %>% 
   plot(show_data = TRUE)
 
+test_predictions(fric_mod, c("time_since_zero", "treatment", "exp_dates")) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2))) %>%
+  mutate(ci = paste0("[", conf.low, ", ", conf.high, "]")) %>%
+  select(treatment, Contrast, ci, p.value) %>%
+  flextable() %>% 
+  autofit() %>% 
+  fit_to_width(8) %>% 
+  set_header_labels("treatment" = "Treatment",
+                    "contrast" = "Contrast",
+                    "ci" = "95% confidence interval",
+                    "p.value" = "p-value") %>% 
+  font(part = "all",
+       fontname = "Times New Roman") %>% 
+  save_as_docx(path = here("tables", 
+                           "model-summaries", 
+                           paste0("fric-slopes_", today(), ".docx")))
+
 fric_means <- bind_rows(
   ggpredict(fric_mod,
             terms = c("time_since_zero[0]", "treatment", "exp_dates")),
@@ -469,6 +616,111 @@ fric_means %>%
   facet_wrap(~exp_dates)
 
 summary(fric_mod)
+
+fric_preds <- ggpredict(fric_mod,
+                            terms = c("time_since_zero", 
+                                      "treatment", 
+                                      "exp_dates"), 
+                            bias_correction = TRUE) %>% 
+  rename("time_since_zero" = "x",
+         "treatment"  = "group",
+         "exp_dates" = "facet")
+
+fric_plot <- ggplot() +
+  geom_point(data = fd_metrics_reduced,
+             aes(x = time_since_zero,
+                 y = fric,
+                 color = treatment),
+             shape = 21,
+             alpha = 0.4) +
+  geom_ribbon(data = fric_preds,
+              aes(x = time_since_zero,
+                  y = predicted,
+                  ymin = conf.low,
+                  ymax = conf.high,
+                  fill = treatment,
+                  group = treatment),
+              alpha = 0.1) +
+  geom_line(data = fric_preds,
+            aes(x = time_since_zero,
+                y = predicted,
+                color = treatment,
+                group = treatment,
+                linetype = treatment),
+            linewidth = 1) +
+  facet_grid(~ exp_dates,
+             labeller = labeller(exp_dates = c("during" = "(a) Experimental removal",
+                                               "after" = "(b) Recovery"))) +
+  model_preds_aesthetics +
+  model_preds_theme() +
+  theme(legend.title = element_blank(),
+        legend.key.size = unit(c(0.25, 0.25, 0.25, 0.25), units = "cm"),
+        legend.position = "inside",
+        legend.position.inside = c(1.15, 0.9),
+        legend.background = element_blank(),
+        strip.background = element_blank(),
+        strip.text = element_text(hjust = 0)) +
+  labs(x = "Time since start of experiment (years)",
+       y = "Functional richness")
+
+fric_plot
+
+ggsave(here("figures",
+            "model-predictions",
+            paste0("fric_", today(), ".jpg")),
+       plot = fric_plot,
+       width = 14,
+       height = 8,
+       units = "cm",
+       dpi = 300)
+
+
+# ⟞ ⟞ ⟞ Rao Q -------------------------------------------------------------
+
+# quick vis
+
+ggplot(data = fd_metrics_reduced,
+       aes(x = time_since_zero,
+           y = raoq,
+           group = treatment,
+           color = treatment)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~exp_dates)
+
+ggplot(data = fd_metrics_reduced,
+       aes(x = raoq)) +
+  geom_histogram()
+
+raoq_mod <- glmmTMB(
+  raoq ~ time_since_zero*treatment*exp_dates + (1|site) + (1|year),
+  na.action = na.omit,
+  data = fd_metrics_reduced %>% filter(raoq > 0)
+)
+
+plot(simulateResiduals(raoq_mod))
+
+summary(raoq_mod)
+
+plot(ggpredict(raoq_mod, terms = c("time_since_zero", "treatment", "exp_dates")),
+     show_data = TRUE)
+
+test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 3))) %>% 
+  mutate(ci = paste0("[", conf.low, ", ", conf.high, "]")) %>% 
+  select(treatment, Contrast, ci, p.value) %>% 
+  flextable() %>% 
+  autofit() %>% 
+  fit_to_width(8) %>% 
+  set_header_labels("treatment" = "Treatment",
+                    "contrast" = "Contrast",
+                    "ci" = "95% confidence interval",
+                    "p.value" = "p-value") %>% 
+  font(part = "all",
+       fontname = "Times New Roman") %>% 
+  save_as_docx(path = here("tables", 
+                           "model-summaries", 
+                           paste0("raoq-slopes_", today(), ".docx")))
 
 # fd_metrics_reduced %>% 
 #   filter(exp_dates == "during") %>% 
@@ -2057,14 +2309,18 @@ present_absent <- comm_df %>%
 pa_plot <- ggplot(data = present_absent,
        aes(x = treatment,
            y = scientific_name,
-           fill = present_absent,
-           alpha = mean_dry)) +
+           fill = present_absent)) +
   geom_tile(color = "black") +
   scale_fill_manual(values = c("present" = "cornflowerblue",
                                "absent" = "goldenrod")) +
   scale_alpha_continuous(breaks = seq(from = 0, to = 40, by = 5)) +
-  theme(legend.position = "none") +
-  facet_wrap(~exp_dates) 
+  scale_x_discrete(labels = c("continual" = "Removal",
+                              "control" = "Reference")) +
+  theme(legend.position = "none",
+        axis.title.y = element_blank()) +
+  facet_grid(~ exp_dates,
+             labeller = labeller(exp_dates = c("during" = "Experimental removal",
+                                               "after" = "Recovery"))) 
 
 trait_table <- trait_matrix_reduced %>% 
   rownames_to_column("scientific_name") %>% 
@@ -2127,10 +2383,18 @@ trait_table <- trait_matrix_reduced %>%
   cn_new = case_when(
     is.na(cn_new) ~ "no C:N data",
     .default = paste0(cn_new, " C:N")
+  ),
+  pmax_new = case_when(
+    is.na(pmax_new) ~ "no Pmax data",
+    .default = paste0("Pmax = ", pmax_new)
+  ),
+  alpha_new = case_when(
+    is.na(pe_alpha_new) ~ "no \U03B1 data",
+    .default = paste0("\U03B1 = ", pe_alpha_new)
   )) %>% 
   mutate(table_trait = paste(size_cm, position_to_benthos, stipe, branching,
                              branch_shape, blade_category, calcification, 
-                             longevity, attachment, cn_new, 
+                             longevity, attachment, cn_new, pmax_new, alpha_new,
                              sep = ", ")) %>% 
   select(scientific_name, table_trait) %>% 
   arrange(factor(scientific_name, 
@@ -2159,3 +2423,59 @@ library(patchwork)
 
 free(pa_plot | my_table_plot) +
   plot_layout(heights = c(1, 0.4))
+
+
+# ⟞ g. species timeseries -------------------------------------------------
+
+spp_timeseries <- comm_df %>% 
+  # algae only
+  filter(new_group == "algae" & sp_code != "MAPY") %>% 
+  select(sample_ID, scientific_name, dry_gm2) %>% 
+  filter(!(scientific_name %in% pull(excluded_spp, scientific_name))) %>% 
+  left_join(., comm_meta, by = "sample_ID") %>% 
+  nest(.by = "scientific_name", data = everything()) %>% 
+  mutate(mean_data = map(
+    data,
+    ~ group_by(.data = ., 
+               scientific_name, exp_dates, treatment, time_since_zero) %>% 
+      summarize(mean_dry = mean(dry_gm2))
+  )) %>% 
+  mutate(timeseries_plot = pmap(
+    list(x = data, y = mean_data, z = scientific_name),
+    function(x, y, z) ggplot(data = x, 
+                          aes(x = time_since_zero,
+                              y = dry_gm2,
+                              color = treatment)) +
+      geom_point(alpha = 0.1, 
+                 shape = 21) +
+      geom_line(data = y,
+                aes(x = time_since_zero,
+                    y = mean_dry,
+                    color = treatment,
+                    linetype = treatment),
+                linewidth = 1) +
+      model_preds_aesthetics +
+      facet_wrap(~exp_dates) +
+      labs(title = z,
+           x = "Time since zero",
+           y = "Biomass (dry g/m\U00B2)")
+  ))
+
+sci_name_files <- spp_timeseries %>% 
+  select(scientific_name) %>% 
+  unnest(cols = c(scientific_name)) %>% 
+  mutate(filename = word(.$scientific_name, 1)) %>% 
+  pull(filename) %>% 
+  as.list()
+
+# saving species timeseries
+# for(i in 1:length(sci_name_files)) {
+#   ggsave(here("figures",
+#               "LTE-species-timeseries",
+#               paste0("LTE-species_timeseries_", sci_name_files[[i]], "_", today(), ".jpg")),
+#          plot = spp_timeseries[[4]][[i]],
+#          width = 16,
+#          height = 8,
+#          dpi = 300,
+#          units = "cm")
+# }

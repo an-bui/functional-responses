@@ -559,8 +559,8 @@ guilds <- read_csv(here::here("data", "SBC-LTE", "LTE_guild_data.csv")) %>%
 biomass <- read_csv(
   here("data",
        "SBC-LTE",
-       "knb-lter-sbc.119.12",
-       "LTE_All_Species_Biomass_at_transect_20241014.csv")
+       "knb-lter-sbc.119.13",
+       "LTE_All_Species_Biomass_at_transect_20241115.csv")
 ) %>%
   clean_names() %>%
   # replace NA sp_code with Nandersoniana
@@ -616,8 +616,8 @@ biomass <- read_csv(
 npp <- read_csv(
   here("data",
        "SBC-LTE",
-       "knb-lter-sbc.58.19",
-       "Understory_NPP_All_Year_season_20241014.csv")
+       "knb-lter-sbc.58.20",
+       "Understory_NPP_All_Year_season_20241115.csv")
 ) %>%
   clean_names() %>%
   # replace NA sp_code with Nandersoniana

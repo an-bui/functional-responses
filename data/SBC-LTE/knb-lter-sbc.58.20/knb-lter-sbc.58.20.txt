@@ -1,0 +1,1081 @@
+
+   
+      
+         uid=SBC,o=EDI,dc=ecoinformatics,dc=org
+         all
+      
+      
+         uid=lkui,o=EDI,dc=ecoinformatics,dc=org
+         all
+      
+      
+         public
+         read
+      
+   
+   
+      doi:10.6073/pasta/44927da8a34073ad5ed1b0a8255a722fLTE KR - Net primary production of macroalgae
+      SBC LTER: Reef: Long-term experiment: Taxon-specific seasonal net primary production (NPP) for macroalgae
+      
+         Daniel C Reed
+         			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+         805-893-8363
+         danreed@ucsb.edu
+         https://orcid.org/0000-0003-3015-8717
+      
+      
+         Robert J Miller
+         			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+         805-893-6174
+         rjmiller@ucsb.edu
+         https://orcid.org/0000-0002-8350-3759
+      
+      
+         Santa Barbara Coastal LTER
+         			Marine Science Institute University of California
+			Santa Barbara, CA 93106  USA
+         sbclter@msi.ucsb.edu
+         publisher, curator
+      
+      2024-11-22
+      English
+      
+         
+            
+      This dataset provides estimates of seasonal net primary production
+      (NPP) for all taxa of macroalgae sampled in fixed plots of the SBC
+      LTER's long-term kelp removal experiment sites. The experiment was
+      initiated in 2008 at 4 sites; a fifth site as added in 2011. Data
+      collection is ongoing. NPP of understory taxa was calculated using
+      field measurements of irradiance and biomass (derived from
+      abundance) and laboratory estimates of taxon-specific
+      photosynthetic parameters. NPP for the giant kelp,
+      Macrocystis pyrifera, was calculated using
+      linear relationships between frond density in a given season and
+      average NPP for that season.
+    
+         
+      
+      
+         disturbance
+         primary production
+         LTER Core Research Areas
+      
+      
+         algae
+         long term ecological research
+         LTER
+         macroalgae
+         marine
+         net primary production
+         productivity
+         Santa Barbara Coastal
+         species
+         transects
+         LTER Controlled Vocabulary v1
+      
+      
+         Ecosystem Processes
+         Kelp Forest
+         Reef
+         SBC-LTER Controlled Vocabulary
+      
+      
+         Arroyo Quemado Reef
+         Carpinteria Reef
+         Mohawk Reef
+         Naples Reef
+         Santa Barbara Coastal LTER Places
+      
+      
+         algae
+         Global Change Master Directory (GCMD) v6.0.0.0.0
+      
+      
+         Ecological abundance
+         Irradiation
+         Reefs
+         Species
+         NBII Biocomplexity
+      
+      
+         net primary production
+         Ecological Archives
+      
+      
+         Bossiella orbigniana
+         Callophyllis flabellulata
+         Chondracanthus corymbifera
+         Corallina chilensis
+         Cryptopleura ruprechtiana
+         Cystoseira osmundacea
+         Desmarestia ligulata
+         Dictyota
+         Ectocarpaceae
+         Gracilaria
+         Halymenia
+         Laminaria farlowii
+         Laurencia spectabalis
+         LTER
+         macroalgae
+         Macrocystis pyrifera
+         marine plants
+         net primary production
+         Polyneura latissima
+         Polysiphonia
+         Pseudolithophyllum
+         Pterosiphonia dendroidea
+         Pterygophora californica
+         Rhodymenia californica
+         none
+      
+      
+         
+    This data package is released under the Creative Commons License
+    Attribution 4.0 International (CC BY 4.0, see
+    https://creativecommons.org/licenses/by/4.0/). This license states
+    that consumers ("Data Users" herein) may distribute,
+    adapt, reuse, remix, and build upon this work, as long as they give
+    appropriate credit, provide a link to the license, and indicate if
+    changes were made. If redistributed, a Data User may not apply
+    additional restrictions or technological measures that prevent
+    access.
+  
+         
+    The Data User has an ethical obligation to cite the data source
+    appropriately in any publication or product that results from its
+    use, and notify the data contact or creator. Communication,
+    collaboration, or co-authorship (as appropriate) with the creators
+    of this data package is encouraged to prevent duplicate research or
+    publication. The Data User is urged to contact the authors of these
+    data if any questions about methodology or results occur. The Data
+    User should realize that these data may be actively used by others
+    for ongoing research and that coordination may be necessary to
+    prevent duplication or inappropriate use. The Data User should
+    realize that misinterpretation may occur if data are used outside of
+    the context of the original study. The Data User should be aware
+    that data are updated periodically and it is the responsibility of
+    the Data User to check for new versions of the data.
+  
+         
+    While substantial efforts are made to ensure the accuracy of data
+    and associated documentation, complete accuracy of data sets cannot
+    be guaranteed. This data package (with its components) is made
+    available “as is” and with no warranty of accuracy or fitness for
+    use. The creators of this data package and the repository where
+    these data were obtained shall not be liable for any damages
+    resulting from misinterpretation, use or misuse of the data package
+    or its components.
+  
+      
+      
+         
+            https://sbclter.msi.ucsb.edu/
+         
+      
+      https://doi.org/10.6073/pasta/44927da8a34073ad5ed1b0a8255a722f
+         
+            AQUE: Arroyo Quemado Reef: Arroyo Quemado Reef depth range from 5.4 m to 10.7 m. Reference on Land is close to US101/Arroyo Quemada Ln.
+            
+               -120.11905
+               -120.11905
+               34.46774988
+               34.46774988
+            
+         
+         
+            CARP: Carpinteria Reef is located on the Santa Barbara Channel offshore of the Carpinteria Salt Marsh. Depth range is from -2.2 to -8.8 meters
+            
+               -119.5416933
+               -119.5416933
+               34.3916319
+               34.3916319
+            
+         
+         
+            MOHK: Mohawk Reef: Mohawk Reef depth ranges from 4.5m to 6.0 m. Reference on land is Mohawk Rd / Edgewater Way.
+            
+               -119.72957
+               -119.72957
+               34.3940708
+               34.3940708
+            
+         
+         
+            NAPL: Naples Reef is located on the Santa Barbara Channel near the community of Naples and Dos Pueblos Canyon, Santa Barbara County, CA. Depth ranges from -5.9 to -13.4 meters.
+            
+               -119.95154
+               -119.95154
+               34.4221216
+               34.4221216
+            
+         
+         
+            IVEE: Isla Vista (IV) Reef is located on the Santa Barbara Channel near the University of California Santa Barbara, CA. Depth range is from -8.2 to -8.8 meters.
+            
+               -119.85755
+               -119.85755
+               34.402783
+               34.402783
+            
+         
+         
+            
+               
+                  2008-01-10
+               
+               
+                  2023-05-23
+               
+            
+         
+      
+      
+         http://purl.obolibrary.org/obo/IAO_000136
+         http://purl.obolibrary.org/obo/ENVO_00000447
+      
+      
+         http://purl.obolibrary.org/obo/IAO_000136
+         http://purl.obolibrary.org/obo/ENVO_01000058
+      
+      
+         http://purl.obolibrary.org/obo/IAO_000136
+         http://purl.obolibrary.org/obo/ENVO_01001189
+      
+      
+         Santa Barbara Coastal LTER
+         			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+         sbclter@msi.ucsb.edu
+         https://sbclter.msi.ucsb.edu/
+         https://ror.org/05hnkta08
+      
+      
+         Environmental Data Initiative
+         info@edirepository.org
+         https://edirepository.org
+         0330j0z60
+      
+      Environmental Data Initiative
+      
+         
+            
+               
+                  
+      See protocol for the method of calculating seasonal net primary
+      production (NPP) for all taxa of macroalgae in fixed plots at SBC
+      LTER's long-term kelp removal experiment sites. See provenances
+      for data package used in the calculation.
+    
+               
+            
+            
+               SBC LTER Long Term Experiment Protocol - Net Primary Production of Macroalgae
+               
+                   Reed
+               
+               
+                  
+                     https://sbclter.msi.ucsb.edu/external/Reef/Protocols/Long_Term_Kelp_Removal/Long_Term_Experiment_Protocol_Net_Primary_Production_of_macroalgae.pdf
+                  
+               
+            
+         
+         
+            This method step describes provenance-based metadata as specified in the LTER EML Best Practices. This provenance metadata does not contain entity specific information.
+            
+               SBC LTER: Reef: Long-term experiment: Kelp removal: Abundance and size of Giant Kelp
+               
+                  Daniel C Reed
+                  			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+                  805-893-8363
+                  danreed@ucsb.edu
+                  https://orcid.org/0000-0003-3015-8717
+               
+               
+                  Robert J Miller
+                  			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+                  805-893-6174
+                  rjmiller@ucsb.edu
+                  https://orcid.org/0000-0002-8350-3759
+               
+               
+                  
+                     This online link references an EML document that describes data used in the creation of this derivative data package.
+                     https://pasta.lternet.edu/package/metadata/eml/knb-lter-sbc/29/24
+                  
+               
+               
+                  Santa Barbara Coastal LTER
+                  			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+                  sbclter@msi.ucsb.edu
+                  https://sbclter.msi.ucsb.edu/
+                  https://ror.org/05hnkta08
+               
+            
+            
+               SBC LTER: Reef: Long-term experiment: biomass of kelp forest species, ongoing since 2008
+               
+                  Daniel C Reed
+                  			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+                  805-893-8363
+                  danreed@ucsb.edu
+                  https://orcid.org/0000-0003-3015-8717
+               
+               
+                  Robert J Miller
+                  			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+                  805-893-6174
+                  rjmiller@ucsb.edu
+                  https://orcid.org/0000-0002-8350-3759
+               
+               
+                  
+                     This online link references an EML document that describes data used in the creation of this derivative data package.
+                     https://pasta.lternet.edu/package/metadata/eml/knb-lter-sbc/119/13
+                  
+               
+               
+                  Santa Barbara Coastal LTER
+                  			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+                  sbclter@msi.ucsb.edu
+                  https://sbclter.msi.ucsb.edu/
+                  https://ror.org/05hnkta08
+               
+            
+            
+               SBC LTER: Reef: Long-term experiment: Kelp removal: Invertebrate and algal density
+               
+                  Daniel C Reed
+                  			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+                  805-893-8363
+                  danreed@ucsb.edu
+                  https://orcid.org/0000-0003-3015-8717
+               
+               
+                  Robert J Miller
+                  			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+                  805-893-6174
+                  rjmiller@ucsb.edu
+                  https://orcid.org/0000-0002-8350-3759
+               
+               
+                  
+                     This online link references an EML document that describes data used in the creation of this derivative data package.
+                     https://pasta.lternet.edu/package/metadata/eml/knb-lter-sbc/34/22
+                  
+               
+               
+                  Santa Barbara Coastal LTER
+                  			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+                  sbclter@msi.ucsb.edu
+                  https://sbclter.msi.ucsb.edu/
+                  https://ror.org/05hnkta08
+               
+            
+            
+               SBC LTER: Reef: Macroalgal photosynthetic parameters
+               
+                  Santa Barbara Coastal LTER
+                  			Marine Science Institute University of California
+			Santa Barbara, CA 93106  USA
+                  sbclter@msi.ucsb.edu
+               
+               
+                  Shannon Harrer
+                  			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+                  805-893-7295
+                  harrer@msi.ucsb.edu
+               
+               
+                  Daniel C Reed
+                  			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+                  805-893-8363
+                  dan.reed@lifesci.ucsb.edu
+                  https://orcid.org/0000-0003-3015-8717
+               
+               
+                  Robert J Miller
+                  			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+                  805-893-6174
+                  rjmiller@ucsb.edu
+                  https://orcid.org/0000-0002-8350-3759
+               
+               
+                  
+                     This online link references an EML document that describes data used in the creation of this derivative data package.
+                     https://pasta.lternet.edu/package/metadata/eml/knb-lter-sbc/57/9
+                  
+               
+               
+                  Information Manager, Santa Barbara Coastal LTER
+                  			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+                  805 893 2071
+                  sbclter@msi.ucsb.edu
+                  http://sbc.lternet.edu
+               
+            
+            
+               SBC LTER: Hourly photon irradiance at the surface and seafloor, ongoing since 2008
+               
+                  Daniel C Reed
+                  			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+                  805-893-8363
+                  danreed@ucsb.edu
+                  https://orcid.org/0000-0003-3015-8717
+               
+               
+                  Robert J Miller
+                  			Marine Science Institute University of California
+			Santa Barbara, CA 93106-6150  US
+                  805-893-6174
+                  rjmiller@ucsb.edu
+                  https://orcid.org/0000-0002-8350-3759
+               
+               
+                  
+                     This online link references an EML document that describes data used in the creation of this derivative data package.
+                     https://pasta.lternet.edu/package/metadata/eml/knb-lter-sbc/36/25
+                  
+               
+               
+                  Santa Barbara Coastal LTER
+                  			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+                  sbclter@msi.ucsb.edu
+                  https://sbclter.msi.ucsb.edu/
+                  https://ror.org/05hnkta08
+               
+            
+         
+      
+      
+         Santa Barbara Coastal Long Term Ecological Research Project
+         
+            Dr. Robert Miller
+            			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+            miller@msi.ucsb.edu
+            Principal Investigator
+         
+         
+            Dr. Dan Reed
+            			Marine Science Institute
+			University of California
+			Santa Barbara, California 93106-6150  United States
+            dan.reed@lifesci.ucsb.edu
+            Co-principal Investigator
+         
+         
+            Dr. Adrian Stier
+            			Department of Ecology, Evolution and Marine Biology
+			University of California
+			Santa Barbara, California 93106-9260  United States
+            adrian.stier@lifesci.ucsb.edu
+            Co-principal Investigator
+         
+         
+            Dr. Gretchen Hoffman
+            			Department of Ecology, Evolution and Marine Biology
+			University of California
+			Santa Barbara, California 93106-9620  United States
+            hofmann@lifesci.ucsb.edu
+            Co-principal Investigator
+         
+         
+            Dr. David Siegel
+            			Institute for Computational Earth System Science
+			University of California
+			Santa Barbara, California 93106-3060  United States
+            davey@icess.ucsb.edu
+            Co-principal Investigator
+         
+         
+            
+               The Santa Barbara Coastal LTER (SBC LTER) is an interdisciplinary research and education program
+established in April 2000 with the goal of developing a predictive understanding of how environmental
+drivers interact with terrestrial and oceanic processes to alter material flows and influence the ecology of
+coastal ecosystems. SBC LTER's principal study domain is the semi-arid coast and nearshore waters of
+the Santa Barbara Channel in southern California, and its diverse and productive marine forests of giant
+kelp (Macrocystis pyrifera) serve as the focal study ecosystem. Analyses of our long-term data have
+identified many of the environmental drivers and ecological processes underlying the production and
+community dynamics of kelp forests. The research proposed to address this question is integrated in a conceptual framework
+that focuses on the causes and ecological consequences of the dynamics of a relatively short-lived
+foundation species in a setting of long-term climate change and human use.
+            
+         
+         
+            SBC LTER is supported by the National Science Foundation.
+         
+         
+            National Science Foundation
+            https://dx.doi.org/10.13039/100000001
+            1831937
+            LTER: Environmental drivers and ecological consequences of kelp forest dynamics (SBV IV)
+            https://www.nsf.gov/awardsearch/showAward?AWD_ID=1831937
+         
+         
+            National Science Foundation
+            https://dx.doi.org/10.13039/100000001
+            1232779
+            LTER: Land/Ocean Interactions and the Dynamics of Kelp Forest Ecosystems (SBC III)
+            https://www.nsf.gov/awardsearch/showAward?AWD_ID=1232779
+         
+         
+            National Science Foundation
+            https://dx.doi.org/10.13039/100000001
+            0620276
+            LTER: Land/Ocean Interactions and the Dynamics of Kelp Forest Communities
+            https://www.nsf.gov/awardsearch/showAward?AWD_ID=0620276
+         
+         
+            National Science Foundation
+            https://dx.doi.org/10.13039/100000001
+            9982105
+            LTER: Land/Ocean Interactions and the Dynamics of Kelp Forest Ecosystems
+            https://www.nsf.gov/awardsearch/showAward?AWD_ID=9982105
+         
+      
+      
+         LTE seasonal algal NPP, all years
+         seasonal net primary production (NPP) for all macroalgae sampled at SBC long term kelp removal experiment transects.
+         
+            Understory_NPP_All_Year_season_20241115.csv
+            35235418
+            b9c39a733811dc8df71a4eded14a77aa
+            
+               
+                  1
+                  \r\n
+                  column
+                  
+                     ,
+                     no
+                     "
+                  
+               
+            
+            
+               
+                  https://pasta.lternet.edu/package/data/eml/knb-lter-sbc/58/20/b737695757cb5f7a63d33611c2e3cc52
+               
+            
+         
+         
+            
+               YEAR
+               Year
+               Calendar year
+               integer
+               
+                  
+                     YYYY
+                     1
+                     
+                  
+               
+            
+            
+               SEASON
+               Season
+               Season as defined by solstices and equinoxes.
+               string
+               
+                  
+                     
+                        
+                           
+                              Autumn
+                              Autumn = DOY 355 - DOY 78
+                           
+                           
+                              Spring
+                              Spring = DOY 79 - DOY 171
+                           
+                           
+                              Summer
+                              Summer = DOY 172 - DOY 264
+                           
+                           
+                              Winter
+                              Winter = DOY 265 - DOY 354
+                           
+                        
+                     
+                  
+               
+            
+            
+               SITE
+               Site code
+               Code for reef site. See list of codes for meaning
+               string
+               
+                  
+                     
+                        
+                           
+                              AQUE
+                              Arroyo Quemado Reef
+                           
+                           
+                              CARP
+                              Carpenteria Reef
+                           
+                           
+                              IVEE
+                              Isla Vista
+                           
+                           
+                              MOHK
+                              Mohawk Reef
+                           
+                           
+                              NAPL
+                              Naples Reef
+                           
+                        
+                     
+                  
+               
+            
+            
+               TRANSECT
+               Transect name
+               40m transects sampling area within each kelp removal treatment in which data are collected
+               string
+               
+                  
+                     
+                        
+                           any text
+                        
+                     
+                  
+               
+            
+            
+               TREATMENT
+               Treatment
+               The treatment of kelp removal: control, annual removal, continous removal, post annual removel, and post continuous removal
+               string
+               
+                  
+                     
+                        
+                           any text
+                        
+                     
+                  
+               
+            
+            
+               QUAD
+               Quad
+               A 20 X 1 m section within a survey transect
+               string
+               
+                  
+                     
+                        
+                           any text
+                        
+                     
+                  
+               
+            
+            
+               SIDE
+               Side
+               Inshore or offshore side of the transect
+               string
+               
+                  
+                     
+                        
+                           any text
+                        
+                     
+                  
+               
+            
+            
+               SP_CODE
+               Species code
+               Two to six letter species code assigned to a species, species subset (e.g., a size, age group, or structural feature like holdfast) or a taxonomic group (e.g., compound tunicates)
+               string
+               
+                  
+                     
+                        
+                           any text
+                        
+                     
+                  
+               
+            
+            
+               NPP_season_gC_m2_day
+               NPP_gC_m2_day
+               Mean daily net primary production (g C m-2 d-1) averaged over all days in a season. See Methods.
+               float
+               
+                  
+                     
+                        gramPerMeterSquaredPerDay
+                     
+                     1e-12
+                     
+                        real
+                     
+                  
+               
+               
+                  -99999
+                  value not recorded or not available
+               
+               
+                  http://qudt.org/schema/qudt/hasUnit
+                  http://qudt.org/vocab/unit/GM-PER-M2-DAY
+               
+               
+                  http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType
+                  http://purl.dataone.org/odo/ECSO_00000021
+               
+            
+            
+               SCIENTIFIC_NAME
+               SCIENTIFIC_NAME
+               Species scientific name of taxon in Linnean taxanomic systems.
+               string
+               
+                  
+                     
+                        
+                           any text
+                        
+                     
+                  
+               
+            
+            
+               COMMON_NAME
+               Common Name
+               Common name of taxon
+               string
+               
+                  
+                     
+                        
+                           any text
+                        
+                     
+                  
+               
+               
+                  -99999
+                  value not recorded or not available
+               
+            
+            
+               TAXON_KINGDOM
+               Kingdom
+               Phylogenetic Kingdom of the observed species
+               string
+               
+                  
+                     
+                        
+                           any text
+                        
+                     
+                  
+               
+               
+                  -99999
+                  value not recorded or not available
+               
+            
+            
+               TAXON_PHYLUM
+               Phylum
+               Phylogenetic Phylum of the observed species
+               string
+               
+                  
+                     
+                        
+                           any text
+                        
+                     
+                  
+               
+               
+                  -99999
+                  value not recorded or not available
+               
+            
+            
+               TAXON_CLASS
+               Class
+               Phylogenetic Class of the observed species
+               string
+               
+                  
+                     
+                        
+                           any text
+                        
+                     
+                  
+               
+               
+                  -99999
+                  value not recorded or not available
+               
+            
+            
+               TAXON_ORDER
+               Order
+               Phylogenetic Order of the observed species
+               string
+               
+                  
+                     
+                        
+                           any text
+                        
+                     
+                  
+               
+               
+                  -99999
+                  value not recorded or not available
+               
+            
+            
+               TAXON_FAMILY
+               Family
+               Phylogenetic Family of the observed species
+               string
+               
+                  
+                     
+                        
+                           any text
+                        
+                     
+                  
+               
+               
+                  -99999
+                  value not recorded or not available
+               
+            
+         
+         218144
+      
+      
+         LTE seasonal algal summer biomass relationship
+         macroalgae summer biomass NPP relationship
+         
+            Understory_Summer_Bmass_Annual_NPP_Relationships_20241115.csv
+            2910
+            325bd2afc854cef911e7a6caa80bef75
+            
+               
+                  1
+                  \r\n
+                  column
+                  
+                     ,
+                     no
+                     "
+                  
+               
+            
+            
+               
+                  https://pasta.lternet.edu/package/data/eml/knb-lter-sbc/58/20/e05eab92d41fa77fe1facf88c8e4df70
+               
+            
+         
+         
+            
+               scientific_name
+               SCIENTIFIC_NAME
+               Species scientific name of taxon in Linnean taxanomic systems
+               string
+               
+                  
+                     
+                        
+                           any text
+                        
+                     
+                  
+               
+            
+            
+               intercept
+               Intercept
+               Intercept of a linear regression
+               float
+               
+                  
+                     
+                        number
+                     
+                     1e-05
+                     
+                        real
+                     
+                  
+               
+               
+                  http://qudt.org/schema/qudt/hasUnit
+                  http://qudt.org/vocab/unit/NUM
+               
+            
+            
+               slope
+               Slope
+               Slope of a linear regression
+               float
+               
+                  
+                     
+                        number
+                     
+                     1e-05
+                     
+                        real
+                     
+                  
+               
+               
+                  http://qudt.org/schema/qudt/hasUnit
+                  http://qudt.org/vocab/unit/NUM
+               
+            
+            
+               SE_slope
+               SE_Slope
+               Standard error of the slope of a linear regression
+               float
+               
+                  
+                     
+                        number
+                     
+                     1e-05
+                     
+                        real
+                     
+                  
+               
+               
+                  http://qudt.org/schema/qudt/hasUnit
+                  http://qudt.org/vocab/unit/NUM
+               
+            
+            
+               rsquare
+               rsquare
+               Coefficient of determination of a linear regression
+               float
+               
+                  
+                     
+                        number
+                     
+                     0.01
+                     
+                        real
+                     
+                  
+               
+               
+                  http://qudt.org/schema/qudt/hasUnit
+                  http://qudt.org/vocab/unit/NUM
+               
+            
+            
+               pvalue
+               pvalue
+               P value of a linear regression, any p value <0.0001 was rounded to 0.0001
+               float
+               
+                  
+                     
+                        number
+                     
+                     1e-04
+                     
+                        real
+                     
+                  
+               
+               
+                  http://qudt.org/schema/qudt/hasUnit
+                  http://qudt.org/vocab/unit/NUM
+               
+            
+            
+               samplesize
+               Sample size
+               sample size for the linear regression
+               float
+               
+                  
+                     
+                        number
+                     
+                     1
+                     
+                        integer
+                     
+                  
+               
+               
+                  http://qudt.org/schema/qudt/hasUnit
+                  http://qudt.org/vocab/unit/NUM
+               
+            
+         
+         43
+      
+   
+   
+      
+         
+            
+            
+               a number
+            
+         
+      
+   

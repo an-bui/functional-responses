@@ -97,6 +97,11 @@ benthics_div <- vegan::diversity(x = benthics_comm_df_wide,
   enframe() %>% 
   rename(simpson = value)
 
+benthics_shan <- vegan::diversity(x = benthics_comm_df_wide,
+                                 index = "shannon") %>% 
+  enframe() %>% 
+  rename(shannon = value)
+
 
 # ⟞ b. wrangling ----------------------------------------------------------
 
@@ -114,6 +119,7 @@ benthics_fd_metrics <- benthics_fd$nbsp %>%
   rename(feve = value) %>% 
   left_join(., benthics_div, by = c("sample_ID" = "name")) %>% 
   mutate(redund = simpson - raoq) %>% 
+  left_join(., benthics_shan, by = c("sample_ID" = "name")) %>% 
   left_join(., benthics_comm_meta, by = "sample_ID") %>% 
   left_join(., benthics_biomass, by = "sample_ID") %>% 
   # rough estimate of NPP from Shannon's paper
@@ -147,6 +153,7 @@ ggplot(data = benthics_fd_metrics,
            y = spp_rich)) +
   geom_point()
 
+
 ggplot(data = benthics_fd_metrics,
        aes(x = mean_hard_pc,
            y = npp_estimate)) +
@@ -166,6 +173,13 @@ ggplot(data = benthics_fd_metrics,
 
 ggplot(data = benthics_fd_metrics,
        aes(x = spp_rich,
+           y = npp_estimate, 
+           size = total_kelp_biomass,
+           color = total_kelp_biomass)) +
+  geom_point()
+
+ggplot(data = benthics_fd_metrics,
+       aes(x = shannon,
            y = npp_estimate, 
            size = total_kelp_biomass,
            color = total_kelp_biomass)) +
@@ -220,6 +234,12 @@ ggplot(data = benthics_fd_metrics,
        aes(x = spp_rich)) +
   geom_density(fill = "cornflowerblue",
                  color = "black") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
+
+ggplot(data = benthics_fd_metrics,
+       aes(x = shannon)) +
+  geom_density(fill = "cornflowerblue",
+               color = "black") +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
 
 ggplot(data = benthics_fd_metrics,
@@ -429,6 +449,7 @@ ggpredict(fric_kelp_spp_rich_model,
 
 library(piecewiseSEM)
 library(lmerTest)
+library(semEff)
 
 algae_psem <- psem(
   
@@ -479,6 +500,12 @@ algae_psem_gaussian <- psem(
 
 summary(algae_psem, conserve = TRUE)
 summary(algae_psem_gaussian, conserve = TRUE)
+boot <- bootEff(algae_psem_gaussian, R = 100, seed = 666, parallel = "no", ran.eff = "site")
+effs <- semEff(boot)
+effs$Summary$npp.estimate$Effect
+effs$Summary$npp.estimate %>% 
+  select(c(1, 2, 4, 10, 11))
+summary(effs, response = "npp.estimate")
 gaussian_sem_plot <- plot(algae_psem_gaussian)
 gaussian_sem_plot
 performance::check_singularity(algae_psem_gaussian)
