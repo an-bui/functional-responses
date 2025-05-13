@@ -2438,7 +2438,7 @@ spp_timeseries <- comm_df %>%
     data,
     ~ group_by(.data = ., 
                scientific_name, exp_dates, treatment, time_since_zero) %>% 
-      summarize(mean_dry = mean(dry_gm2))
+      summarize(mean_dry = mean(dry_gm2, na.rm = TRUE))
   )) %>% 
   mutate(timeseries_plot = pmap(
     list(x = data, y = mean_data, z = scientific_name),
@@ -2458,7 +2458,9 @@ spp_timeseries <- comm_df %>%
       facet_wrap(~exp_dates) +
       labs(title = z,
            x = "Time since zero",
-           y = "Biomass (dry g/m\U00B2)")
+           y = "Biomass (dry g/m\U00B2)") +
+      theme(legend.position = "inside",
+            legend.position.inside = c(0.2, 0.6))
   ))
 
 sci_name_files <- spp_timeseries %>% 
@@ -2467,6 +2469,58 @@ sci_name_files <- spp_timeseries %>%
   mutate(filename = paste(word(.$scientific_name, 1), word(.$scientific_name, 2), sep = "-")) %>% 
   pull(filename) %>% 
   as.list()
+
+spp_for_app <- c(
+  "Bossiella orbigniana", # 4
+  "Chondracanthus corymbiferus; Chondracanthus exasperatus", # 11
+  "Corallina officinalis", # 3
+  "Dictyota binghamiae; Dictyota flabellata; Dictyota coriacea", # 8
+  "Gracilaria spp.", # 5
+  "Gymnogongrus spp.", # 6
+  "Hildenbrandia spp.", # 9 
+  "Laminaria farlowii", # 10
+  "Rhodymenia californica", # 7
+  "Pterygophora californica", # 1
+  "Stephanocystis osmundacea" # 2
+)
+
+plot <- spp_timeseries |> 
+  filter(scientific_name %in% spp_for_app) |> 
+  mutate(timeseries_plot_no_legend = map(
+    timeseries_plot,
+    ~ .x +
+      theme(legend.position = "none")
+  ))
+
+# design <- "
+#  ABC
+#  DEF
+#  GHI
+#  JK#
+# "
+# 
+# pluck(plot, 4, 10) + pluck(plot, 4, 4) + pluck(plot, 4, 3)
+#   pluck(plot, 4, 1) + pluck(plot, 4, 7) + pluck(plot, 4, 8)
+#   pluck(plot, 4, 11) + pluck(plot, 4, 5) + pluck(plot, 4, 6)
+#   pluck(plot, 4, 9) + pluck(plot, 4, 2) + patchwork::plot_layout(design = design)
+
+timeseries_together <- (pluck(plot, 4, 10) | pluck(plot, 5, 4) | pluck(plot, 5, 3)) /
+  (pluck(plot, 5,1) | pluck(plot, 5,7) | pluck(plot, 5,8)) /
+  (pluck(plot, 5,11) | pluck(plot, 5,5) | pluck(plot, 5,6)) /
+  (pluck(plot, 5,9) | pluck(plot, 5,2) | patchwork::plot_spacer())
+
+ggsave(here("figures", 
+            "LTE-species-timeseries", 
+            paste0("LTE-species-timeseries_multipanel_", today(), ".jpg")),
+       width = 40,
+       height = 30,
+       dpi = 300,
+       units = "cm")
+
+(pluck(plot, 4, 10) | pluck(plot, 4, 4) | pluck(plot, 4, 3)) /
+  (pluck(plot, 4, 1) | pluck(plot, 4, 7) | pluck(plot, 4, 8)) /
+  (pluck(plot, 4, 11) | pluck(plot, 4, 5) | pluck(plot, 4, 6)) /
+  (pluck(plot, 4, 9) | pluck(plot, 4, 2) | patchwork::plot_spacer())
 
 # saving species timeseries
 # for(i in 1:length(sci_name_files)) {
