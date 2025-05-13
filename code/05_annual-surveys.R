@@ -13,7 +13,7 @@ source(here::here("code", "02_data-cleaning.R"))
 # trait matrix for annual survey
 # Anisocladella never actually shows up in the annual surveys, surprisingly
 trait_matrix_benthics <- trait_matrix_reduced |> 
-  filter(rownames(.) != "Anisocladella pacifica")
+  filter(row.names(trait_matrix_benthics) != "Anisocladella pacifica")
 
 # benthics is created in the source script
 benthics_comm_df <- benthics |>
@@ -272,7 +272,7 @@ ggplot(data = benthics_fd_metrics,
 # ⟞ ⟞ species richness ----------------------------------------------------
 
 spp_rich_model <- glmmTMB(
-  total_biomass ~ spp_rich + (1|site/transect) + (1|year),
+  scale(total_biomass, center = FALSE) ~ scale(spp_rich, center = FALSE) + (1|site/transect) + (1|year),
   family = Gamma(link = "log"),
   data = benthics_fd_metrics
 )
