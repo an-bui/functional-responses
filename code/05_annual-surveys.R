@@ -264,6 +264,11 @@ ggplot(data = benthics_fd_metrics,
   stat_qq()
 
 ggplot(data = benthics_fd_metrics,
+       aes(sample = total_biomass)) +
+  stat_qq_line() +
+  stat_qq()
+
+ggplot(data = benthics_fd_metrics,
        aes(x = spp_rich)) +
   geom_histogram(fill = "cornflowerblue",
                  color = "black",
@@ -781,7 +786,10 @@ inverse_psem_gaussian <- psem(
 
 summary(inverse_psem_gaussian)
 
-coefs(inverse_psem)
+coefs(inverse_psem_gaussian)
+
+plot(inverse_psem_gaussian,
+     digits = 2)
 
 # ⟞ d. summaries and coefficients -----------------------------------------
 
