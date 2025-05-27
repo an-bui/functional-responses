@@ -20,6 +20,7 @@ library(repmis)
 # tables
 library(flextable)
 library(gtsummary)
+library(officer)
 
 # analysis
 library(vegan)

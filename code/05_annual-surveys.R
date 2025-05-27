@@ -143,7 +143,7 @@ benthics_fd_metrics <- benthics_fd$nbsp |>
          spp_rich_stand = standardize(spp_rich),
          kelp_stand = standardize(total_kelp_biomass),
          macroalgae_stand = standardize(total_biomass)) |> 
-  mutate(total_biomass_round = round(total_biomass, digits = 0))
+  mutate(total_biomass_log = log(total_biomass))
   
 
 # ⟞ c. exploratory visualization ------------------------------------------
@@ -329,580 +329,317 @@ ggplot(data = benthics_fd_metrics,
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# ------------------------------ 4. modeling ------------------------------
+# -------------------------- 4. individual models -------------------------
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# ⟞ a. NPP ~ diversity ----------------------------------------------------
+# ⟞ a. complementarity ----------------------------------------------------
 
+# These models represent paths from kelp --> diversity (functional and species)
+# --> understory biomass. The individual models that will go into the SEM are:
+# 1. functional richness as a function of giant kelp biomass and species richness
+# 2. species richness as a function of giant kelp biomass
+# 3. understory biomass (natural log transformed) as a function of functional 
+#    richness, species richness, and giant kelp biomass
+# We added the pathway between giant kelp biomass and understory biomass because
+# the missing pathway was identified in the SEM as being significant.
 
-# ⟞ ⟞ species richness ----------------------------------------------------
+# ⟞ ⟞ model 1. functional richness ----------------------------------------
 
-spp_rich_model <- glmmTMB(
-  total_biomass ~ spp_rich + (1|site/transect) + (1|year),
-  family = lognormal(link = "log"),
+# model
+comp_fric_model <- lmer(
+  fric ~ total_kelp_biomass + spp_rich + (1|site/transect) + (1|year),
   data = benthics_fd_metrics
 )
 
-# spp_rich_model <- lmer(
-#   macroalgae_stand ~ spp_rich_stand + (1|site/transect) + (1|year),
-#   # family = Gamma(link = "log"),
-#   data = benthics_fd_metrics
-# )
+# DHARMa residuals
+plot(simulateResiduals(comp_fric_model))
 
-plot(simulateResiduals(spp_rich_model))
-performance::check_model(spp_rich_model)
+# model summary
+# no effect of giant kelp biomass, positive effect of species richness
+summary(comp_fric_model)
 
-summary(spp_rich_model)
-
-predict_response(spp_rich_model,
-          terms = "spp_rich") |> 
+# model predictions given giant kelp biomass
+predict_response(comp_fric_model,
+                 terms = c("total_kelp_biomass")) |> 
   plot(show_data = TRUE) +
-  labs(x = "Species richness",
-       y = "Understory biomass",
-       title = "Species richness predicts understory biomass") +
+  labs(x = "Giant kelp biomass",
+       y = "Understory functional richness") +
   theme(panel.grid = element_blank())
 
-
-# ⟞ ⟞ functional richness -------------------------------------------------
-
-fric_model <- glmmTMB(
-  total_biomass ~ fric + (1|site/transect) + (1|year),
-  family = lognormal(link = "log"),
-  data = benthics_fd_metrics
-)
-
-# fric_model <- lmer(
-#   macroalgae_stand ~ fric_stand + (1|site/transect) + (1|year),
-#   data = benthics_fd_metrics
-# )
-
-# fric_model <- lmer(
-#   total_biomass ~ fric + (1|site/transect) + (1|year),
-#   # family = Gamma(link = "log"),
-#   data = benthics_fd_metrics
-# )
-
-plot(simulateResiduals(fric_model))
-performance::check_model(fric_model)
-
-summary(fric_model)
-
-predict_response(fric_model,
-          terms = c("fric")) |> 
+# model predictions given species richness
+predict_response(comp_fric_model,
+                 terms = c("spp_rich")) |> 
   plot(show_data = TRUE) +
-  labs(x = "Functional richness",
-       y = "Understory biomass",
-       title = "Functional richness predicts understory biomass") +
+  labs(x = "Understory species richness",
+       y = "Understory functional richness") +
   theme(panel.grid = element_blank())
 
-
-# ⟞ ⟞ kelp biomass --------------------------------------------------------
-
-kelp_model <- glmmTMB(
-  total_biomass ~ total_kelp_biomass + (1|site/transect) + (1|year),
-  family = lognormal(link = "log"),
-  data = benthics_fd_metrics
-)
-
-# kelp_model <- lmer(
-#   macroalgae_stand ~ kelp_stand + (1|site/transect) + (1|year),
-#   data = benthics_fd_metrics
-# )
-
-plot(simulateResiduals(kelp_model))
-performance::check_model(kelp_model)
-
-summary(kelp_model)
-
-
-# ⟞ ⟞ all predictors ------------------------------------------------------
-
-spp_rich_and_fric <- glmmTMB(
-  total_biomass ~ total_kelp_biomass + spp_rich + fric + #site +  
-    (1|site/transect) + (1|year),
-  family = Gamma(link = "log"),
-  data = benthics_fd_metrics
-)
-
-spp_rich_and_fric <- glmmTMB(
-  log(total_biomass) ~ total_kelp_biomass + spp_rich + fric +
-    (1|site/transect) + (1|year),
-  # family = nbinom2(link = "log"),
-  data = benthics_fd_metrics
-)
-
-# spp_rich_and_fric <- lmer(
-#   macroalgae_stand ~ spp_rich_stand + fric_stand + kelp_stand +
-#     (1|site/transect) + (1|year),
-#   data = benthics_fd_metrics
-# )
-
-diagnose(spp_rich_and_fric)
-
-plot(simulateResiduals(spp_rich_and_fric))
-performance::check_model(spp_rich_and_fric)
-
-summary(spp_rich_and_fric)
-# find effect sizes
-effectsize(spp_rich_and_fric)
-
-ggpredict(spp_rich_and_fric,
-          terms = c("spp_rich")) |> 
-  plot(show_data = TRUE)
-
-ggpredict(spp_rich_and_fric,
-          terms = c("fric")) |> 
-  plot(show_data = TRUE)
-
-ggpredict(spp_rich_and_fric,
-          terms = c("total_kelp_biomass")) |> 
-  plot(show_data = TRUE)
-
-# ⟞ ⟞ model selection -----------------------------------------------------
-
-AICc(spp_rich_model, 
-     fric_model, 
-     spp_rich_and_fric, 
-     kelp_model) |> 
-  arrange(AICc)
-
-# ⟞ b. diversity ~ kelp ---------------------------------------------------
-
-# ggplot(data = benthics_fd_metrics,
-#        aes(x = total_kelp,
-#            y = spp_rich)) +
-#   geom_point() +
-#   labs(x = "Total kelp biomass",
-#        y = "Species richness")
-
-# asy_model <- nls(spp_rich ~ SSasymp(total_kelp, Asym, R0, lrc),
-#                  data = benthics_fd_metrics)
-# summary(asy_model)
-# ggpredict(asy_model,
-#           terms = c("total_kelp[0:10000, by = 100]")) |> 
-#   plot(show_data = TRUE)
-#   
-
-# ⟞ ⟞ species richness ----------------------------------------------------
+# ⟞ ⟞ model 2. species richness -------------------------------------------
 
 # no convergence problems with poisson
-spp_rich_kelp_model <- glmmTMB(
+# poisson better than regular gaussian
+comp_spp_rich_model <- glmmTMB(
   spp_rich ~ total_kelp_biomass + (1|site/transect) + (1|year),
-  # family = poisson(link = "log"),
-  # family = nbinom2(link = "log"),
-  data = benthics_fd_metrics)
-
-# spp_rich_kelp_model <- lmer(
-#   spp_rich_stand ~ kelp_stand + (1|site/transect) + (1|year),
-#   # family = poisson(link = "log"),
-#   # family = nbinom2(link = "log"),
-#   data = benthics_fd_metrics)
-
-effectsize(spp_rich_kelp_model)
-
-plot(simulateResiduals(spp_rich_kelp_model))
-performance::check_model(spp_rich_kelp_model)
-
-summary(spp_rich_kelp_model)
-
-ggpredict(spp_rich_kelp_model,
-          terms = "total_kelp_biomass[0:3000, by = 100]") |> 
-  plot(show_data = TRUE)
-
-
-# ⟞ ⟞ functional richness -------------------------------------------------
-
-fric_kelp_model <- glmmTMB(
-  fric ~ total_kelp_biomass + (1|site/transect) + (1|year),
-  # family = beta_family(link = "logit"),
-  data = benthics_fd_metrics
-  )
-
-# fric_kelp_model <- lmer(
-#   fric_stand ~ kelp_stand + (1|site/transect) + (1|year),
-#   # family = beta_family(link = "logit"),
-#   data = benthics_fd_metrics
-# )
-
-# lmerTest::lmer(fric ~ total_kelp_biomass + spp_rich +
-#                  (1|site/transect) + (1|year),
-#                # family = beta_family(link = "logit"),
-#                data = benthics_fd_metrics) |> summary()
-
-plot(simulateResiduals(fric_kelp_model))
-
-effectsize(fric_kelp_model)
-
-summary(fric_kelp_model)
-
-ggpredict(fric_kelp_model,
-          terms = "total_kelp_biomass[0:3000, by = 100]") |> 
-  plot(show_data = TRUE)
-
-fric_spp_rich_model <- glmmTMB(
-  fric ~ spp_rich + (1|site/transect) + (1|year),
-  # family = beta_family(link = "logit"),
-  data = benthics_fd_metrics
-  )
-
-fric_spp_rich_model <- lmer(
-  fric_stand ~ spp_rich_stand + (1|site/transect) + (1|year),
-  # family = beta_family(link = "logit"),
-  data = benthics_fd_metrics
-)
-
-plot(simulateResiduals(fric_spp_rich_model))
-
-summary(fric_spp_rich_model)
-
-ggpredict(fric_spp_rich_model,
-          terms = "spp_rich") |> 
-  plot(show_data = TRUE)
-
-fric_kelp_spp_rich_model <- glmmTMB(
-  fric ~ total_kelp_biomass + spp_rich + (1|site/transect) + (1|year),
-  # family = tweedie(link = "log"),
-  # family = beta_family(link = "logit"),
-  data = benthics_fd_metrics
-)
-
-fric_kelp_spp_rich_model <- lmer(
-  fric_stand ~ kelp_stand + spp_rich_stand + (1|site/transect) + (1|year),
-  data = benthics_fd_metrics
-)
-
-plot(simulateResiduals(fric_kelp_spp_rich_model))
-
-summary(fric_kelp_spp_rich_model)
-
-ggpredict(fric_kelp_spp_rich_model,
-          terms = "total_kelp_biomass") |> 
-  plot(show_data = TRUE)
-
-ggpredict(fric_kelp_spp_rich_model,
-          terms = "spp_rich") |> 
-  plot(show_data = TRUE)
-
-# asy_model <- nls(fric ~ SSasymp(total_kelp, Asym, R0, lrc),
-#                  data = benthics_fd_metrics)
-# hist(resid(asy_model))
-# summary(asy_model)
-# ggpredict(asy_model,
-#           terms = c("total_kelp[0:10000, by = 100]")) |> 
-#   plot(show_data = TRUE) +
-#   labs(x = "Total kelp biomass",
-#        y = "Functional richness",
-#        title = "Total kelp biomass has an asymptotic relationship with functional richness") +
-#   theme(panel.grid = element_blank())
-
-
-
-
-# benthics_fd_metrics$kelp_01 <- ifelse(
-#   benthics_fd_metrics$total_kelp > 0, "present", "absent"
-# )
-# 
-# benthics_fd_metrics$total_kelp_corrected <- ifelse(
-#   benthics_fd_metrics$total_kelp == 0, NA, benthics_fd_metrics$total_kelp
-# )
-# 
-# 
-# fric_kelp_model <- glmmTMB(log(fric) ~ log(total_kelp_corrected),
-#                            # family = gaussian(link = "log"),
-#                            # family = beta_family(link = "logit"),
-#                            # ziformula = ~1,
-#                            na.action = na.exclude,
-#                            data = benthics_fd_metrics)
-# hist(resid(fric_kelp_model))
-# 
-# plot(simulateResiduals(fric_kelp_model))
-# 
-# summary(fric_kelp_model)
-# 
-# ggplot(data = benthics_fd_metrics,
-#        aes(x = log(total_kelp_corrected),
-#            y = log(fric))) +
-#   geom_point()
-# 
-# ggpredict(fric_kelp_model,
-#           terms = "total_kelp_corrected") |> 
-#   plot(show_data = TRUE)
-# 
-# AICc(asy_model, fric_kelp_model)
-
-
-# ⟞ c. diversity ~ biomass ------------------------------------------------
-
-# ⟞ ⟞ species richness ----------------------------------------------------
-
-spp_rich_biomass <- glmmTMB(
-  spp_rich ~ total_biomass + total_kelp_biomass + (1|site/transect) + (1|year),
   family = poisson(link = "log"),
   data = benthics_fd_metrics
-  )
+)
 
-plot(simulateResiduals(spp_rich_biomass))
+# DHARMa residuals
+plot(simulateResiduals(comp_spp_rich_model))
 
-summary(spp_rich_biomass)
+# model summary
+# negative effect of giant kelp biomass
+summary(comp_spp_rich_model)
 
-effectsize(spp_rich_biomass)
+# model predictions given giant kelp biomass
+ggpredict(comp_spp_rich_model,
+          terms = "total_kelp_biomass[0:3000, by = 100]") |> 
+  plot(show_data = TRUE) +
+  labs(x = "Giant kelp biomass",
+       y = "Understory species richness")
 
-ggpredict(spp_rich_biomass,
-          terms = "total_biomass") |> 
-  plot(show_data = TRUE)
+# ⟞ ⟞ model 3. understory biomass -----------------------------------------
 
-ggpredict(spp_rich_biomass,
-          terms = "total_kelp_biomass") |> 
-  plot(show_data = TRUE)
-
-# ⟞ ⟞ functional richness -------------------------------------------------
-
-fric_understory_biomass <- glmmTMB(
-  fric ~ total_biomass + total_kelp_biomass + (1|site/transect) + (1|year),
-  family = beta_family(link = "logit"),
+# model
+comp_understory_biomass_model <- lmer(
+  log(total_biomass) ~ total_kelp_biomass + spp_rich + fric +
+    (1|site/transect) + (1|year),
   data = benthics_fd_metrics
 )
 
-fric_understory_biomass <- lmer(
-  fric_stand ~ macroalgae_stand + kelp_stand + (1|site/transect) + (1|year),
-  # family = beta_family(link = "logit"),
+# DHARMa residuals
+plot(simulateResiduals(comp_understory_biomass_model))
+
+# model summary
+# negative effect of giant kelp biomass (barely)
+# positive effect of species richness
+# positive effect of functional richness
+summary(comp_understory_biomass_model)
+
+# model predictions given species richness
+ggpredict(comp_understory_biomass_model,
+          terms = c("spp_rich")) |> 
+  plot(show_data = TRUE) +
+  labs(x = "Understory species richness",
+       y = "Understory biomass")
+
+# model predictions given functional richness
+ggpredict(comp_understory_biomass_model,
+          terms = c("fric")) |> 
+  plot(show_data = TRUE) +
+  labs(x = "Understory functional richness",
+       y = "Understory biomass")
+
+# model predictions given giant kelp biomass
+ggpredict(comp_understory_biomass_model,
+          terms = c("total_kelp_biomass")) |> 
+  plot(show_data = TRUE) +
+  labs(x = "Giant kelp biomass",
+       y = "Understory biomass")
+
+# ⟞ b. selection effect ---------------------------------------------------
+
+# These models represent paths from kelp --> diversity (functional and species)
+# and understory biomass. There are direct pathways between understory biomass
+# and diversity whereby understory biomass influences species and functional
+# diversity, which is the opposite of the models in section 4a. The individual
+# models that will go into the SEM are:
+# 1. functional richness as a function of giant kelp biomass, understory 
+#    biomass (log transformed), and species richness
+# 2. species richness as a function of giant kelp biomass and understory biomass
+#    (log transformed)
+# 3. understory biomass (log transformed) as a function of giant kelp biomass
+# For any models using understory biomass as predictors, I used the 
+# pre-transformed variable instead of transforming within the model call. In 
+# the SEM, I transformed within the model.
+
+# ⟞ ⟞ model 1. functional richness ----------------------------------------
+
+# better with gaussian than beta family
+sele_fric_model <- lmer(
+  fric ~ total_kelp_biomass + total_biomass_log + spp_rich +
+    (1|site/transect) + (1|year),
   data = benthics_fd_metrics
 )
 
-effectsize::effectsize(fric_understory_biomass)
+# DHARMa residuals
+plot(simulateResiduals(sele_fric_model))
 
-plot(simulateResiduals(fric_understory_biomass))
+# model summary
+# no effect of giant kelp biomass
+# positive effects of understory biomass (natural log transformed) and species richness
+summary(sele_fric_model)
 
-summary(fric_understory_biomass)
-
-ggpredict(fric_understory_biomass,
-          terms = "total_biomass") |> 
-  plot(show_data = TRUE)
-
-ggpredict(fric_understory_biomass,
+# model predictions given giant kelp biomass
+ggpredict(sele_fric_model,
           terms = "total_kelp_biomass") |> 
-  plot(show_data = TRUE)
+  plot(show_data = TRUE) +
+  labs(x = "Giant kelp biomass",
+       y = "Understory functional richness",
+       title = "No effect of giant kelp biomass on \n understory functional richness")
+
+# model predictions given log transformed understory biomass
+ggpredict(sele_fric_model,
+          terms = "total_biomass_log") |> 
+  plot(show_data = TRUE) +
+  labs(x = "Understory biomass (natural log transformed)",
+       y = "Understory functional richness")
+
+# model predictions given species richness
+ggpredict(sele_fric_model,
+          terms = "spp_rich") |> 
+  plot(show_data = TRUE) +
+  labs(x = "Understory species richness",
+       y = "Understory functional richness")
+
+
+# ⟞ ⟞ model 2. species richness -------------------------------------------
+
+# model
+sele_spp_rich_model <- glmmTMB(
+  spp_rich ~ total_kelp_biomass + total_biomass_log +
+    (1|site/transect) + (1|year),
+  family = poisson(link = "log"),
+  data = benthics_fd_metrics
+)
+
+# DHARMa residuals
+plot(simulateResiduals(sele_spp_rich_model))
+
+# model summary
+# no effect of giant kelp biomass
+# positive effect of log understory biomass
+summary(sele_spp_rich_model)
+
+# model predictions given giant kelp biomass
+ggpredict(sele_spp_rich_model,
+          terms = "total_kelp_biomass") |> 
+  plot(show_data = TRUE) +
+  labs(x = "Giant kelp biomass",
+       y = "Understory species richness",
+       title = "No effect of giant kelp biomass on \n 
+       understory species richness")
+
+# model predictions given understory biomass
+ggpredict(sele_spp_rich_model,
+          terms = "total_biomass_log") |> 
+  plot(show_data = TRUE) +
+  labs(x = "Understory biomass (natural log transformed)",
+       y = "Understory species richness")
+
+# ⟞ ⟞ model 3. understory biomass -----------------------------------------
+
+# model
+sele_understory_biomass_model <- lmer(
+  log(total_biomass) ~ total_kelp_biomass +
+    (1|site/transect) + (1|year),
+  data = benthics_fd_metrics
+)
+
+# DHARMa residuals
+plot(simulateResiduals(sele_understory_biomass_model))
+
+# model summary
+# negative effect of giant kelp biomass
+summary(sele_understory_biomass_model)
+
+# model predictions given giant kelp biomass
+ggpredict(sele_understory_biomass_model,
+          terms = "total_kelp_biomass") |> 
+  plot(show_data = TRUE) +
+  labs(x = "Giant kelp biomass",
+       y = "Understory biomass") 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ---------------------------- 5. piecewise SEM ---------------------------
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# ⟞ a. model 1: non-Gaussian ----------------------------------------------
+# ⟞ a. complementarity ----------------------------------------------------
 
-algae_psem <- psem(
+comp_model <- psem(
   
-  # species richness as function of kelp
- lmer(
-    spp_rich ~ total_kelp_biomass + (1|site/transect) + (1|year),
-    # family = poisson(link = "log"),
-    # family = nbinom2(link = "log"),
-    data = benthics_fd_metrics),
-  
-  # functional richness as function of kelp and species richness
+  # 1. functional richness as a function of giant kelp biomass and species richness
   lmer(
     fric ~ total_kelp_biomass + spp_rich + (1|site/transect) + (1|year),
-    # family = beta_family(link = "logit"),
-    na.action = na.omit,
     data = benthics_fd_metrics
   ),
-
-  # NPP as function of functional richness and species richness and hard substrate
-  lmer(log(total_biomass) ~ spp_rich + fric + # total_kelp_biomass +
-              (1|site/transect) + (1|year),
-          #family = gaussian(link = "log"),
-            # family = Gamma(link = "log"),
-            data = benthics_fd_metrics),
- # glmmTMB(total_biomass ~ spp_rich + fric + total_kelp_biomass +
- #           (1|site/transect) + (1|year),
- #         family = gaussian(link = "log"),
- #         # family = lognormal(link = "log"),
- #         data = benthics_fd_metrics),
-  # glmer.nb(total_biomass_round ~ spp_rich + fric + total_kelp_biomass +
-  #            (1|site/transect) + (1|year),
-  #          data = benthics_fd_metrics),
   
-  data = benthics_fd_metrics
-  
-)
-
-plot(simulateResiduals( lmer(
-  spp_rich ~ total_kelp_biomass + (1|site/transect) + (1|year),
-  # family = poisson(link = "log"),
-  # family = nbinom2(link = "log"),
-  data = benthics_fd_metrics)))
-
-coefs(algae_psem)
-summary(algae_psem)
-
-mod1 <-   glmer.nb(total_biomass_round ~ spp_rich + fric + total_kelp_biomass +
-                     (1|site/transect) + (1|year),
-                   data = benthics_fd_metrics)
-
-mod2 <- glmmTMB(total_biomass_round ~ spp_rich + fric + total_kelp_biomass +
-                  (1|site/transect) + (1|year),
-                family = nbinom1(link = "log"),
-                data = benthics_fd_metrics)
-
-plot(simulateResiduals(mod2))
-
-# ⟞ b. model 2: Gaussian --------------------------------------------------
-
-# ⟞ ⟞ back end standardized -----------------------------------------------
-
-algae_psem_gaussian <- psem(
-  
-  # species richness as function of kelp
-  lmer(spp_rich ~ total_kelp_biomass + 
-         (1|site/transect) + (1|year),
-          na.action = na.omit,
-          data = benthics_fd_metrics),
-  
-  # functional richness as function of kelp and species richness
-  lmer(fric ~ total_kelp_biomass + spp_rich + 
-         (1|site/transect) + (1|year),
-          na.action = na.omit,
-          data = benthics_fd_metrics),
-  
-  # NPP as function of functional richness and species richness
-  lmer(total_biomass ~ spp_rich + fric + total_kelp_biomass +
-         (1|site/transect) + (1|year),
-          na.action = na.omit,
-          data = benthics_fd_metrics)
-  
-)
-
-# ⟞ ⟞ standardized in data ------------------------------------------------
-
-algae_psem_stand <- psem(
-  
-  # species richness as function of kelp
-  lmer(spp_rich_stand ~ kelp_stand + 
-         (1|site/transect) + (1|year),
-       na.action = na.omit,
-       data = benthics_fd_metrics),
-  
-  # functional richness as function of kelp and species richness
-  lmer(fric_stand ~ kelp_stand + spp_rich_stand + 
-         (1|site/transect) + (1|year),
-       na.action = na.omit,
-       data = benthics_fd_metrics),
-  
-  # NPP as function of functional richness and species richness
-  lmer(macroalgae_stand ~ spp_rich_stand + fric_stand + kelp_stand +
-         (1|site/transect) + (1|year),
-       na.action = na.omit,
-       data = benthics_fd_metrics)
-  
-)
-
-
-# ⟞ c. model 3: inverse model ---------------------------------------------
-
-inverse_psem <- psem(
-  
-  # functional richness as function of kelp and understory
+  # 2. species richness as a function of giant kelp biomass
   glmmTMB(
-    fric ~ total_biomass + total_kelp_biomass + (1|site/transect) + (1|year),
-    family = beta_family(link = "logit"),
-    data = benthics_fd_metrics
-  ), 
-  # species richness as function of kelp and understory
-  glmmTMB(
-    spp_rich ~ total_biomass + total_kelp_biomass + fric + (1|site/transect) + (1|year),
+    spp_rich ~ total_kelp_biomass + (1|site/transect) + (1|year),
     family = poisson(link = "log"),
     data = benthics_fd_metrics
   ),
-  # understory biomass as function of kelp biomass
-  glmmTMB(
-    total_biomass ~ total_kelp_biomass + (1|site/transect) + (1|year),
-    family = lognormal(link = "log"),
+  
+  # 3. understory biomass (natural log transformed) as a function of functional 
+  #    richness, species richness, and giant kelp biomass
+  lmer(
+    log(total_biomass) ~ total_kelp_biomass + spp_rich + fric +
+      (1|site/transect) + (1|year),
     data = benthics_fd_metrics
   )
 )
 
-inverse_psem_gaussian <- psem(
-  
-  # functional richness as function of kelp and understory
+summary(comp_model)
+
+coefs(comp_model)
+
+plot(sele_model)
+
+# ⟞ b. selection effect ---------------------------------------------------
+
+sele_model <- psem(
+  # 1. functional richness as a function of giant kelp biomass, understory 
+  #    biomass (log transformed), and species richness
   lmer(
-    fric ~ total_biomass + total_kelp_biomass + (1|site/transect) + (1|year),
-    data = benthics_fd_metrics
-  ), 
-  # species richness as function of kelp and understory
-  lmer(
-    spp_rich ~ total_biomass + total_kelp_biomass + fric + (1|site/transect) + (1|year),
+    fric ~ total_kelp_biomass + log(total_biomass) + spp_rich +
+      (1|site/transect) + (1|year),
     data = benthics_fd_metrics
   ),
-  # understory biomass as function of kelp biomass
+  
+  # 2. species richness as a function of giant kelp biomass and understory biomass
+  #    (log transformed)
+  glmmTMB(
+    spp_rich ~ total_kelp_biomass + log(total_biomass) +
+      (1|site/transect) + (1|year),
+    family = poisson(link = "log"),
+    data = benthics_fd_metrics
+  ),
+  
+  # 3. understory biomass (log transformed) as a function of giant kelp biomass
   lmer(
-    total_biomass ~ total_kelp_biomass + (1|site/transect) + (1|year),
+    log(total_biomass) ~ total_kelp_biomass +
+      (1|site/transect) + (1|year),
     data = benthics_fd_metrics
   )
 )
 
-summary(inverse_psem_gaussian)
+summary(sele_model)
 
-coefs(inverse_psem_gaussian)
+coefs(sele_model)
 
-plot(inverse_psem_gaussian,
-     digits = 2)
+plot(sele_model)
 
-# ⟞ d. summaries and coefficients -----------------------------------------
+# ⟞ c. saving coefficients ------------------------------------------------
 
-summary(algae_psem, conserve = TRUE)
-coefs(algae_psem)
-summary(algae_psem_gaussian, conserve = TRUE)
-coefs(algae_psem_gaussian, standardize.type = "latent.linear")
+coefs_all <- bind_rows(
+  coefs(comp_model) |> clean_names() |> mutate(model = "complementarity"),
+  coefs(sele_model) |> clean_names() |> mutate(model = "selection effect")
+) |> 
+  rename("sig_stars" = "x") |> 
+  relocate(model, .before = response) |> 
+ # mutate(across(where(is.numeric),~round(., digits = 2))) |> 
+  as_flextable() |> 
+  merge_v(j = ~ model) |> 
+  colformat_num(j = 4:9, 
+                digits = 3) |> 
+  autofit() |> 
+  fit_to_width(10)
+coefs_all
 
-summary(algae_psem_stand, conserve = TRUE)
-plot(algae_psem_stand)
-
-gaussian_sem_plot <- plot(algae_psem_gaussian,
-                          ns_dashed = TRUE)
-gaussian_sem_plot
-performance::check_singularity(algae_psem_gaussian)
-
-boot <- bootEff(algae_psem, R = 100, seed = 666, parallel = "no", ran.eff = "site")
-effs <- semEff(boot)
-# effs$Summary$npp.estimate$Effect
-# effs$Summary$npp.estimate |> 
-#   select(c(1, 2, 4, 10, 11))
-summary(effs, response = "fric")
-
-library(lavaan)
-library(piecewiseSEM)
-
-set.seed(6)
-
-data <- data.frame(y = runif(100), x = runif(100))
-
-xy_model <- lm(y ~ x, data = data)
-
-spp_rich_kelp_model <- glmmTMB(
-  spp_rich ~ total_kelp_biomass + (1|site/transect) + (1|year),
-  family = poisson(link = "log"),
-  # family = nbinom2(link = "log"),
-  data = benthics_fd_metrics)
-
-# perform manual standardization
-beta <- summary(spp_rich_kelp_model)$coefficients$cond[2, 1]
-(beta_std <- beta * (sd(benthics_fd_metrics$total_kelp_biomass)/sd(benthics_fd_metrics$spp_rich)))
-
-
-
-# model <- lmer(scale(fric) ~ scale(total_kelp) + scale(spp_rich) +
-#                 (1|site) + (1|year),
-#               # family = Gamma(link = "log"),
-#               na.action = na.omit,
-#               data = benthics_fd_metrics)
-# 
-# summary(model)
-# 
-# model <- glmmTMB(fric ~ total_kelp + spp_rich +
-#                      (1|site) + (1|year),
-#                    family = beta_family(link = "logit"),
-#                    na.action = na.omit,
-#                    data = benthics_fd_metrics)
-# 
-# plot(simulateResiduals(model))
-# 
-# summary(model)
+save_as_docx(coefs_all,
+             path = here("tables", "SEM", paste0("SEM-coefs_", today(), ".docx")),
+             pr_section = prop_section(
+               page_size = page_size(
+                 orient = "landscape"
+             )))
