@@ -24,22 +24,22 @@ source(here::here("code", "02_data-cleaning.R"))
 # Double checked that calculations of biomass in excluded and included groups
 # made sense; they did.
 
-excluded_biomass <- comm_df %>% 
-  filter(new_group == "algae") %>% 
+excluded_biomass <- comm_df |> 
+  filter(new_group == "algae") |> 
   mutate(included = case_when(
     sp_code %in% pull(excluded_spp, sp_code) ~ "no",
     TRUE ~ "yes"
-  )) %>% 
-  select(sample_ID, sp_code, dry_gm2, included) %>% 
-  group_by(sample_ID, included) %>% 
-  summarize(biomass = sum(dry_gm2, na.rm = TRUE)) %>% 
-  ungroup() %>% 
-  group_by(sample_ID) %>% 
+  )) |> 
+  select(sample_ID, sp_code, dry_gm2, included) |> 
+  group_by(sample_ID, included) |> 
+  summarize(biomass = sum(dry_gm2, na.rm = TRUE)) |> 
+  ungroup() |> 
+  group_by(sample_ID) |> 
   mutate(total_biomass = sum(biomass),
          prop = biomass/total_biomass)
 
 # histogram of excluded biomass proportion
-ggplot(data = excluded_biomass %>% filter(included == "no"),
+ggplot(data = excluded_biomass |> filter(included == "no"),
        aes(x = prop)) +
   geom_histogram(bins = 14,
                  fill = "cornflowerblue",
@@ -51,7 +51,7 @@ ggplot(data = excluded_biomass %>% filter(included == "no"),
        25% of total survey biomass")
 
 # histogram of included biomass proportion (mirror image of previous histogram)
-ggplot(data = excluded_biomass %>% filter(included == "yes"),
+ggplot(data = excluded_biomass |> filter(included == "yes"),
        aes(x = prop)) +
   geom_histogram(bins = 14,
                  fill = "darkgreen",
@@ -65,15 +65,15 @@ ggplot(data = excluded_biomass %>% filter(included == "yes"),
 # what is the proportion of surveys where > 25% of species are excluded?
 # (and thus, traits do not capture the majority of community biomass that
 # is performing some ecosystem function)
-excluded_count <- excluded_biomass %>% 
-  filter(included == "no") %>% 
+excluded_count <- excluded_biomass |> 
+  filter(included == "no") |> 
   mutate(more_than_25 = case_when(
     prop > 0.25 ~ "more",
     TRUE ~ "less"
   )) 
 
-excluded_count %>% 
-  group_by(more_than_25) %>% 
+excluded_count |> 
+  group_by(more_than_25) |> 
   count()
 # for 104 out of 412 surveys, more than 25% of species are excluded. This is 
 # ~ 25% of surveys.
@@ -81,16 +81,16 @@ excluded_count %>%
 # what is the distribution of sites where more than 25% of species are excluded?
 # what sites does this occur at? during what period of the experimental removal?
 
-more_than_25_sites <- excluded_count %>% 
+more_than_25_sites <- excluded_count |> 
   # filter only for sites where > 25% of species are excluded
-  filter(more_than_25 == "more") %>% 
-  select(sample_ID) %>% 
-  left_join(., comm_meta, by = "sample_ID") %>% 
-  group_by(site_full, exp_dates, treatment) %>% 
-  count() %>% 
-  ungroup() %>% 
+  filter(more_than_25 == "more") |> 
+  select(sample_ID) |> 
+  left_join(., comm_meta, by = "sample_ID") |> 
+  group_by(site_full, exp_dates, treatment) |> 
+  count() |> 
+  ungroup() |> 
   complete(site_full, exp_dates, treatment,
-           fill = list(n = 0)) %>% 
+           fill = list(n = 0)) |> 
   mutate(exp_dates = case_match(
     exp_dates,
     "during" ~ "During removal",
@@ -100,18 +100,18 @@ more_than_25_sites <- excluded_count %>%
     treatment,
     "continual" ~ "Removal",
     "control" ~ "Reference"
-  )) %>% 
-  flextable() %>% 
-  merge_v(j = c("site_full", "exp_dates")) %>% 
+  )) |> 
+  flextable() |> 
+  merge_v(j = c("site_full", "exp_dates")) |> 
   valign(j = c("site_full", "exp_dates"),
          part = "body",
-         valign = "top") %>% 
+         valign = "top") |> 
   set_header_labels(values = c(
     site_full = "Site",
     exp_dates = "Removal",
     treatment = "Plot",
     n = "Count"
-  )) %>% 
+  )) |> 
   autofit()
 
 more_than_25_sites
@@ -120,25 +120,25 @@ more_than_25_sites
 
 # What is the distribution of species number across surveys?
 
-survey_spp_count <- comm_df %>% 
+survey_spp_count <- comm_df |> 
   # algae only
-  filter(new_group == "algae" & sp_code != "MAPY") %>% 
-  # filter(exp_dates == "during") %>% 
-  select(sample_ID, scientific_name, dry_gm2) %>% 
+  filter(new_group == "algae" & sp_code != "MAPY") |> 
+  # filter(exp_dates == "during") |> 
+  select(sample_ID, scientific_name, dry_gm2) |> 
   # exclude "excluded species"
-  filter(!(scientific_name %in% pull(excluded_spp, scientific_name))) %>% 
+  filter(!(scientific_name %in% pull(excluded_spp, scientific_name))) |> 
   # get into wide format for community analysis
-  pivot_wider(names_from = scientific_name, values_from = dry_gm2) %>% 
+  pivot_wider(names_from = scientific_name, values_from = dry_gm2) |> 
   # replace NAs with 0
-  replace(is.na(.), 0) %>% 
+  replace(is.na(.), 0) |> 
   # changing to occurrences
-  mutate_if(is.numeric, ~1 * (. > 0)) %>% 
+  mutate_if(is.numeric, ~1 * (. > 0)) |> 
   mutate(spp_sum = rowSums(across(where(is.numeric)))) 
 
-survey_count <- survey_spp_count %>% 
-  group_by(spp_sum) %>% 
-  count() %>% 
-  ungroup() %>% 
+survey_count <- survey_spp_count |> 
+  group_by(spp_sum) |> 
+  count() |> 
+  ungroup() |> 
   mutate(total_surveys = sum(n),
          prop_surveys = n/total_surveys)
 
@@ -154,9 +154,9 @@ ggplot(data = survey_count,
        title = "Most surveys have between 8-9 species",
        subtitle = "~11% of surveys have 0-1 species")
 
-few_spp_surveys <- survey_spp_count %>% 
-  filter(spp_sum < 3) %>% 
-  select(sample_ID, spp_sum) %>% 
+few_spp_surveys <- survey_spp_count |> 
+  filter(spp_sum < 3) |> 
+  select(sample_ID, spp_sum) |> 
   left_join(., comm_meta, by = "sample_ID")
 # 47 surveys with 0-1 species
 # 28 surveys with 2 species
@@ -167,25 +167,25 @@ few_spp_surveys <- survey_spp_count %>%
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # community matrix transformed to occurrences (1 = species is present)
-comm_mat_bin <- comm_mat_algae %>% 
-  as.data.frame() %>% 
-  mutate_if(is.numeric, ~1 * (. > 0)) %>% 
+comm_mat_bin <- comm_mat_algae |> 
+  as.data.frame() |> 
+  mutate_if(is.numeric, ~1 * (. > 0)) |> 
   as.matrix()
 
 # reduced surveys
-comm_mat_algae_reduced <- comm_mat_algae %>% 
-  as.data.frame() %>% 
-  rownames_to_column("sample_ID") %>% 
-  filter(!(sample_ID %in% pull(few_spp_surveys, sample_ID))) %>% 
-  column_to_rownames("sample_ID") %>% 
+comm_mat_algae_reduced <- comm_mat_algae |> 
+  as.data.frame() |> 
+  rownames_to_column("sample_ID") |> 
+  filter(!(sample_ID %in% pull(few_spp_surveys, sample_ID))) |> 
+  column_to_rownames("sample_ID") |> 
   as.matrix()
 
-comm_mat_algae_reduced_bin <- comm_mat_algae %>% 
-  as.data.frame() %>% 
-  mutate_if(is.numeric, ~1 * (. > 0)) %>% 
-  rownames_to_column("sample_ID") %>% 
-  filter(!(sample_ID %in% pull(few_spp_surveys, sample_ID))) %>% 
-  column_to_rownames("sample_ID") %>% 
+comm_mat_algae_reduced_bin <- comm_mat_algae |> 
+  as.data.frame() |> 
+  mutate_if(is.numeric, ~1 * (. > 0)) |> 
+  rownames_to_column("sample_ID") |> 
+  filter(!(sample_ID %in% pull(few_spp_surveys, sample_ID))) |> 
+  column_to_rownames("sample_ID") |> 
   as.matrix()
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -207,8 +207,8 @@ trait_gower <- gowdis(trait_matrix_reduced)
 trait_pcoa <- ape::pcoa(D = trait_gower)
 
 # extracting proportion of inertia explained by each axis
-proportion_inertia <- trait_pcoa$values %>% 
-  rownames_to_column("axis") %>% 
+proportion_inertia <- trait_pcoa$values |> 
+  rownames_to_column("axis") |> 
   mutate(axis = as_factor(axis))
 
 # plotting for visualization
@@ -219,10 +219,10 @@ prop_inertia_plot <- ggplot(data = proportion_inertia,
 # prop_inertia_plot
 
 # extracting scores
-spp_pcoa_scores <- trait_pcoa$vectors %>% 
-  as_tibble(rownames = NA) %>% 
-  rownames_to_column("scientific_name") %>% 
-  left_join(., algae_taxa, by = "scientific_name") %>% 
+spp_pcoa_scores <- trait_pcoa$vectors |> 
+  as_tibble(rownames = NA) |> 
+  rownames_to_column("scientific_name") |> 
+  left_join(., algae_taxa, by = "scientific_name") |> 
   left_join(., traits_clean, by = "scientific_name")
 
 axes_12_attachment <- ggplot(data = spp_pcoa_scores,
@@ -317,75 +317,75 @@ algae_fd_reduced <- dbFD(x = trait_matrix_reduced,
 # FDiv: Could not be calculated for communities with <3 functionally singular species. 
 
 algae_div <- vegan::diversity(x = comm_mat_algae,
-                              index = "simpson") %>% 
-  enframe() %>% 
+                              index = "simpson") |> 
+  enframe() |> 
   rename(simpson = value)
 
 algae_shannon <- vegan::diversity(x = comm_mat_algae,
-                                  index = "shannon") %>% 
-  enframe() %>% 
+                                  index = "shannon") |> 
+  enframe() |> 
   rename(shannon = value)
 
 
-ll_group_biomass <- biomass %>% 
-  filter(new_group == "algae") %>% 
-  filter(!(sp_code %in% pull(excluded_spp, sp_code))) %>%
-  left_join(., coarse_traits, by = "scientific_name") %>% 
-  group_by(year, season, site, treatment, ll_func_form) %>% 
-  summarize(group_bio = sum(dry_gm2, na.rm = TRUE)) %>% 
-  ungroup() %>% 
-  unite("season_ID", year, season, site, treatment, sep = "_") %>% 
+ll_group_biomass <- biomass |> 
+  filter(new_group == "algae") |> 
+  filter(!(sp_code %in% pull(excluded_spp, sp_code))) |>
+  left_join(., coarse_traits, by = "scientific_name") |> 
+  group_by(year, season, site, treatment, ll_func_form) |> 
+  summarize(group_bio = sum(dry_gm2, na.rm = TRUE)) |> 
+  ungroup() |> 
+  unite("season_ID", year, season, site, treatment, sep = "_") |> 
   pivot_wider(names_from = ll_func_form,
               values_from = group_bio)
 
-sd_group_biomass <- biomass %>% 
-  filter(new_group == "algae") %>% 
-  filter(!(sp_code %in% pull(excluded_spp, sp_code))) %>%
-  left_join(., coarse_traits, by = "scientific_name") %>% 
-  group_by(year, season, site, treatment, sd_growth_form) %>% 
-  summarize(group_bio = sum(dry_gm2, na.rm = TRUE)) %>% 
-  ungroup() %>% 
-  unite("season_ID", year, season, site, treatment, sep = "_") %>% 
+sd_group_biomass <- biomass |> 
+  filter(new_group == "algae") |> 
+  filter(!(sp_code %in% pull(excluded_spp, sp_code))) |>
+  left_join(., coarse_traits, by = "scientific_name") |> 
+  group_by(year, season, site, treatment, sd_growth_form) |> 
+  summarize(group_bio = sum(dry_gm2, na.rm = TRUE)) |> 
+  ungroup() |> 
+  unite("season_ID", year, season, site, treatment, sep = "_") |> 
   pivot_wider(names_from = sd_growth_form,
               values_from = group_bio)
 
-# fd_metrics <- algae_fd$nbsp %>% 
-#   enframe() %>% 
+# fd_metrics <- algae_fd$nbsp |> 
+#   enframe() |> 
 #   rename(sample_ID = name,
-#          spp_rich = value) %>% 
-#   left_join(., enframe(algae_fd$FRic), by = c("sample_ID" = "name")) %>% 
-#   rename(fric = value) %>% 
-#   left_join(., enframe(algae_fd$RaoQ), by = c("sample_ID" = "name")) %>% 
-#   rename(raoq = value) %>% 
-#   left_join(., enframe(algae_fd$FDis), by = c("sample_ID" = "name")) %>% 
-#   rename(fdis = value) %>%  
-#   left_join(., enframe(algae_fd$FEve), by = c("sample_ID" = "name")) %>% 
-#   rename(feve = value) %>% 
-#   left_join(., algae_div, by = c("sample_ID" = "name")) %>% 
-#   mutate(redund = simpson - raoq) %>% 
-#   left_join(., comm_meta, by = "sample_ID") %>% 
-#   left_join(., npp, by = "season_ID") %>% 
-#   left_join(., ll_group_biomass, by = "season_ID") %>% 
+#          spp_rich = value) |> 
+#   left_join(., enframe(algae_fd$FRic), by = c("sample_ID" = "name")) |> 
+#   rename(fric = value) |> 
+#   left_join(., enframe(algae_fd$RaoQ), by = c("sample_ID" = "name")) |> 
+#   rename(raoq = value) |> 
+#   left_join(., enframe(algae_fd$FDis), by = c("sample_ID" = "name")) |> 
+#   rename(fdis = value) |>  
+#   left_join(., enframe(algae_fd$FEve), by = c("sample_ID" = "name")) |> 
+#   rename(feve = value) |> 
+#   left_join(., algae_div, by = c("sample_ID" = "name")) |> 
+#   mutate(redund = simpson - raoq) |> 
+#   left_join(., comm_meta, by = "sample_ID") |> 
+#   left_join(., npp, by = "season_ID") |> 
+#   left_join(., ll_group_biomass, by = "season_ID") |> 
 #   left_join(., sd_group_biomass, by = "season_ID")
 
-fd_metrics_reduced <- algae_fd_reduced$nbsp %>% 
-  enframe() %>% 
+fd_metrics_reduced <- algae_fd_reduced$nbsp |> 
+  enframe() |> 
   rename(sample_ID = name,
-         spp_rich = value) %>% 
-  left_join(., enframe(algae_fd_reduced$FRic), by = c("sample_ID" = "name")) %>% 
-  rename(fric = value) %>% 
-  left_join(., enframe(algae_fd_reduced$RaoQ), by = c("sample_ID" = "name")) %>% 
-  rename(raoq = value) %>% 
-  left_join(., enframe(algae_fd_reduced$FDis), by = c("sample_ID" = "name")) %>% 
-  rename(fdis = value) %>%  
-  left_join(., enframe(algae_fd_reduced$FEve), by = c("sample_ID" = "name")) %>% 
-  rename(feve = value) %>% 
-  left_join(., algae_div, by = c("sample_ID" = "name")) %>% 
-  mutate(redund = simpson - raoq) %>% 
-  left_join(., algae_shannon, by = c("sample_ID" = "name")) %>% 
-  left_join(., comm_meta, by = "sample_ID") %>% 
-  left_join(., npp, by = "season_ID") %>% 
-  left_join(., ll_group_biomass, by = "season_ID") %>% 
+         spp_rich = value) |> 
+  left_join(., enframe(algae_fd_reduced$FRic), by = c("sample_ID" = "name")) |> 
+  rename(fric = value) |> 
+  left_join(., enframe(algae_fd_reduced$RaoQ), by = c("sample_ID" = "name")) |> 
+  rename(raoq = value) |> 
+  left_join(., enframe(algae_fd_reduced$FDis), by = c("sample_ID" = "name")) |> 
+  rename(fdis = value) |>  
+  left_join(., enframe(algae_fd_reduced$FEve), by = c("sample_ID" = "name")) |> 
+  rename(feve = value) |> 
+  left_join(., algae_div, by = c("sample_ID" = "name")) |> 
+  mutate(redund = simpson - raoq) |> 
+  left_join(., algae_shannon, by = c("sample_ID" = "name")) |> 
+  left_join(., comm_meta, by = "sample_ID") |> 
+  left_join(., npp, by = "season_ID") |> 
+  left_join(., ll_group_biomass, by = "season_ID") |> 
   left_join(., sd_group_biomass, by = "season_ID") 
 
 # ⟞ ⟞ ii. models ----------------------------------------------------------
@@ -402,22 +402,37 @@ plot(simulateResiduals(spp_rich_mod))
 
 ggpredict(spp_rich_mod,
           terms = c("time_since_zero", "treatment", "exp_dates"), 
-          bias_correction = TRUE) %>% 
+          bias_correction = TRUE) |> 
   plot(show_data = TRUE)
 
-test_predictions(spp_rich_mod, c("time_since_zero", "treatment", "exp_dates")) %>% 
-  mutate(across(where(is.numeric), ~ round(., digits = 2))) %>% 
-  mutate(ci = paste0("[", conf.low, ", ", conf.high, "]")) %>% 
-  select(treatment, Contrast, ci, p.value) %>% 
-  flextable() %>% 
-  autofit() %>% 
-  fit_to_width(8) %>% 
-  set_header_labels("treatment" = "Treatment",
-                    "contrast" = "Contrast",
+test_predictions(spp_rich_mod, 
+                 c("time_since_zero"), 
+                 by = c("treatment", "exp_dates")) |>  
+  mutate(p_new = case_when(
+    p < 0.001 ~ "p < 0.001",
+    between(p, 0.001, 0.01) ~ as.character(round(p, digits = 3)),
+    between(p, 0.01, 0.05) ~ as.character(round(p, digits = 2)),
+    p > 0.05 ~ as.character(round(p, digits = 2))
+  )) |> 
+  mutate(across(where(is.numeric), ~ round(., digits = 2))) |> 
+  mutate(ci = paste0("[", CI_low, ", ", CI_high, "]")) |> 
+  select(Level1, Level2, Difference, ci, p, p_new) |> 
+  flextable(col_keys = c("Level1", 
+                         "Level2",
+                         "Difference",
+                         "ci",
+                         "p_new")) |> 
+  autofit() |> 
+  fit_to_width(8) |> 
+  set_header_labels("Level1" = "Level 1",
+                    "Level2" = "Level 2",
+                    "Difference" = "Contrast",
                     "ci" = "95% confidence interval",
-                    "p.value" = "p-value") %>% 
+                    "p_new" = "p-value") |> 
   font(part = "all",
-       fontname = "Times New Roman") %>% 
+       fontname = "Times New Roman") |> 
+  bold(i = ~p < 0.05,
+       j = ~p_new) |> 
   save_as_docx(path = here("tables", 
                            "model-summaries", 
                            paste0("spp-rich-slopes_", today(), ".docx")))
@@ -430,14 +445,14 @@ spp_rich_means <- bind_rows(
             terms = c("time_since_zero[0]", "treatment", "exp_dates")),
   ggpredict(spp_rich_mod,
             terms = c("time_since_zero[6.5]", "treatment", "exp_dates"))
-) %>% 
-  as_tibble() %>% 
+) |> 
+  as_tibble() |> 
   rename("time_since_zero" = "x",
          "treatment" = "group",
          "exp_dates" = "facet") 
 
-spp_rich_means %>% 
-  filter(time_since_zero == 6.5) %>% 
+spp_rich_means |> 
+  filter(time_since_zero == 6.5) |> 
   ggplot() +
   geom_pointrange(aes(x = treatment,
                       y = predicted,
@@ -454,7 +469,7 @@ spp_rich_preds <- ggpredict(spp_rich_mod,
                             terms = c("time_since_zero", 
                                       "treatment", 
                                       "exp_dates"), 
-                            bias_correction = TRUE) %>% 
+                            bias_correction = TRUE) |> 
   rename("time_since_zero" = "x",
          "treatment"  = "group",
          "exp_dates" = "facet")
@@ -525,7 +540,7 @@ ggplot(data = fd_metrics_reduced,
 shan_mod <- glmmTMB(
   shannon ~ time_since_zero*treatment*exp_dates + (1|site) + (1|year),
   na.action = na.omit,
-  data = fd_metrics_reduced %>% filter(shannon > 0)
+  data = fd_metrics_reduced |> filter(shannon > 0)
 )
 
 plot(simulateResiduals(shan_mod))
@@ -535,19 +550,34 @@ summary(shan_mod)
 plot(ggpredict(shan_mod, terms = c("time_since_zero", "treatment", "exp_dates")),
      show_data = TRUE)
 
-test_predictions(shan_mod, c("time_since_zero", "treatment", "exp_dates")) %>% 
-  mutate(across(where(is.numeric), ~ round(., digits = 3))) %>% 
-  mutate(ci = paste0("[", conf.low, ", ", conf.high, "]")) %>% 
-  select(treatment, Contrast, ci, p.value) %>% 
-  flextable() %>% 
-  autofit() %>% 
-  fit_to_width(8) %>% 
-  set_header_labels("treatment" = "Treatment",
-                    "contrast" = "Contrast",
+test_predictions(shan_mod, 
+                 c("time_since_zero"),
+                 by = c("treatment", "exp_dates")) |> 
+  mutate(p_new = case_when(
+    p < 0.001 ~ "p < 0.001",
+    between(p, 0.001, 0.01) ~ as.character(round(p, digits = 3)),
+    between(p, 0.01, 0.05) ~ as.character(round(p, digits = 2)),
+    p > 0.05 ~ as.character(round(p, digits = 2))
+  )) |> 
+  mutate(across(where(is.numeric), ~ round(., digits = 2))) |> 
+  mutate(ci = paste0("[", CI_low, ", ", CI_high, "]")) |> 
+  select(Level1, Level2, Difference, ci, p, p_new) |> 
+  flextable(col_keys = c("Level1", 
+                         "Level2",
+                         "Difference",
+                         "ci",
+                         "p_new")) |> 
+  autofit() |> 
+  fit_to_width(8) |> 
+  set_header_labels("Level1" = "Level 1",
+                    "Level2" = "Level 2",
+                    "Difference" = "Contrast",
                     "ci" = "95% confidence interval",
-                    "p.value" = "p-value") %>% 
+                    "p_new" = "p-value") |> 
   font(part = "all",
-       fontname = "Times New Roman") %>% 
+       fontname = "Times New Roman") |> 
+  bold(i = ~p < 0.05,
+       j = ~p_new) |> 
   save_as_docx(path = here("tables", 
                            "model-summaries", 
                            paste0("spp-div-slopes_", today(), ".docx")))
@@ -575,22 +605,37 @@ plot(simulateResiduals(fric_mod))
 # time and treatment
 
 ggpredict(fric_mod,
-          terms = c("time_since_zero", "treatment", "exp_dates")) %>% 
+          terms = c("time_since_zero", "treatment", "exp_dates")) |> 
   plot(show_data = TRUE)
 
-test_predictions(fric_mod, c("time_since_zero", "treatment", "exp_dates")) %>% 
-  mutate(across(where(is.numeric), ~ round(., digits = 2))) %>%
-  mutate(ci = paste0("[", conf.low, ", ", conf.high, "]")) %>%
-  select(treatment, Contrast, ci, p.value) %>%
-  flextable() %>% 
-  autofit() %>% 
-  fit_to_width(8) %>% 
-  set_header_labels("treatment" = "Treatment",
-                    "contrast" = "Contrast",
+test_predictions(fric_mod, 
+                 c("time_since_zero"),
+                 by = c("treatment", "exp_dates")) |> 
+  mutate(p_new = case_when(
+    p < 0.001 ~ "p < 0.001",
+    between(p, 0.001, 0.01) ~ as.character(round(p, digits = 3)),
+    between(p, 0.01, 0.05) ~ as.character(round(p, digits = 2)),
+    p > 0.05 ~ as.character(round(p, digits = 2))
+  )) |> 
+  mutate(across(where(is.numeric), ~ round(., digits = 2))) |> 
+  mutate(ci = paste0("[", CI_low, ", ", CI_high, "]")) |> 
+  select(Level1, Level2, Difference, ci, p, p_new) |> 
+  flextable(col_keys = c("Level1", 
+                         "Level2",
+                         "Difference",
+                         "ci",
+                         "p_new")) |> 
+  autofit() |> 
+  fit_to_width(8) |> 
+  set_header_labels("Level1" = "Level 1",
+                    "Level2" = "Level 2",
+                    "Difference" = "Contrast",
                     "ci" = "95% confidence interval",
-                    "p.value" = "p-value") %>% 
+                    "p_new" = "p-value") |> 
   font(part = "all",
-       fontname = "Times New Roman") %>% 
+       fontname = "Times New Roman") |> 
+  bold(i = ~p < 0.05,
+       j = ~p_new) |> 
   save_as_docx(path = here("tables", 
                            "model-summaries", 
                            paste0("fric-slopes_", today(), ".docx")))
@@ -600,14 +645,14 @@ fric_means <- bind_rows(
             terms = c("time_since_zero[0]", "treatment", "exp_dates")),
   ggpredict(fric_mod,
             terms = c("time_since_zero[6.5]", "treatment", "exp_dates"))
-) %>% 
-  as_tibble() %>% 
+) |> 
+  as_tibble() |> 
   rename("time_since_zero" = "x",
          "treatment" = "group",
          "exp_dates" = "facet") 
 
-fric_means %>% 
-  filter(time_since_zero == 6.5) %>% 
+fric_means |> 
+  filter(time_since_zero == 6.5) |> 
   ggplot() +
   geom_pointrange(aes(x = treatment,
                       y = predicted,
@@ -621,7 +666,7 @@ fric_preds <- ggpredict(fric_mod,
                             terms = c("time_since_zero", 
                                       "treatment", 
                                       "exp_dates"), 
-                            bias_correction = TRUE) %>% 
+                            bias_correction = TRUE) |> 
   rename("time_since_zero" = "x",
          "treatment"  = "group",
          "exp_dates" = "facet")
@@ -695,7 +740,7 @@ ggplot(data = fd_metrics_reduced,
 raoq_mod <- glmmTMB(
   raoq ~ time_since_zero*treatment*exp_dates + (1|site) + (1|year),
   na.action = na.omit,
-  data = fd_metrics_reduced %>% filter(raoq > 0)
+  data = fd_metrics_reduced |> filter(raoq > 0)
 )
 
 plot(simulateResiduals(raoq_mod))
@@ -705,25 +750,25 @@ summary(raoq_mod)
 plot(ggpredict(raoq_mod, terms = c("time_since_zero", "treatment", "exp_dates")),
      show_data = TRUE)
 
-test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) %>% 
-  mutate(across(where(is.numeric), ~ round(., digits = 3))) %>% 
-  mutate(ci = paste0("[", conf.low, ", ", conf.high, "]")) %>% 
-  select(treatment, Contrast, ci, p.value) %>% 
-  flextable() %>% 
-  autofit() %>% 
-  fit_to_width(8) %>% 
+test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) |> 
+  mutate(across(where(is.numeric), ~ round(., digits = 3))) |> 
+  mutate(ci = paste0("[", conf.low, ", ", conf.high, "]")) |> 
+  select(treatment, Contrast, ci, p.value) |> 
+  flextable() |> 
+  autofit() |> 
+  fit_to_width(8) |> 
   set_header_labels("treatment" = "Treatment",
                     "contrast" = "Contrast",
                     "ci" = "95% confidence interval",
-                    "p.value" = "p-value") %>% 
+                    "p.value" = "p-value") |> 
   font(part = "all",
-       fontname = "Times New Roman") %>% 
+       fontname = "Times New Roman") |> 
   save_as_docx(path = here("tables", 
                            "model-summaries", 
                            paste0("raoq-slopes_", today(), ".docx")))
 
-# fd_metrics_reduced %>% 
-#   filter(exp_dates == "during") %>% 
+# fd_metrics_reduced |> 
+#   filter(exp_dates == "during") |> 
 #   ggplot(aes(x = redund)) +
 #   geom_histogram(bins = 12)
 # 
@@ -731,14 +776,14 @@ test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) %>%
 #   feve ~ treatment*quality + (1|site) + (1|year),
 #   family = beta_family(link = "logit"),
 #   ziformula = ~ 1,
-#   data = fd_metrics_reduced %>% filter(exp_dates == "during")
+#   data = fd_metrics_reduced |> filter(exp_dates == "during")
 # )
 
 # redund_during <- glmmTMB(
 #   redund ~ time_since_end*treatment*quality + (1|year),
 #   family = beta_family(link = "logit"),
 #   ziformula = ~ 1,
-#   data = fd_metrics_reduced %>% filter(exp_dates == "during")
+#   data = fd_metrics_reduced |> filter(exp_dates == "during")
 # )
 
 # plot(simulateResiduals(feve_during))
@@ -747,14 +792,14 @@ test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) %>%
 #   feve ~ treatment*quality + (1|site) + (1|year),
 #   family = beta_family(link = "logit"),
 #   ziformula = ~1,
-#   data = fd_metrics_reduced %>% filter(exp_dates == "after")
+#   data = fd_metrics_reduced |> filter(exp_dates == "after")
 # )
 
 # redund_after <- glmmTMB(
 #   redund ~ time_since_end*treatment*quality + (1|year),
 #   family = beta_family(link = "logit"),
 #   ziformula = ~1,
-#   data = fd_metrics_reduced %>% filter(exp_dates == "after")
+#   data = fd_metrics_reduced |> filter(exp_dates == "after")
 # )
 
 # plot(simulateResiduals(feve_after)) 
@@ -765,7 +810,7 @@ test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) %>%
 #               specs = c("treatment", "quality")),
 #       adjust = "bh")
 # ggpredict(spp_rich_during,
-#           terms = c("quality", "treatment")) %>% 
+#           terms = c("quality", "treatment")) |> 
 #   plot(show_data = TRUE, jitter = TRUE)
 # significant interaction of treatment and quality
 
@@ -774,7 +819,7 @@ test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) %>%
 # pairs(emmeans(spp_rich_after, c("treatment", "quality")),
 #       adjust = "bh")
 # ggpredict(spp_rich_after,
-#           terms = c("quality", "treatment")) %>% 
+#           terms = c("quality", "treatment")) |> 
 #   plot(show_data = TRUE, jitter = TRUE)
 # effect of treatment but not of quality
 
@@ -783,7 +828,7 @@ test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) %>%
 # pairs(emmeans(fric_during, c("treatment", "quality")),
 #       adjust = "bh")
 # ggpredict(fric_during,
-#           terms = c("quality", "treatment")) %>% 
+#           terms = c("quality", "treatment")) |> 
 #   plot(show_data = TRUE, jitter = TRUE)
 # significant effect of treatment and quality
 # fric different in high quality habitats between treatment and removal, not in low quality habitats
@@ -793,7 +838,7 @@ test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) %>%
 # pairs(emmeans(fric_after, c("treatment", "quality")),
 #       adjust = "bh")
 # ggpredict(fric_after,
-#           terms = c("quality", "treatment")) %>% 
+#           terms = c("quality", "treatment")) |> 
 #   plot(show_data = TRUE, jitter = TRUE)
 # significant effect of treatment only
 
@@ -802,7 +847,7 @@ test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) %>%
 # pairs(emmeans(feve_during, c("treatment", "quality")),
 #       adjust = "bh")
 # ggpredict(feve_during,
-#           terms = c("quality", "treatment")) %>% 
+#           terms = c("quality", "treatment")) |> 
 #   plot(show_data = TRUE, jitter = TRUE)
 # significant effect of treatment and quality
 # feve different in high quality habitats between treatment and removal, not in low quality habitats
@@ -812,64 +857,64 @@ test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) %>%
 # pairs(emmeans(feve_after, c("treatment", "quality")),
 #       adjust = "bh")
 # ggpredict(feve_after,
-#           terms = c("quality", "treatment")) %>% 
+#           terms = c("quality", "treatment")) |> 
 #   plot(show_data = TRUE, jitter = TRUE)
 # interactions are not significant, going to type II
 # significant interaction between treatment and quality, time and quality
 
 # spp_rich_pred_during <- ggpredict(spp_rich_during,
-#                               terms = c("treatment", "quality")) %>% 
+#                               terms = c("treatment", "quality")) |> 
 #   rename(treatment = x,
 #          quality = group)
 # 
 # ggemmeans(spp_rich_during, 
-#           terms = c("treatment", "quality")) %>% plot()
+#           terms = c("treatment", "quality")) |> plot()
 # 
 # spp_rich_pred_after <- ggpredict(spp_rich_after,
-#                              terms = c("treatment", "quality")) %>% 
+#                              terms = c("treatment", "quality")) |> 
 #   rename(treatment = x,
 #          quality = group)
 # 
 # ggemmeans(spp_rich_after, 
-#           terms = c("treatment", "quality")) %>% plot()
+#           terms = c("treatment", "quality")) |> plot()
 # 
 # fric_pred_during <- ggpredict(fric_during,
-#                                 terms = c("treatment", "quality")) %>% 
+#                                 terms = c("treatment", "quality")) |> 
 #   rename(treatment = x,
 #          quality = group)
 # 
 # ggemmeans(fric_during,
-#           terms = c("treatment", "quality")) %>% 
+#           terms = c("treatment", "quality")) |> 
 #   plot() +
 #   coord_cartesian(ylim = c(0, 0.35))
 # 
 # fric_pred_after <- ggpredict(fric_after,
-#                                terms = c("treatment", "quality")) %>% 
+#                                terms = c("treatment", "quality")) |> 
 #   rename(treatment = x,
 #          quality = group)
 # 
 # ggemmeans(fric_after,
-#           terms = c("treatment", "quality")) %>% 
+#           terms = c("treatment", "quality")) |> 
 #   plot()
 # 
 # feve_pred_during <- ggpredict(feve_during,
-#                                 terms = c("treatment", "quality")) %>% 
+#                                 terms = c("treatment", "quality")) |> 
 #   rename(treatment = x,
 #          quality = group)
 # 
 # ggemmeans(feve_during,
-#           terms = c("treatment", "quality")) %>% plot()
+#           terms = c("treatment", "quality")) |> plot()
 # 
 # feve_pred_after <- ggpredict(feve_after,
-#                                terms = c("treatment", "quality")) %>% 
+#                                terms = c("treatment", "quality")) |> 
 #   rename(treatment = x,
 #          quality = group)
 # 
 # ggemmeans(feve_after,
-#           terms = c("treatment", "quality")) %>% plot()
+#           terms = c("treatment", "quality")) |> plot()
 # 
 # spp_rich_during_plot <- ggplot() +
-#   geom_point(data = fd_metrics_reduced %>% filter(exp_dates == "during"),
+#   geom_point(data = fd_metrics_reduced |> filter(exp_dates == "during"),
 #              aes(x = treatment,
 #                  y = spp_rich,
 #                  color = treatment),
@@ -892,7 +937,7 @@ test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) %>%
 #   scale_y_continuous(limits = c(0, 20))
 # 
 # spp_rich_after_plot <- ggplot() +
-#   geom_point(data = fd_metrics_reduced %>% filter(exp_dates == "after"),
+#   geom_point(data = fd_metrics_reduced |> filter(exp_dates == "after"),
 #              aes(x = treatment,
 #                  y = spp_rich,
 #                  color = treatment),
@@ -917,7 +962,7 @@ test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) %>%
 # spp_rich_during_plot / spp_rich_after_plot
 # 
 # fric_during_plot <- ggplot() +
-#   geom_point(data = fd_metrics_reduced %>% filter(exp_dates == "during"),
+#   geom_point(data = fd_metrics_reduced |> filter(exp_dates == "during"),
 #              aes(x = treatment,
 #                  y = fric,
 #                  color = treatment),
@@ -940,7 +985,7 @@ test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) %>%
 #   scale_y_continuous(limits = c(0, 0.42))
 # 
 # fric_after_plot <- ggplot() +
-#   geom_point(data = fd_metrics_reduced %>% filter(exp_dates == "after"),
+#   geom_point(data = fd_metrics_reduced |> filter(exp_dates == "after"),
 #              aes(x = treatment,
 #                  y = fric,
 #                  color = treatment),
@@ -965,7 +1010,7 @@ test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) %>%
 # fric_during_plot / fric_after_plot
 # 
 # feve_during_plot <- ggplot() +
-#   geom_point(data = fd_metrics_reduced %>% filter(exp_dates == "during"),
+#   geom_point(data = fd_metrics_reduced |> filter(exp_dates == "during"),
 #              aes(x = treatment,
 #                  y = feve,
 #                  color = treatment),
@@ -988,7 +1033,7 @@ test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) %>%
 #   scale_y_continuous(limits = c(0, 1))
 # 
 # feve_after_plot <- ggplot() +
-#   geom_point(data = fd_metrics_reduced %>% filter(exp_dates == "after"),
+#   geom_point(data = fd_metrics_reduced |> filter(exp_dates == "after"),
 #              aes(x = treatment,
 #                  y = feve,
 #                  color = treatment),
@@ -1154,7 +1199,7 @@ test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) %>%
 # summary(rich_mod)
 # 
 # ggpredict(rich_mod,
-#           terms = "spp_rich") %>% 
+#           terms = "spp_rich") |> 
 #   plot(show_data = TRUE) 
 # 
 # ggplot(data = fd_metrics,
@@ -1167,7 +1212,7 @@ test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) %>%
 #     data = fd_metrics)
 # summary(asy_model)
 # ggpredict(asy_model,
-#           terms = c("spp_rich")) %>% 
+#           terms = c("spp_rich")) |> 
 #   plot(show_data = TRUE)
 # 
 # AICc(asy_model, rich_mod)
@@ -1179,13 +1224,13 @@ test_predictions(raoq_mod, c("time_since_zero", "treatment", "exp_dates")) %>%
 
 # ⟞ ⟞ ⟞ NPP ---------------------------------------------------------------
 
-ggplot(data = fd_metrics_reduced %>% filter(exp_dates == "during"),
+ggplot(data = fd_metrics_reduced |> filter(exp_dates == "during"),
        aes(x = (total_npp))) +
   geom_histogram(bins = 12,
                  fill = "cornflowerblue",
                  color = "black") # log normal?
 
-ggplot(data = fd_metrics_reduced %>% filter(exp_dates == "after"),
+ggplot(data = fd_metrics_reduced |> filter(exp_dates == "after"),
        aes(x = (total_npp))) +
   geom_histogram(bins = 12,
                  fill = "cornflowerblue",
@@ -1209,7 +1254,7 @@ plot(simulateResiduals(npp_spp_rich))
 summary(npp_spp_rich)
 r.squaredGLMM(npp_spp_rich)
 ggpredict(npp_spp_rich,
-          terms = c("spp_rich")) %>% 
+          terms = c("spp_rich")) |> 
   plot(show_data = TRUE) +
   coord_cartesian(ylim = c(0, 55))
 
@@ -1220,7 +1265,7 @@ plot(simulateResiduals(npp_mod_fric))
 summary(npp_mod_fric)
 r.squaredGLMM(npp_mod_fric)
 ggpredict(npp_mod_fric,
-          terms = c("fric")) %>% 
+          terms = c("fric")) |> 
   plot(show_data = TRUE) +
   coord_cartesian(ylim = c(0, 50))
 
@@ -1231,7 +1276,7 @@ ggpredict(npp_mod_fric,
 # summary(npp_mod_redund)
 # Anova(npp_mod_redund, type = "III")
 # ggpredict(npp_mod_redund,
-#           terms = c("redund")) %>% 
+#           terms = c("redund")) |> 
 #   plot(show_data = TRUE) +
 #   coord_cartesian(ylim = c(0, 50))
 # 
@@ -1250,14 +1295,14 @@ ggpredict(npp_mod_fric,
 # plot(simulateResiduals(npp_mod_leathery_macrophyte))
 # summary(npp_mod_leathery_macrophyte)
 # 
-# ggplot(data = npp_df %>% 
+# ggplot(data = npp_df |> 
 #          filter(sample_ID != "napl_control_2023-05-18"), 
 #        aes(x = thick_leathery,
 #            y = total_npp)) +
 #   geom_point()
 # 
 # ggpredict(npp_mod_thick_leathery,
-#           terms = "thick_leathery") %>% 
+#           terms = "thick_leathery") |> 
 #   plot(show_data = TRUE)
 
 AICc(npp_mod_fric, npp_spp_rich)
@@ -1265,7 +1310,7 @@ r.squaredGLMM(npp_mod_fric)
 r.squaredGLMM(npp_spp_rich)
 
 ggpredict(npp_spp_rich,
-          terms = c("spp_rich")) %>% 
+          terms = c("spp_rich")) |> 
   plot(show_data = TRUE)
 
 ggplot(data = fd_metrics,
@@ -1276,12 +1321,12 @@ ggplot(data = fd_metrics,
              aes(size = thick_leathery))
 
 ggpredict(npp_mod_fric,
-          terms = c("fric")) %>% 
+          terms = c("fric")) |> 
   plot(show_data = TRUE)
 
 # ⟞ ⟞ iii. other plots ----------------------------------------------------
 
-spric_plot <- ggplot(fd_metrics %>% filter(treatment == "continual"),
+spric_plot <- ggplot(fd_metrics |> filter(treatment == "continual"),
                      aes(x = quality,
                          y = spp_rich)) +
   geom_violin() +
@@ -1295,7 +1340,7 @@ spric_plot <- ggplot(fd_metrics %>% filter(treatment == "continual"),
   facet_wrap(~exp_dates, ncol = 1) +
   labs(title = "Species richness")
 
-fric_plot <- ggplot(fd_metrics %>% filter(treatment == "continual"),
+fric_plot <- ggplot(fd_metrics |> filter(treatment == "continual"),
                     aes(x = quality,
                         y = fric)) +
   geom_violin() +
@@ -1309,7 +1354,7 @@ fric_plot <- ggplot(fd_metrics %>% filter(treatment == "continual"),
   facet_wrap(~exp_dates) +
   labs(title = "Functional richness (convex hull volume)")
 
-redund_plot <- ggplot(fd_metrics %>% filter(treatment == "continual"),
+redund_plot <- ggplot(fd_metrics |> filter(treatment == "continual"),
                       aes(x = quality,
                           y = redund)) +
   geom_violin() +
@@ -1356,11 +1401,11 @@ alphas <- alpha.fd.fe(
   details_returned = TRUE
 )
 
-df <- alphas$asb_fdfe %>% 
-  as_tibble(rownames = "sample_ID") %>% 
+df <- alphas$asb_fdfe |> 
+  as_tibble(rownames = "sample_ID") |> 
   left_join(., comm_meta, by = "sample_ID")
 
-fred <- ggplot(data = df %>% filter(treatment == "continual"),
+fred <- ggplot(data = df |> filter(treatment == "continual"),
        aes(x = quality,
            y = fred)) +
   geom_point(alpha = 0.1,
@@ -1372,7 +1417,7 @@ fred <- ggplot(data = df %>% filter(treatment == "continual"),
   facet_wrap(~exp_dates, ncol = 1) +
   labs(title = "Functional redundancy (Mouillot et al. 2014)")
 
-frich <- ggplot(data = df %>% filter(treatment == "continual"),
+frich <- ggplot(data = df |> filter(treatment == "continual"),
        aes(x = quality,
            y = nb_sp)) +
   geom_point(alpha = 0.1,
@@ -1386,20 +1431,20 @@ frich <- ggplot(data = df %>% filter(treatment == "continual"),
 
 cowplot::plot_grid(frich, fred, ncol = 2)
 
-comm_mat_fe <- comm_mat_algae %>% 
-  as_tibble(rownames = "sample_ID") %>% 
+comm_mat_fe <- comm_mat_algae |> 
+  as_tibble(rownames = "sample_ID") |> 
   pivot_longer(cols = 2:43,
                names_to = "scientific_name",
-               values_to = "dry_gm2") %>% 
-  left_join(., enframe(algae_fe$sp_fe), by = c("scientific_name" = "name")) %>% 
-  rename(fe = value) %>% 
-  group_by(sample_ID, fe) %>% 
-  summarize(dry_gm2 = sum(dry_gm2)) %>% 
-  ungroup() %>% 
+               values_to = "dry_gm2") |> 
+  left_join(., enframe(algae_fe$sp_fe), by = c("scientific_name" = "name")) |> 
+  rename(fe = value) |> 
+  group_by(sample_ID, fe) |> 
+  summarize(dry_gm2 = sum(dry_gm2)) |> 
+  ungroup() |> 
   pivot_wider(names_from = fe,
-              values_from = dry_gm2) %>% 
-  filter(!(sample_ID %in% pull(few_spp_surveys, sample_ID))) %>% 
-  filter(!(sample_ID == "carp_control_2016-02-22")) %>% 
+              values_from = dry_gm2) |> 
+  filter(!(sample_ID %in% pull(few_spp_surveys, sample_ID))) |> 
+  filter(!(sample_ID == "carp_control_2016-02-22")) |> 
   # filter(!(sample_ID %in% c(
   #   "aque_continual_2010-06-15",
   #   "aque_continual_2010-07-22",
@@ -1431,8 +1476,8 @@ comm_mat_fe <- comm_mat_algae %>%
   #   "carp_continual_2019-11-30",
   #   "carp_control_2010-07-19",
   #   "carp_control_2010-10-14"
-  # ))) %>%
-  column_to_rownames("sample_ID") %>% 
+  # ))) |>
+  column_to_rownames("sample_ID") |> 
   as.matrix()
 
 # ⟞ ⟞ ii. diversity metrics -----------------------------------------------
@@ -1469,9 +1514,9 @@ alpha_fd_indices_algae <- mFD::alpha.fd.multidim(
 
 
 
-fun_div_df <- alpha_fd_indices_algae$functional_diversity_indices %>% 
-  rownames_to_column("sample_ID") %>% 
-  left_join(., comm_meta_algae, by = "sample_ID") %>% 
+fun_div_df <- alpha_fd_indices_algae$functional_diversity_indices |> 
+  rownames_to_column("sample_ID") |> 
+  left_join(., comm_meta_algae, by = "sample_ID") |> 
   filter(treatment == "continual")
 
 sprich_mfd <- ggplot(data = fun_div_df,
@@ -1509,94 +1554,94 @@ m <- trait_pcoa$vectors
 tr <- tri.mesh(m[,1], m[,2])
 
 # get the points on the outside of the hull
-ch <- convex.hull(tr) %>% 
-  data.frame() %>% 
+ch <- convex.hull(tr) |> 
+  data.frame() |> 
   rownames_to_column("scientific_name")
 # points are species in PCoA axes (as in Teixido et al.)
 
 # ⟞ ⟞ ii. survey trait space ----------------------------------------------
 
-species_presence <- comm_mat_algae %>% 
+species_presence <- comm_mat_algae |> 
   # turn the matrix into a data frame
-  as_tibble(rownames = "sample_ID") %>% 
+  as_tibble(rownames = "sample_ID") |> 
   # if the species biomass is greater than 0, replace that number with "yes"
   # if not, then "no"
   mutate(across(where(is.numeric), 
-                ~ case_when(. > 0 ~ "yes", TRUE ~ "no"))) %>% 
+                ~ case_when(. > 0 ~ "yes", TRUE ~ "no"))) |> 
   # make the data frame longer
   pivot_longer(cols = 2:43,
                names_to = "scientific_name",
-               values_to = "presence") %>% 
+               values_to = "presence") |> 
   # join with PCoA scroes from above
-  left_join(., spp_pcoa_scores, by = "scientific_name") %>% 
+  left_join(., spp_pcoa_scores, by = "scientific_name") |> 
   # nest the data frame by sample_ID to get convex hulls for each survey
-  nest(.by = sample_ID, data = everything()) %>% 
+  nest(.by = sample_ID, data = everything()) |> 
   mutate(filtered_comm = map2(
     data, sample_ID,
     ~ filter(.x, sample_ID == .y & presence == "yes")
-  )) %>% 
+  )) |> 
   mutate(coords = map(
     filtered_comm,
     ~ select(.x, 
-             scientific_name, Axis.1, Axis.2) %>% 
-      column_to_rownames("scientific_name") %>% 
+             scientific_name, Axis.1, Axis.2) |> 
+      column_to_rownames("scientific_name") |> 
       as.matrix()
-  )) %>% 
+  )) |> 
   mutate(hull_outside_species = map(
     filtered_comm,
     ~ nrow(.x)
-  )) %>% 
-  filter(hull_outside_species > 2) %>% 
+  )) |> 
+  filter(hull_outside_species > 2) |> 
   mutate(trimesh = map(
     coords,
     ~ tri.mesh(.x[, 1], .x[, 2])
-  )) %>% 
+  )) |> 
   mutate(convex_hull = map(
     trimesh,
-    ~ convex.hull(.x) %>% 
-      data.frame() %>% 
+    ~ convex.hull(.x) |> 
+      data.frame() |> 
       rownames_to_column("scientific_name")
-  )) %>% 
+  )) |> 
   left_join(., comm_meta, by = "sample_ID")
 
 # surveys that have too few species to plot a convex hull
-too_few <- comm_mat_algae %>% 
-  as_tibble(rownames = "sample_ID") %>% 
+too_few <- comm_mat_algae |> 
+  as_tibble(rownames = "sample_ID") |> 
   mutate(across(where(is.numeric), 
-                ~ case_when(. > 0 ~ "yes", TRUE ~ "no"))) %>% 
+                ~ case_when(. > 0 ~ "yes", TRUE ~ "no"))) |> 
   pivot_longer(cols = 2:43,
                names_to = "scientific_name",
-               values_to = "presence") %>% 
-  left_join(., spp_pcoa_scores, by = "scientific_name") %>% 
-  nest(.by = sample_ID, data = everything()) %>% 
+               values_to = "presence") |> 
+  left_join(., spp_pcoa_scores, by = "scientific_name") |> 
+  nest(.by = sample_ID, data = everything()) |> 
   mutate(filtered_comm = map2(
     data, sample_ID,
     ~ filter(.x, sample_ID == .y & presence == "yes")
-  )) %>% 
+  )) |> 
   mutate(coords = map(
     filtered_comm,
     ~ select(.x, 
-             scientific_name, Axis.1, Axis.2) %>% 
-      column_to_rownames("scientific_name") %>% 
+             scientific_name, Axis.1, Axis.2) |> 
+      column_to_rownames("scientific_name") |> 
       as.matrix()
-  )) %>% 
+  )) |> 
   mutate(hull_outside_species = map(
     filtered_comm,
     ~ nrow(.x)
-  )) %>% 
-  select(sample_ID, hull_outside_species) %>% 
-  unnest(hull_outside_species) %>% 
+  )) |> 
+  select(sample_ID, hull_outside_species) |> 
+  unnest(hull_outside_species) |> 
   filter(hull_outside_species < 3)
 
-hulls <- species_presence %>% 
-  select(sample_ID, convex_hull) %>% 
-  unnest(cols = c(convex_hull)) %>% 
+hulls <- species_presence |> 
+  select(sample_ID, convex_hull) |> 
+  unnest(cols = c(convex_hull)) |> 
   left_join(., comm_meta, by = "sample_ID")
 
-spp_by_survey <- species_presence %>% 
-  select(filtered_comm) %>% 
-  unnest(cols = c(filtered_comm)) %>% 
-  select(!presence) %>% 
+spp_by_survey <- species_presence |> 
+  select(filtered_comm) |> 
+  unnest(cols = c(filtered_comm)) |> 
+  select(!presence) |> 
   left_join(., comm_meta, by = "sample_ID")
 
 trait_space_aesthetics <- list(
@@ -1615,8 +1660,8 @@ trait_space_aesthetics <- list(
        y = "PCoA 2")
 )
 
-trait_space_during_reference <- hulls %>% 
-  filter(treatment == "Reference" & exp_dates == "during") %>% 
+trait_space_during_reference <- hulls |> 
+  filter(treatment == "Reference" & exp_dates == "during") |> 
   ggplot() +
   trait_space_aesthetics +
   geom_polygon(aes(x = x,
@@ -1629,8 +1674,8 @@ trait_space_during_reference <- hulls %>%
 
 trait_space_during_reference
 
-trait_space_after_reference <- hulls %>% 
-  filter(treatment == "Reference" & exp_dates == "after") %>% 
+trait_space_after_reference <- hulls |> 
+  filter(treatment == "Reference" & exp_dates == "after") |> 
   ggplot() +
   trait_space_aesthetics +
   geom_polygon(aes(x = x,
@@ -1643,8 +1688,8 @@ trait_space_after_reference <- hulls %>%
 
 trait_space_after_reference
 
-trait_space_during_removal <- hulls %>% 
-  filter(treatment == "Removal" & exp_dates == "during") %>% 
+trait_space_during_removal <- hulls |> 
+  filter(treatment == "Removal" & exp_dates == "during") |> 
   ggplot() +
   trait_space_aesthetics +
   geom_polygon(aes(x = x,
@@ -1657,8 +1702,8 @@ trait_space_during_removal <- hulls %>%
 
 trait_space_during_removal
 
-trait_space_after_removal <- hulls %>% 
-  filter(treatment == "Removal" & exp_dates == "after") %>% 
+trait_space_after_removal <- hulls |> 
+  filter(treatment == "Removal" & exp_dates == "after") |> 
   ggplot() +
   trait_space_aesthetics +
   geom_polygon(aes(x = x,
@@ -1688,88 +1733,88 @@ ggsave(here::here("figures",
 
 # ⟞ d. log response ratio -------------------------------------------------
 
-log_response_ratios <- fd_metrics %>% 
+log_response_ratios <- fd_metrics |> 
   nest(.by = c(exp_dates, quality),
-       data = everything()) %>% 
+       data = everything()) |> 
   mutate(spp_rich_lrr = map(
     data,
     ~ means_ratio(x = spp_rich ~ treatment,
                   adjust = TRUE,
                   data = .x,
                   log = TRUE,
-                  ci = 0.95) %>% 
+                  ci = 0.95) |> 
       rename(lrr_spp_rich = log_Means_ratio_adjusted,
              CI_low_spp_rich = CI_low,
-             CI_high_spp_rich = CI_high) %>% 
+             CI_high_spp_rich = CI_high) |> 
       select(!CI)
-  )) %>% 
+  )) |> 
   mutate(fric_lrr = map(
     data,
     ~ means_ratio(x = fric ~ treatment,
                   data = .x,
                   log = TRUE,
-                  ci = 0.95) %>% 
+                  ci = 0.95) |> 
       rename(lrr_fric = log_Means_ratio_adjusted,
              CI_low_fric = CI_low,
-             CI_high_fric = CI_high) %>% 
+             CI_high_fric = CI_high) |> 
       select(!CI)
-  )) %>% 
+  )) |> 
   mutate(redund_lrr = map(
     data,
     ~ means_ratio(x = redund ~ treatment,
                   data = .x,
                   log = TRUE,
-                  ci = 0.95) %>% 
+                  ci = 0.95) |> 
       rename(lrr_redund = log_Means_ratio_adjusted,
              CI_low_redund = CI_low,
-             CI_high_redund = CI_high) %>% 
+             CI_high_redund = CI_high) |> 
       select(!CI)
-  )) %>% 
+  )) |> 
   mutate(raoq_lrr = map(
     data,
     ~ means_ratio(x = raoq ~ treatment,
                   data = .x,
                   log = TRUE,
-                  ci = 0.95) %>% 
+                  ci = 0.95) |> 
       rename(lrr_raoq = log_Means_ratio_adjusted,
              CI_low_raoq = CI_low,
-             CI_high_raoq = CI_high) %>% 
+             CI_high_raoq = CI_high) |> 
       select(!CI)
-  )) %>%   
+  )) |>   
   mutate(fdis_lrr = map(
     data,
     ~ means_ratio(x = fdis ~ treatment,
                   data = .x,
                   log = TRUE,
-                  ci = 0.95) %>% 
+                  ci = 0.95) |> 
       rename(lrr_fdis = log_Means_ratio_adjusted,
              CI_low_fdis = CI_low,
-             CI_high_fdis = CI_high) %>% 
+             CI_high_fdis = CI_high) |> 
       select(!CI)
-  )) %>% 
+  )) |> 
   mutate(feve_lrr = map(
     data,
     ~ means_ratio(x = feve ~ treatment,
                   data = .x,
                   log = TRUE,
-                  ci = 0.95) %>% 
+                  ci = 0.95) |> 
       rename(lrr_feve = log_Means_ratio_adjusted,
              CI_low_feve = CI_low,
-             CI_high_feve = CI_high) %>% 
+             CI_high_feve = CI_high) |> 
       select(!CI)
-  )) %>% 
+  )) |> 
   mutate(npp_lrr = map(
     data,
     ~ means_ratio(x = total_npp ~ treatment,
                   data = .x,
                   log = TRUE,
-                  ci = 0.95) %>% 
+                  ci = 0.95) |> 
       rename(lrr_npp = log_Means_ratio_adjusted,
              CI_low_npp = CI_low,
-             CI_high_npp = CI_high) %>% 
+             CI_high_npp = CI_high) |> 
       select(!CI)
-  )) %>%  
-  # select(!data) %>% 
+  )) |>  
+  # select(!data) |> 
   mutate(aggregate = pmap(
     list(exp_dates, quality, 
          spp_rich_lrr, fric_lrr, redund_lrr, 
@@ -1777,14 +1822,14 @@ log_response_ratios <- fd_metrics %>%
     bind_cols
   )) 
 
-lrr_for_plots <- log_response_ratios %>% 
-  select(aggregate) %>% 
-  unnest(cols = c(aggregate)) %>% 
+lrr_for_plots <- log_response_ratios |> 
+  select(aggregate) |> 
+  unnest(cols = c(aggregate)) |> 
   rename(exp_dates = ...1,
-         quality = ...2) %>% 
+         quality = ...2) |> 
   pivot_longer(cols = !c(exp_dates, quality),
                names_to = "stat",
-               values_to = "value") %>% 
+               values_to = "value") |> 
   mutate(name = case_when(
     str_detect(stat, "spp_rich") ~ "spp_rich",
     str_detect(stat, "fric") ~ "fric",
@@ -1793,18 +1838,18 @@ lrr_for_plots <- log_response_ratios %>%
     str_detect(stat, "fdis") ~ "fdis",
     str_detect(stat, "feve") ~ "feve",
     str_detect(stat, "npp") ~ "npp"
-  )) %>% 
+  )) |> 
   mutate(stat = case_when(
     str_detect(stat, "lrr") ~ "lrr",
     str_detect(stat, "CI_low") ~ "CI_low",
     str_detect(stat, "CI_high") ~ "CI_high"
-  )) %>% 
+  )) |> 
   pivot_wider(names_from = "stat",
-              values_from = "value") %>% 
+              values_from = "value") |> 
   mutate(name = fct_relevel(name, "spp_rich", "fric", "redund", "fdis", "raoq", "feve", "npp"))
 
-lrr_npp <- lrr_for_plots %>% 
-  filter(name %in% c("npp")) %>% 
+lrr_npp <- lrr_for_plots |> 
+  filter(name %in% c("npp")) |> 
   ggplot(aes(x = quality,
              y = lrr)) + 
   geom_hline(yintercept = 0, 
@@ -1817,8 +1862,8 @@ lrr_npp <- lrr_for_plots %>%
   facet_grid(cols = vars(exp_dates))
   
 
-lrr_func <- lrr_for_plots %>% 
-  filter(name %in% c("spp_rich", "fric", "feve", "fdis")) %>% 
+lrr_func <- lrr_for_plots |> 
+  filter(name %in% c("spp_rich", "fric", "feve", "fdis")) |> 
 ggplot(aes(x = quality,
            y = lrr)) + 
   geom_hline(yintercept = 0, 
@@ -1864,102 +1909,101 @@ ggsave(here::here("figures",
        dpi = 300)
 
 
-log_response_ratios_reduced <- fd_metrics_reduced %>% 
-  nest(.by = c(exp_dates, quality),
-       data = everything()) %>% 
+log_response_ratios_reduced <- fd_metrics_reduced |> 
+  nest(.by = c(exp_dates),
+       data = everything()) |> 
   mutate(spp_rich_lrr = map(
     data,
     ~ means_ratio(x = spp_rich ~ treatment,
                   data = .x,
                   log = TRUE,
-                  ci = 0.95) %>% 
+                  ci = 0.95) |> 
       rename(lrr_spp_rich = log_Means_ratio_adjusted,
              CI_low_spp_rich = CI_low,
-             CI_high_spp_rich = CI_high) %>% 
+             CI_high_spp_rich = CI_high) |> 
       select(!CI)
-  )) %>% 
+  )) |> 
   mutate(fric_lrr = map(
     data,
     ~ means_ratio(x = fric ~ treatment,
                   data = .x,
                   log = TRUE,
-                  ci = 0.95) %>% 
+                  ci = 0.95) |> 
       rename(lrr_fric = log_Means_ratio_adjusted,
              CI_low_fric = CI_low,
-             CI_high_fric = CI_high) %>% 
+             CI_high_fric = CI_high) |> 
       select(!CI)
-  )) %>% 
+  )) |> 
   mutate(redund_lrr = map(
     data,
     ~ means_ratio(x = redund ~ treatment,
                   data = .x,
                   log = TRUE,
-                  ci = 0.95) %>% 
+                  ci = 0.95) |> 
       rename(lrr_redund = log_Means_ratio_adjusted,
              CI_low_redund = CI_low,
-             CI_high_redund = CI_high) %>% 
+             CI_high_redund = CI_high) |> 
       select(!CI)
-  )) %>% 
+  )) |> 
   mutate(raoq_lrr = map(
     data,
     ~ means_ratio(x = raoq ~ treatment,
                   data = .x,
                   log = TRUE,
-                  ci = 0.95) %>% 
+                  ci = 0.95) |> 
       rename(lrr_raoq = log_Means_ratio_adjusted,
              CI_low_raoq = CI_low,
-             CI_high_raoq = CI_high) %>% 
+             CI_high_raoq = CI_high) |> 
       select(!CI)
-  )) %>%   
+  )) |>   
   mutate(fdis_lrr = map(
     data,
     ~ means_ratio(x = fdis ~ treatment,
                   data = .x,
                   log = TRUE,
-                  ci = 0.95) %>% 
+                  ci = 0.95) |> 
       rename(lrr_fdis = log_Means_ratio_adjusted,
              CI_low_fdis = CI_low,
-             CI_high_fdis = CI_high) %>% 
+             CI_high_fdis = CI_high) |> 
       select(!CI)
-  )) %>% 
+  )) |> 
   mutate(feve_lrr = map(
     data,
     ~ means_ratio(x = feve ~ treatment,
                   data = .x,
                   log = TRUE,
-                  ci = 0.95) %>% 
+                  ci = 0.95) |> 
       rename(lrr_feve = log_Means_ratio_adjusted,
              CI_low_feve = CI_low,
-             CI_high_feve = CI_high) %>% 
+             CI_high_feve = CI_high) |> 
       select(!CI)
-  )) %>% 
+  )) |> 
   mutate(npp_lrr = map(
     data,
     ~ means_ratio(x = total_npp ~ treatment,
                   data = .x,
                   log = TRUE,
-                  ci = 0.95) %>% 
+                  ci = 0.95) |> 
       rename(lrr_npp = log_Means_ratio_adjusted,
              CI_low_npp = CI_low,
-             CI_high_npp = CI_high) %>% 
+             CI_high_npp = CI_high) |> 
       select(!CI)
-  )) %>%  
-  # select(!data) %>% 
+  )) |>  
+  # select(!data) |> 
   mutate(aggregate = pmap(
-    list(exp_dates, quality, 
+    list(exp_dates,  
          spp_rich_lrr, fric_lrr, redund_lrr, 
          raoq_lrr, fdis_lrr, feve_lrr, npp_lrr),
     bind_cols
   )) 
 
-lrr_for_plots_reduced <- log_response_ratios_reduced %>% 
-  select(aggregate) %>% 
-  unnest(cols = c(aggregate)) %>% 
-  rename(exp_dates = ...1,
-         quality = ...2) %>% 
-  pivot_longer(cols = !c(exp_dates, quality),
+lrr_for_plots_reduced <- log_response_ratios_reduced |> 
+  select(aggregate) |> 
+  unnest(cols = c(aggregate)) |> 
+  rename(exp_dates = ...1) |> 
+  pivot_longer(cols = !c(exp_dates),
                names_to = "stat",
-               values_to = "value") %>% 
+               values_to = "value") |> 
   mutate(name = case_when(
     str_detect(stat, "spp_rich") ~ "spp_rich",
     str_detect(stat, "fric") ~ "fric",
@@ -1968,19 +2012,19 @@ lrr_for_plots_reduced <- log_response_ratios_reduced %>%
     str_detect(stat, "fdis") ~ "fdis",
     str_detect(stat, "feve") ~ "feve",
     str_detect(stat, "npp") ~ "npp"
-  )) %>% 
+  )) |> 
   mutate(stat = case_when(
     str_detect(stat, "lrr") ~ "lrr",
     str_detect(stat, "CI_low") ~ "CI_low",
     str_detect(stat, "CI_high") ~ "CI_high"
-  )) %>% 
+  )) |> 
   pivot_wider(names_from = "stat",
-              values_from = "value") %>% 
+              values_from = "value") |> 
   mutate(name = fct_relevel(name, "spp_rich", "fric", "redund", "fdis", "raoq", "feve", "npp"))
 
-lrr_npp_reduced <- lrr_for_plots_reduced %>% 
-  filter(name %in% c("npp")) %>% 
-  ggplot(aes(x = quality,
+lrr_npp_reduced <- lrr_for_plots_reduced |> 
+  filter(name %in% c("npp")) |> 
+  ggplot(aes(x = exp_dates,
              y = lrr)) + 
   geom_hline(yintercept = 0, 
              linetype = 2,
@@ -1988,13 +2032,12 @@ lrr_npp_reduced <- lrr_for_plots_reduced %>%
   geom_pointrange(aes(ymin = CI_low,
                       ymax = CI_high)) +
   labs(x = "Experimental period",
-       y = "log response ratio \n (log continual/control)") +
-  facet_grid(cols = vars(exp_dates))
+       y = "log response ratio \n (log continual/control)")
 
 
-lrr_func_reduced <- lrr_for_plots_reduced %>% 
-  filter(name %in% c("spp_rich", "fric", "feve")) %>% 
-  ggplot(aes(x = quality,
+lrr_func_reduced <- lrr_for_plots_reduced |> 
+  filter(name %in% c("spp_rich", "fric", "feve")) |> 
+  ggplot(aes(x = exp_dates,
              y = lrr)) + 
   geom_hline(yintercept = 0, 
              linetype = 2,
@@ -2003,8 +2046,8 @@ lrr_func_reduced <- lrr_for_plots_reduced %>%
                       ymax = CI_high)) +
   labs(x = "Experimental period",
        y = "log response ratio (log continual/control)") +
-  facet_grid(rows = vars(name),
-             cols = vars(exp_dates),
+  facet_grid(#rows = vars(name),
+             cols = vars(name),
              labeller = labeller(
                name = c("spp_rich" = "Species richness", 
                         "fric" = "Functional richness",
@@ -2043,42 +2086,42 @@ ggsave(here::here("figures",
 
 # look at emily's paper for guidance
 
-fric_lrr <- fd_metrics_reduced %>% 
+fric_lrr <- fd_metrics_reduced |> 
   select(fric, treatment, site, date, 
          time_since_end, time_since_start, 
-         exp_dates, year, quality) %>% 
+         exp_dates, year) |> 
   pivot_wider(names_from = "treatment",
-              values_from = "fric") %>% 
-  mutate(lrr = log(continual/control)) %>% 
+              values_from = "fric") |> 
+  mutate(lrr = log(Removal/Reference)) |> 
   mutate(time_since_zero = case_when(
     time_since_end < 0 ~ time_since_start,
     TRUE ~ time_since_end
   ))
 
 
-# fric_summary <- fd_metrics_reduced %>% 
-#   select(fric, treatment, time_since_end, quality) %>% 
-#   group_by(time_since_end, quality, treatment) %>% 
-#   summarize(mean_fric = mean(fric, na.rm = TRUE)) %>% 
+# fric_summary <- fd_metrics_reduced |> 
+#   select(fric, treatment, time_since_end, quality) |> 
+#   group_by(time_since_end, quality, treatment) |> 
+#   summarize(mean_fric = mean(fric, na.rm = TRUE)) |> 
 #   ungroup()
 
-spp_rich_lrr <- fd_metrics_reduced %>% 
+spp_rich_lrr <- fd_metrics_reduced |> 
   select(spp_rich, treatment, site, date, 
          time_since_end, time_since_start,
-         exp_dates, year, quality) %>% 
+         exp_dates, year) |> 
   pivot_wider(names_from = "treatment",
-              values_from = "spp_rich") %>% 
-  mutate(lrr = log(continual/control)) %>% 
+              values_from = "spp_rich") |> 
+  mutate(lrr = log(Removal/Reference)) |> 
   mutate(time_since_zero = case_when(
     time_since_end < 0 ~ time_since_start,
     TRUE ~ time_since_end
   ))
 
 
-# spp_rich_summary <- fd_metrics_reduced %>% 
-#   select(spp_rich, treatment, time_since_end, quality) %>% 
-#   group_by(time_since_end, quality, treatment) %>% 
-#   summarize(mean_spp_rich = mean(spp_rich, na.rm = TRUE)) %>% 
+# spp_rich_summary <- fd_metrics_reduced |> 
+#   select(spp_rich, treatment, time_since_end, quality) |> 
+#   group_by(time_since_end, quality, treatment) |> 
+#   summarize(mean_spp_rich = mean(spp_rich, na.rm = TRUE)) |> 
 #   ungroup()
 
 # ggplot() +
@@ -2122,11 +2165,11 @@ check_outliers(spp_rich_lrr_mod)
 spp_rich_lrr_during_predictions <- predict_response(
   spp_rich_lrr_during,
   terms = c("time_since_zero", "exp_dates")
-) %>% 
+) |> 
   rename(quality = group)
 
 predict_response(spp_rich_lrr_during,
-                 terms = c("time_since_zero", "exp_dates")) %>% 
+                 terms = c("time_since_zero", "exp_dates")) |> 
   plot(show_data = TRUE)
 
 summary(spp_rich_lrr_during)
@@ -2141,35 +2184,35 @@ check_model(fric_lrr_mod)
 # fric_lrr_during_predictions <- predict_response(
 #   fric_lrr_during,
 #   terms = c("time_since_end", "quality")
-# ) %>% 
+# ) |> 
 #   rename(quality = group)
 
 predict_response(fric_lrr_mod,
-                 terms = c("time_since_zero", "exp_dates")) %>% 
+                 terms = c("time_since_zero", "exp_dates")) |> 
   plot(show_data = TRUE)
 
 summary(fric_lrr_mod)
 # no significant effect of time????
 
 # fric_lrr_after <- glmmTMB(lrr ~ time_since_end + (1|site) + (1|year),
-#                               data = fric_lrr %>% filter(exp_dates == "after"))
+#                               data = fric_lrr |> filter(exp_dates == "after"))
 # 
 # plot(simulateResiduals(fric_lrr_after))
 # 
 # fric_lrr_after_predictions <- predict_response(
 #   fric_lrr_after,
 #   terms = c("time_since_end", "quality")
-# ) %>% 
+# ) |> 
 #   rename(quality = group)
 # 
 # predict_response(fric_lrr_after,
-#                  terms = c("time_since_end")) %>% 
+#                  terms = c("time_since_end")) |> 
 #   plot(show_data = TRUE)
 # 
 # summary(fric_lrr_after)
 # significant effect of time??????
 
-ggplot(data = fric_summary %>% filter(quality %in% c("medium", "high")),
+ggplot(data = fric_summary |> filter(quality %in% c("medium", "high")),
        aes(x = time_since_end,
            y = mean_fric,
            group = treatment,
@@ -2187,7 +2230,7 @@ ggplot() +
   geom_hline(yintercept = 0,
              linetype = 2,
              color = "grey") +
-  geom_point(data = fric_lrr %>% filter(quality %in% c("medium", "high")),
+  geom_point(data = fric_lrr |> filter(quality %in% c("medium", "high")),
              aes(x = time_since_end,
                  y = lrr),
              alpha = 0.8,
@@ -2221,7 +2264,7 @@ ggplot() +
   facet_wrap(~quality) +
   labs(title = "Functional richness")
 
-ggplot(data = spp_rich_summary %>% filter(quality %in% c("medium", "high")),
+ggplot(data = spp_rich_summary |> filter(quality %in% c("medium", "high")),
        aes(x = time_since_end,
            y = mean_spp_rich,
            group = treatment,
@@ -2239,7 +2282,7 @@ ggplot() +
   geom_hline(yintercept = 0,
              linetype = 2,
              color = "grey") +
-  geom_point(data = spp_rich_lrr %>% filter(quality %in% c("medium", "high")),
+  geom_point(data = spp_rich_lrr |> filter(quality %in% c("medium", "high")),
              aes(x = time_since_end,
                  y = lrr),
              alpha = 0.8,
@@ -2281,29 +2324,29 @@ ggplot() +
 # column 3: exp_dates
 # column 4: present or absent
 
-present_absent <- comm_df %>% 
+present_absent <- comm_df |> 
   # algae only
-  filter(new_group == "algae" & sp_code != "MAPY") %>% 
-  # filter(exp_dates == "during") %>% 
-  select(sample_ID, treatment, exp_dates, scientific_name, dry_gm2) %>% 
-  filter(!(scientific_name %in% pull(excluded_spp, scientific_name))) %>% 
-  group_by(treatment, exp_dates, scientific_name) %>% 
-  summarize(mean_dry = mean(dry_gm2, na.rm = TRUE)) %>% 
-  ungroup() %>% 
+  filter(new_group == "algae" & sp_code != "MAPY") |> 
+  # filter(exp_dates == "during") |> 
+  select(sample_ID, treatment, exp_dates, scientific_name, dry_gm2) |> 
+  filter(!(scientific_name %in% pull(excluded_spp, scientific_name))) |> 
+  group_by(treatment, exp_dates, scientific_name) |> 
+  summarize(mean_dry = mean(dry_gm2, na.rm = TRUE)) |> 
+  ungroup() |> 
   mutate(present_absent = case_when(
     mean_dry > 0 ~ "present",
     TRUE ~ "absent"
-  )) %>% 
-  mutate(present_absent = fct_relevel(present_absent, "absent", "present")) %>% 
-  arrange(present_absent, mean_dry) %>% 
+  )) |> 
+  mutate(present_absent = fct_relevel(present_absent, "absent", "present")) |> 
+  arrange(present_absent, mean_dry) |> 
   mutate(scientific_name = fct_inorder(scientific_name))
 
-# spp_factors <- present_absent %>% 
-#   # group_by(scientific_name) %>% 
-#   count(scientific_name, present_absent) %>% 
-#   mutate(present_absent = fct_relevel(present_absent, "present", "absent")) %>% 
-#   arrange(present_absent, -n) %>% 
-#   # mutate(scientific_name = fct_inorder(scientific_name)) %>% 
+# spp_factors <- present_absent |> 
+#   # group_by(scientific_name) |> 
+#   count(scientific_name, present_absent) |> 
+#   mutate(present_absent = fct_relevel(present_absent, "present", "absent")) |> 
+#   arrange(present_absent, -n) |> 
+#   # mutate(scientific_name = fct_inorder(scientific_name)) |> 
 #   pull(scientific_name)
 
 pa_plot <- ggplot(data = present_absent,
@@ -2322,8 +2365,8 @@ pa_plot <- ggplot(data = present_absent,
              labeller = labeller(exp_dates = c("during" = "Experimental removal",
                                                "after" = "Recovery"))) 
 
-trait_table <- trait_matrix_reduced %>% 
-  rownames_to_column("scientific_name") %>% 
+trait_table <- trait_matrix_reduced |> 
+  rownames_to_column("scientific_name") |> 
   mutate(size_cm = case_when(
     is.na(size_cm) ~ "no size data",
     TRUE ~ paste0(size_cm, " cm")
@@ -2391,20 +2434,20 @@ trait_table <- trait_matrix_reduced %>%
   alpha_new = case_when(
     is.na(pe_alpha_new) ~ "no \U03B1 data",
     .default = paste0("\U03B1 = ", pe_alpha_new)
-  )) %>% 
+  )) |> 
   mutate(table_trait = paste(size_cm, position_to_benthos, stipe, branching,
                              branch_shape, blade_category, calcification, 
                              longevity, attachment, cn_new, pmax_new, alpha_new,
-                             sep = ", ")) %>% 
-  select(scientific_name, table_trait) %>% 
+                             sep = ", ")) |> 
+  select(scientific_name, table_trait) |> 
   arrange(factor(scientific_name, 
-                 levels = rev(pull(present_absent, scientific_name) %>% 
+                 levels = rev(pull(present_absent, scientific_name) |> 
                    unique()))) 
 
-trait_table %>% 
-  flextable() %>% 
-  autofit() %>% 
-  fit_to_width(7) %>% 
+trait_table |> 
+  flextable() |> 
+  autofit() |> 
+  fit_to_width(7) |> 
   save_as_docx(path = here("tables",
                     "trait-table",
                     paste0("species-trait-table_", today(), ".docx")))
@@ -2427,19 +2470,19 @@ free(pa_plot | my_table_plot) +
 
 # ⟞ g. species timeseries -------------------------------------------------
 
-spp_timeseries <- comm_df %>% 
+spp_timeseries <- comm_df |> 
   # algae only
-  filter(new_group == "algae" & sp_code != "MAPY") %>% 
-  select(sample_ID, scientific_name, dry_gm2) %>% 
-  filter(!(scientific_name %in% pull(excluded_spp, scientific_name))) %>% 
-  left_join(., comm_meta, by = "sample_ID") %>% 
-  nest(.by = "scientific_name", data = everything()) %>% 
+  filter(new_group == "algae" & sp_code != "MAPY") |> 
+  select(sample_ID, scientific_name, dry_gm2) |> 
+  filter(!(scientific_name %in% pull(excluded_spp, scientific_name))) |> 
+  left_join(., comm_meta, by = "sample_ID") |> 
+  nest(.by = "scientific_name", data = everything()) |> 
   mutate(mean_data = map(
     data,
     ~ group_by(.data = ., 
-               scientific_name, exp_dates, treatment, time_since_zero) %>% 
+               scientific_name, exp_dates, treatment, time_since_zero) |> 
       summarize(mean_dry = mean(dry_gm2, na.rm = TRUE))
-  )) %>% 
+  )) |> 
   mutate(timeseries_plot = pmap(
     list(x = data, y = mean_data, z = scientific_name),
     function(x, y, z) ggplot(data = x, 
@@ -2463,11 +2506,11 @@ spp_timeseries <- comm_df %>%
             legend.position.inside = c(0.2, 0.6))
   ))
 
-sci_name_files <- spp_timeseries %>% 
-  select(scientific_name) %>% 
-  unnest(cols = c(scientific_name)) %>% 
-  mutate(filename = paste(word(.$scientific_name, 1), word(.$scientific_name, 2), sep = "-")) %>% 
-  pull(filename) %>% 
+sci_name_files <- spp_timeseries |> 
+  select(scientific_name) |> 
+  unnest(cols = c(scientific_name)) |> 
+  mutate(filename = paste(word(.$scientific_name, 1), word(.$scientific_name, 2), sep = "-")) |> 
+  pull(filename) |> 
   as.list()
 
 spp_for_app <- c(

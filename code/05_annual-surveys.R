@@ -143,7 +143,8 @@ benthics_fd_metrics <- benthics_fd$nbsp |>
          spp_rich_stand = standardize(spp_rich),
          kelp_stand = standardize(total_kelp_biomass),
          macroalgae_stand = standardize(total_biomass)) |> 
-  mutate(total_biomass_log = log(total_biomass))
+  mutate(total_biomass_log = log(total_biomass),
+         total_kelp_biomass_log = log(total_kelp_biomass + 0.000001))
   
 
 # ⟞ c. exploratory visualization ------------------------------------------
@@ -584,7 +585,7 @@ summary(comp_model)
 
 coefs(comp_model)
 
-plot(sele_model)
+plot(comp_model)
 
 # ⟞ b. selection effect ---------------------------------------------------
 
@@ -629,7 +630,7 @@ coefs_all <- bind_rows(
   rename("sig_stars" = "x") |> 
   relocate(model, .before = response) |> 
  # mutate(across(where(is.numeric),~round(., digits = 2))) |> 
-  as_flextable() |> 
+  flextable() |> 
   merge_v(j = ~ model) |> 
   colformat_num(j = 4:9, 
                 digits = 3) |> 
@@ -643,3 +644,75 @@ save_as_docx(coefs_all,
                page_size = page_size(
                  orient = "landscape"
              )))
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# -------------------------- 6. site comparisons --------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+library(ggridges)
+library(ggdist)
+
+ggplot(data = benthics_fd_metrics,
+       aes(x = total_kelp_biomass,
+           y = reorder(site, -total_kelp_biomass,median))) +
+  geom_density_ridges(jittered_points = TRUE,
+                      position = position_points_jitter(width = 0.05, 
+                                                        height = 0),
+                      point_shape = '|', 
+                      point_size = 3, 
+                      point_alpha = 1, 
+                      alpha = 0.7) +
+  theme_minimal() +
+  scale_x_continuous(limits = c(0, 3500))
+
+# abur, ahnd, carp, bull, golb, napl, aque, ivee, mohk
+
+# hondo, mohk, aque, ivee, carp, golb, napl, abur, bull
+
+ggplot(data = benthics_fd_metrics,
+       aes(x = total_biomass,
+           y = reorder(site, -total_biomass,median))) +
+  geom_density_ridges(jittered_points = TRUE,
+                      position = position_points_jitter(width = 0.05, 
+                                                        height = 0),
+                      point_shape = '|', 
+                      point_size = 3, 
+                      point_alpha = 1, 
+                      alpha = 0.7) +
+  theme_minimal() +
+  scale_x_continuous(limits = c(0, 850))
+
+ 
+ggplot(data = benthics_fd_metrics,
+         aes(x = log(total_kelp_biomass),
+             y = log(total_biomass))) +
+  geom_point() +
+  geom_smooth(method = "lm",
+              se = FALSE) +
+  facet_wrap(~ site, scales = "free")
+
+ggplot(data = benthics_fd_metrics,
+       aes(x = total_kelp_biomass,
+           y = total_biomass)) +
+  geom_point() +
+  geom_smooth(method = "lm",
+              se = FALSE) +
+  facet_wrap(~ site, scales = "free")
+ 
+ 
+ 
+test <- lmer(log(total_biomass) ~ total_kelp_biomass_log*site + (1|transect) + (1|year),
+     data = benthics_fd_metrics)
+
+plot(simulateResiduals(test))
+ 
+summary(test)
+
+ggpredict(test,
+          terms = c("total_kelp_biomass_log", "site"),
+          back_transform = FALSE) |> 
+  plot(show_data = TRUE) +
+  facet_wrap(~group, scales = "free")
+ 
