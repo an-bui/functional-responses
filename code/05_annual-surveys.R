@@ -3,7 +3,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-source(here::here("code", "02_data-cleaning.R"))
+source(here::here("code", "03_trait-clustering.R"))
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -566,7 +566,7 @@ comp_model <- psem(
   ),
   
   # 2. species richness as a function of giant kelp biomass
-  glmmTMB(
+  glmer(
     spp_rich ~ total_kelp_biomass + (1|site/transect) + (1|year),
     family = poisson(link = "log"),
     data = benthics_fd_metrics
@@ -600,7 +600,7 @@ sele_model <- psem(
   
   # 2. species richness as a function of giant kelp biomass and understory biomass
   #    (log transformed)
-  glmmTMB(
+  glmer(
     spp_rich ~ total_kelp_biomass + log(total_biomass) +
       (1|site/transect) + (1|year),
     family = poisson(link = "log"),
@@ -649,10 +649,6 @@ save_as_docx(coefs_all,
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # -------------------------- 6. site comparisons --------------------------
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-library(ggridges)
-library(ggdist)
 
 ggplot(data = benthics_fd_metrics,
        aes(x = total_kelp_biomass,
@@ -716,3 +712,94 @@ ggpredict(test,
   plot(show_data = TRUE) +
   facet_wrap(~group, scales = "free")
  
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# --------------------------- 7. cluster biomass --------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# plot cluster 4 abundance against giant kelp biomass
+
+benthics_cluster_biomass <- pam_clusters_7 |>
+  select(sp_code, cluster) |> 
+  left_join(benthics_comm_df, by = "sp_code") |> 
+  group_by(sample_ID, cluster) |> 
+  summarize(total_cluster_biomass = sum(dry_gm2, na.rm = TRUE)) |> 
+  ungroup() |> 
+  mutate(cluster = paste0("cluster", cluster, "_biomass")) |> 
+  pivot_wider(names_from = cluster, 
+              values_from = total_cluster_biomass) |> 
+  left_join(benthics_fd_metrics, by = "sample_ID") |> 
+  mutate(cluster1_presence = case_when(
+    cluster1_biomass > 0 ~ 1,
+    TRUE ~ 0
+  ),
+  cluster4_presence = case_when(
+    cluster4_biomass > 0 ~ 1,
+    TRUE ~ 0
+  )) |> 
+  # filtering out any transects that didn't have algae in analysis
+  drop_na(site)
+
+ggplot(data = benthics_cluster_biomass,
+       aes(x = cluster1_biomass,
+           y = reorder(site, -cluster1_biomass, median))) +
+  geom_density_ridges(jittered_points = TRUE,
+                      position = position_points_jitter(width = 0.05, 
+                                                        height = 0),
+                      point_shape = '|', 
+                      point_size = 3, 
+                      point_alpha = 1, 
+                      alpha = 0.7) +
+  stat_summary(geom = "point",
+               color = "red",
+               fun = median) +
+  scale_x_continuous(limits = c(0, 650))
+
+ggplot(data = benthics_cluster_biomass,
+       aes(x = total_kelp_biomass,
+           y = cluster4_biomass)) +
+  geom_point() 
+
+ggplot(data = benthics_cluster_biomass,
+       aes(x = total_kelp_biomass,
+           y = cluster4_presence)) +
+  geom_point() 
+
+mod <- glmer(cluster1_presence ~ total_kelp_biomass + (1|site/transect) + (1|year),
+             family = "binomial",
+             data = benthics_cluster_biomass)
+
+plot(simulateResiduals(mod))
+
+summary(mod)
+
+ggpredict(mod,
+          terms = "total_kelp_biomass") |> 
+  plot(show_data = TRUE)
+
+ggplot(data = benthics_cluster_biomass,
+       aes(x = cluster1_biomass)) +
+  geom_histogram()
+
+mod <- glmmTMB(cluster1_biomass ~ total_kelp_biomass + (1|site/transect) + (1|year),
+               ziformula = ~total_kelp_biomass,
+               # family = Gamma(link = "inverse"),
+               # family = gaussian(link = "log"),
+               data = benthics_cluster_biomass)
+
+plot(simulateResiduals(mod))
+
+summary(mod)
+
+
+
+
+
+
+
+
+
+
+
+
+
+

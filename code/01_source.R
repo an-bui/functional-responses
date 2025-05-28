@@ -49,6 +49,7 @@ library(funspace)
 library(ggdist)
 library(ggConvexHull)
 library(tripack)
+library(ggridges)
 
 ##########################################################################-
 # 2. start and end dates --------------------------------------------------

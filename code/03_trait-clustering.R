@@ -21,8 +21,8 @@ source(here::here("code", "02_data-cleaning.R"))
 ##########################################################################-
 
 # creating gower dissimilarity matrix
-trait_gower <- gowdis(trait_matrix)
-trait_gower_daisy <- daisy(trait_matrix,
+trait_gower <- gowdis(trait_matrix_reduced)
+trait_gower_daisy <- daisy(trait_matrix_reduced,
                            metric = "gower") # outputs are the same
 
 ##########################################################################-
@@ -232,8 +232,8 @@ trait_nmds_scores_only <- scores(trait_nmds,
 
 # plotting PCoA axes
 trait_pcoa_plot <- ggplot(trait_pcoa_scores,
-       aes(x = Dim1, y = Dim2)) +
-  geom_point(aes(color = cluster, shape = taxon_phylum),
+       aes(x = Dim1, y = Dim2, color = cluster)) +
+  geom_point(aes(shape = taxon_phylum),
              size = 3,
              alpha = 0.9) +
   # scale_color_manual(values = c("Chlorophyta" = chloro_col,
@@ -241,6 +241,7 @@ trait_pcoa_plot <- ggplot(trait_pcoa_scores,
   #                               "Rhodophyta" = rhodo_col)) +
   scale_x_continuous(expand = c(0, 0), limits = c(-0.4, 0.5)) +
   scale_y_continuous(expand = c(0, 0), limits = c(-0.4, 0.5)) +
+  scale_color_manual(values = cluster_cols) +
   # guides(color = guide_legend(position = "inside")) +
   theme(legend.title = element_blank(),
         legend.position.inside = c(0.85, 0.1),
@@ -263,13 +264,13 @@ trait_nmds_plot <- ggplot(trait_nmds_scores,
                      guide = "none") +
   scale_shape_manual(values = c(16, 15, 17),
                      name = "Phylum") +
-  annotate(geom = "text", x = -0.35, y = -0.27, size = 8, label = "1", color = cluster1) +
-  annotate(geom = "text", x = 0, y = -0.3, size = 8, label = "2", color = cluster2) +
-  annotate(geom = "text", x = 0, y = 0, size = 8, label = "3", color = cluster3) +
-  annotate(geom = "text", x = -0.3, y = 0.45, size = 8, label = "4", color = cluster4) +
-  annotate(geom = "text", x = 0.4, y = -0.1, size = 8, label = "5", color = cluster5) +
-  annotate(geom = "text", x = 0.1, y = 0.27, size = 8, label = "6", color = cluster6) +
-  annotate(geom = "text", x = 0.35, y = 0.2, size = 8, label = "7", color = cluster7) +
+  # annotate(geom = "text", x = -0.35, y = -0.27, size = 8, label = "4", color = cluster4) +
+  # annotate(geom = "text", x = 0, y = -0.3, size = 8, label = "2", color = cluster2) +
+  # annotate(geom = "text", x = -0.1, y = 0.2, size = 8, label = "1", color = cluster1) +
+  # annotate(geom = "text", x = -0.3, y = 0.35, size = 8, label = "7", color = cluster7) +
+  # annotate(geom = "text", x = 0.4, y = -0.1, size = 8, label = "3", color = cluster3) +
+  # annotate(geom = "text", x = 0.1, y = 0.27, size = 8, label = "6", color = cluster6) +
+  # annotate(geom = "text", x = 0.35, y = 0.2, size = 8, label = "5", color = cluster5) +
   scale_x_continuous(expand = c(0, 0), limits = c(-0.5, 0.5)) +
   scale_y_continuous(expand = c(0, 0), limits = c(-0.5, 0.5)) +
   guides(shape = guide_legend(position = "inside")) +
