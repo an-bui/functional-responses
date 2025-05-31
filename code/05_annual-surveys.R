@@ -143,8 +143,19 @@ benthics_fd_metrics <- benthics_fd$nbsp |>
          spp_rich_stand = standardize(spp_rich),
          kelp_stand = standardize(total_kelp_biomass),
          macroalgae_stand = standardize(total_biomass)) |> 
-  mutate(total_biomass_log = log(total_biomass),
-         total_kelp_biomass_log = log(total_kelp_biomass + 0.000001))
+  mutate(total_biomass_log = log(total_biomass)) |> 
+  mutate(site_name = case_match(
+    site,
+    "abur" ~ "Arroyo Burro",
+    "ahnd" ~ "Arroyo Hondo",
+    "carp" ~ "Carpinteria",
+    "bull" ~ "Bullito",
+    "golb" ~ "Goleta",
+    "napl" ~ "Naples",
+    "aque" ~ "Arroyo Quemado",
+    "ivee" ~ "Isla Vista",
+    "mohk" ~ "Mohawk"
+  ))
   
 
 # ⟞ c. exploratory visualization ------------------------------------------
@@ -555,6 +566,11 @@ ggpredict(sele_understory_biomass_model,
 # ---------------------------- 5. piecewise SEM ---------------------------
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+sem_df <- benthics_fd_metrics |> 
+  select(sample_ID, site, transect, year, fric, spp_rich, total_kelp_biomass, total_biomass) |> 
+  # no NAs but dropping anyway
+  drop_na()
+
 # ⟞ a. complementarity ----------------------------------------------------
 
 comp_model <- psem(
@@ -562,14 +578,14 @@ comp_model <- psem(
   # 1. functional richness as a function of giant kelp biomass and species richness
   lmer(
     fric ~ total_kelp_biomass + spp_rich + (1|site/transect) + (1|year),
-    data = benthics_fd_metrics
+    data = sem_df
   ),
   
   # 2. species richness as a function of giant kelp biomass
   glmer(
     spp_rich ~ total_kelp_biomass + (1|site/transect) + (1|year),
     family = poisson(link = "log"),
-    data = benthics_fd_metrics
+    data = sem_df
   ),
   
   # 3. understory biomass (natural log transformed) as a function of functional 
@@ -577,13 +593,16 @@ comp_model <- psem(
   lmer(
     log(total_biomass) ~ total_kelp_biomass + spp_rich + fric +
       (1|site/transect) + (1|year),
-    data = benthics_fd_metrics
+    data = sem_df
   )
 )
 
+comp_model2 <- update(comp_model, spp_rich %~~% log(total_biomass))
+comp_model3 <- update(comp_model2, fric %~~% log(total_biomass))
+
 summary(comp_model)
 
-coefs(comp_model)
+coefs(comp_model3)
 
 plot(comp_model)
 
@@ -595,7 +614,7 @@ sele_model <- psem(
   lmer(
     fric ~ total_kelp_biomass + log(total_biomass) + spp_rich +
       (1|site/transect) + (1|year),
-    data = benthics_fd_metrics
+    data = sem_df
   ),
   
   # 2. species richness as a function of giant kelp biomass and understory biomass
@@ -604,14 +623,14 @@ sele_model <- psem(
     spp_rich ~ total_kelp_biomass + log(total_biomass) +
       (1|site/transect) + (1|year),
     family = poisson(link = "log"),
-    data = benthics_fd_metrics
+    data = sem_df
   ),
   
   # 3. understory biomass (log transformed) as a function of giant kelp biomass
   lmer(
     log(total_biomass) ~ total_kelp_biomass +
       (1|site/transect) + (1|year),
-    data = benthics_fd_metrics
+    data = sem_df
   )
 )
 
@@ -620,6 +639,55 @@ summary(sele_model)
 coefs(sele_model)
 
 plot(sele_model)
+
+sele_boot <- bootEff(sele_model, 
+                     R = 1000, 
+                     seed = 666, 
+                     type = "parametric", 
+                     ran.eff = "site")
+
+sele_semEff <- semEff(sele_boot)
+
+shape_eff_sem <- function(eff.obj, var, plot=F, ...) {
+  
+  eff.obj <- eff.obj$Summary[[var]]
+  
+  dir.sel <- charmatch("DIRECT", eff.obj[,1])
+  indir.sel <- charmatch("INDIRECT", eff.obj[,1])
+  tot.sel <- charmatch("TOTAL", eff.obj[,1])
+  
+  var.dir <- str_trim(eff.obj[dir.sel:(indir.sel-1),2])
+  est.dir <- as.numeric(eff.obj[dir.sel:(indir.sel-1),"Effect"])
+  ci.low.dir <- as.numeric(eff.obj[dir.sel:(indir.sel-1),"Lower CI"])
+  ci.high.dir <- as.numeric(eff.obj[dir.sel:(indir.sel-1),"Upper CI"])
+  
+  dir.eff <- data.frame(
+    Effect=rep("Direct effects", length(var)),
+    Var=var.dir,
+    Coef=est.dir,
+    CI.low=ci.low.dir,
+    CI.upp=ci.high.dir
+  )
+  
+  var.indir <- str_trim(eff.obj[indir.sel:(tot.sel-1),2])
+  est.indir <- as.numeric(eff.obj[indir.sel:(tot.sel-1),"Effect"])
+  ci.low.indir <- as.numeric(eff.obj[indir.sel:(tot.sel-1),"Lower CI"])
+  ci.high.indir <- as.numeric(eff.obj[indir.sel:(tot.sel-1),"Upper CI"])
+  
+  indir.eff <- data.frame(
+    Effect=rep("Indirect effects", length(var)),
+    Var=var.indir,
+    Coef=est.indir,
+    CI.low=ci.low.indir,
+    CI.upp=ci.high.indir
+  )
+  
+  df <- rbind(dir.eff, indir.eff) %>% drop_na()
+  df
+  
+}
+
+sele_shape <- shape_eff_sem(sele_semEff, "spp_rich")
 
 # ⟞ c. saving coefficients ------------------------------------------------
 
@@ -652,16 +720,29 @@ save_as_docx(coefs_all,
 
 ggplot(data = benthics_fd_metrics,
        aes(x = total_kelp_biomass,
-           y = reorder(site, -total_kelp_biomass,median))) +
-  geom_density_ridges(jittered_points = TRUE,
-                      position = position_points_jitter(width = 0.05, 
-                                                        height = 0),
-                      point_shape = '|', 
-                      point_size = 3, 
-                      point_alpha = 1, 
-                      alpha = 0.7) +
+           y = reorder(site_name, -total_kelp_biomass, median),
+           fill = after_stat(x)
+       )) +
+  geom_density_ridges_gradient(jittered_points = TRUE,
+                               position = position_points_jitter(width = 0.05, 
+                                                                 height = 0),
+                               point_shape = '|', 
+                               point_size = 3, 
+                               point_alpha = 1, 
+                               alpha = 0.7, 
+                               rel_min_height = 0.01) +
+  scale_fill_gradient(low = "orange",
+                      high = "darkgreen",
+                      breaks = c(0, 500, 1000, 2000, 3000),
+                      transform = "sqrt") +
+  scale_x_continuous(limits = c(0, 3500), 
+                     expand = c(0, 0)) +
+  scale_y_discrete(expand = c(0, 0)) +
+  labs(x = "Total kelp biomass (dry g\U00B2)",
+       y = "Site") +
   theme_minimal() +
-  scale_x_continuous(limits = c(0, 3500))
+  theme(legend.position = "none",
+        axis.title.y = element_blank())
 
 # abur, ahnd, carp, bull, golb, napl, aque, ivee, mohk
 
@@ -669,48 +750,97 @@ ggplot(data = benthics_fd_metrics,
 
 ggplot(data = benthics_fd_metrics,
        aes(x = total_biomass,
-           y = reorder(site, -total_biomass,median))) +
-  geom_density_ridges(jittered_points = TRUE,
-                      position = position_points_jitter(width = 0.05, 
-                                                        height = 0),
-                      point_shape = '|', 
-                      point_size = 3, 
-                      point_alpha = 1, 
-                      alpha = 0.7) +
+           y = reorder(site_name, -total_biomass,median),
+           fill = after_stat(x))) +
+  geom_density_ridges_gradient(jittered_points = TRUE,
+                               position = position_points_jitter(width = 0.05, 
+                                                                 height = 0),
+                               point_shape = '|', 
+                               point_size = 3, 
+                               point_alpha = 1, 
+                               alpha = 0.7, 
+                               rel_min_height = 0.01) +
+  scale_fill_gradient(low = "goldenrod",
+                      high = "brown",
+                      breaks = seq(from = 0, to = 850, by = 50)) +
+  scale_x_continuous(limits = c(0, 900), 
+                     expand = c(0, 0)) +
+  scale_y_discrete(expand = c(0, 0)) +
+  labs(x = "Total understory biomass (dry g\U00B2)",
+       y = "Site") +
   theme_minimal() +
-  scale_x_continuous(limits = c(0, 850))
+  theme(legend.position = "none",
+        axis.title.y = element_blank())
 
  
 ggplot(data = benthics_fd_metrics,
-         aes(x = log(total_kelp_biomass),
+         aes(x = total_kelp_biomass,
              y = log(total_biomass))) +
   geom_point() +
   geom_smooth(method = "lm",
               se = FALSE) +
   facet_wrap(~ site, scales = "free")
+ 
+ 
+site_specific <- lmer(
+  log(total_biomass) ~ total_kelp_biomass*site + (1|transect) + (1|year),
+  data = benthics_fd_metrics
+)
 
-ggplot(data = benthics_fd_metrics,
-       aes(x = total_kelp_biomass,
-           y = total_biomass)) +
-  geom_point() +
-  geom_smooth(method = "lm",
-              se = FALSE) +
-  facet_wrap(~ site, scales = "free")
+plot(simulateResiduals(site_specific))
  
- 
- 
-test <- lmer(log(total_biomass) ~ total_kelp_biomass_log*site + (1|transect) + (1|year),
-     data = benthics_fd_metrics)
+summary(site_specific)
+# carp is reference
+# naples slope is different from carp
+# ivee slope is different from carp
+# 
+pred <- predict_response(site_specific, "total_kelp_biomass")
+test_predictions(pred, 
+                 "site", 
+                 transform = TRUE) |> 
+  View()
 
-plot(simulateResiduals(test))
- 
-summary(test)
+carp_col <- '#D46F10'
+napl_col <- '#4CA49E'
+ivee_col <- '#4B8FF7'
 
-ggpredict(test,
-          terms = c("total_kelp_biomass_log", "site"),
-          back_transform = FALSE) |> 
-  plot(show_data = TRUE) +
-  facet_wrap(~group, scales = "free")
+ggpredict(site_specific,
+          terms = c("total_kelp_biomass", "site")) |> 
+  filter(group %in% c("carp", "ivee", "napl")) |> 
+  as_tibble() |> 
+  mutate(keep = case_when(
+    group == "carp" ~ "keep",
+    group == "ivee" & x > 1600 ~ "out",
+    group == "napl" & x > 1400 ~ "out",
+    TRUE ~ "keep"
+  )) |> 
+  filter(keep == "keep") |> 
+  rename(site = group) |> 
+  ggplot(aes(x = x,
+             y = predicted,
+             group = site)) +
+  geom_point(data = benthics_fd_metrics |> filter(site %in% c("carp", "ivee", "napl")),
+             aes(x = total_kelp_biomass,
+                 y = total_biomass,
+                 color = site),
+             shape = 21) +
+  geom_ribbon(aes(ymin = conf.low,
+                  ymax = conf.high),
+              alpha = 0.1) +
+  geom_line(aes(color = site),
+            linewidth = 2) +
+  scale_color_manual(values = c("carp" = carp_col,
+                                "ivee" = ivee_col,
+                                "napl" = napl_col)) +
+  facet_wrap(~ site, scales = "free_x",
+             labeller = labeller(site = c(carp = "Carpinteria",
+                                          ivee = "Isla Vista", 
+                                          napl = "Naples"))) +
+  theme(legend.position = "none",
+        text = element_text(size = 18),
+        strip.background = element_blank()) +
+  labs(x = "Total kelp biomass (g/m\U00B2)",
+       y = "Understory macroalgal biomass (g/m\U00B2)") 
  
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # --------------------------- 7. cluster biomass --------------------------
@@ -789,11 +919,6 @@ mod <- glmmTMB(cluster1_biomass ~ total_kelp_biomass + (1|site/transect) + (1|ye
 plot(simulateResiduals(mod))
 
 summary(mod)
-
-
-
-
-
 
 
 
