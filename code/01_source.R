@@ -885,6 +885,23 @@ model_preds_theme <- function() {
           panel.grid = element_blank())
 }
 
-
-
-
+transparent_theme <- function() {
+  theme(
+    panel.background = element_rect(fill = "transparent",
+                                    colour = NA), # necessary to avoid drawing panel outline
+    panel.grid.major = element_blank(), # get rid of major grid
+    panel.grid.minor = element_blank(), # get rid of minor grid
+    plot.background = element_rect(fill = "transparent",
+                                   colour = NA), # necessary to avoid drawing plot outline
+    legend.background = element_rect(fill = "transparent"),
+    legend.box.background = element_rect(fill = "transparent"),
+    legend.key = element_rect(fill = "transparent"),
+    text = element_text(color = "white",
+                        family = "Lato"),
+    axis.text = element_text(color = "white"),
+    axis.title = element_text(color = "white"),
+    axis.ticks = element_line(color = "white"),
+    strip.text = element_text(color = "white"),
+    strip.background = element_blank()
+  )
+}

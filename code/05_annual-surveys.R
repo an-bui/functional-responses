@@ -601,10 +601,11 @@ comp_model2 <- update(comp_model, spp_rich %~~% log(total_biomass))
 comp_model3 <- update(comp_model2, fric %~~% log(total_biomass))
 
 summary(comp_model)
+summary(comp_model3)
 
 coefs(comp_model3)
 
-plot(comp_model)
+plot(comp_model3)
 
 # ⟞ b. selection effect ---------------------------------------------------
 
@@ -718,7 +719,7 @@ save_as_docx(coefs_all,
 # -------------------------- 6. site comparisons --------------------------
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-ggplot(data = benthics_fd_metrics,
+kelp_ridges <- ggplot(data = benthics_fd_metrics,
        aes(x = total_kelp_biomass,
            y = reorder(site_name, -total_kelp_biomass, median),
            fill = after_stat(x)
@@ -730,28 +731,53 @@ ggplot(data = benthics_fd_metrics,
                                point_size = 3, 
                                point_alpha = 1, 
                                alpha = 0.7, 
-                               rel_min_height = 0.01) +
+                               rel_min_height = 0.01,
+                               color = "white") +
   scale_fill_gradient(low = "orange",
                       high = "darkgreen",
                       breaks = c(0, 500, 1000, 2000, 3000),
                       transform = "sqrt") +
   scale_x_continuous(limits = c(0, 3500), 
-                     expand = c(0, 0)) +
+                     expand = c(0, 0),
+                     position = "top") +
   scale_y_discrete(expand = c(0, 0)) +
   labs(x = "Total kelp biomass (dry g\U00B2)",
        y = "Site") +
   theme_minimal() +
   theme(legend.position = "none",
-        axis.title.y = element_blank())
+        axis.title.y = element_blank(),
+        axis.title.x = element_text(hjust = 0)) +
+  transparent_theme()
+
+ggsave(
+  filename = here("figures", "talk-figures",
+                  paste0("kelp-ridges_", today(), ".png")),
+  plot = kelp_ridges,
+  bg = "transparent",
+  width = 10,
+  height = 12,
+  units = "cm",
+  dpi = 300
+)
 
 # abur, ahnd, carp, bull, golb, napl, aque, ivee, mohk
 
 # hondo, mohk, aque, ivee, carp, golb, napl, abur, bull
 
-ggplot(data = benthics_fd_metrics,
-       aes(x = total_biomass,
-           y = reorder(site_name, -total_biomass,median),
-           fill = after_stat(x))) +
+algae_ridges <- benthics_fd_metrics |> 
+  mutate(site_name = fct_relevel(site_name,
+                                 "Mohawk",
+                                 "Isla Vista",
+                                 "Arroyo Quemado",
+                                 "Naples",
+                                 "Goleta",
+                                 "Bullito",
+                                 "Carpinteria",
+                                 "Arroyo Hondo",
+                                 "Arroyo Burro")) |> 
+  ggplot(aes(x = total_biomass,
+             y = site_name,
+             fill = after_stat(x))) +
   geom_density_ridges_gradient(jittered_points = TRUE,
                                position = position_points_jitter(width = 0.05, 
                                                                  height = 0),
@@ -759,18 +785,36 @@ ggplot(data = benthics_fd_metrics,
                                point_size = 3, 
                                point_alpha = 1, 
                                alpha = 0.7, 
-                               rel_min_height = 0.01) +
+                               rel_min_height = 0.01,
+                               color = "white") +
   scale_fill_gradient(low = "goldenrod",
                       high = "brown",
                       breaks = seq(from = 0, to = 850, by = 50)) +
   scale_x_continuous(limits = c(0, 900), 
-                     expand = c(0, 0)) +
+                     expand = c(0, 0),
+                     position = "top") +
   scale_y_discrete(expand = c(0, 0)) +
   labs(x = "Total understory biomass (dry g\U00B2)",
        y = "Site") +
   theme_minimal() +
   theme(legend.position = "none",
-        axis.title.y = element_blank())
+        axis.title.y = element_blank(),
+        axis.title.x = element_text(hjust = 0)) +
+  transparent_theme()
+
+algae_ridges
+
+
+ggsave(
+  filename = here("figures", "talk-figures",
+                  paste0("algae-ridges_", today(), ".png")),
+  plot = algae_ridges,
+  bg = "transparent",
+  width = 10,
+  height = 12,
+  units = "cm",
+  dpi = 300
+)
 
  
 ggplot(data = benthics_fd_metrics,
@@ -804,7 +848,69 @@ carp_col <- '#D46F10'
 napl_col <- '#4CA49E'
 ivee_col <- '#4B8FF7'
 
+site_names <- c(carp = "Carpinteria",
+                napl = "Naples",
+                bull = "Bullito",
+                mohk = "Mohawk",
+                golb = "Goleta",
+                ivee = "Isla Vista",
+                aque = "Arroyo Quemado",
+                abur = "Arroyo Burro",
+                ahnd = "Arroyo Hondo") 
+
 ggpredict(site_specific,
+          terms = c("total_kelp_biomass", "site")) |> 
+  as_tibble() |> 
+  mutate(keep = case_when(
+    group == "carp" ~ "keep",
+    group == "ivee" & x > 1600 ~ "out",
+    group == "napl" & x > 1400 ~ "out",
+    group == "ahnd" & x > 1200 ~ "out",
+    group == "bull" & x > 1000 ~ "out",
+    group == "golb" & x > 1500 ~ "out",
+    group == "abur" & x > 1600 ~ "out",
+    group == "aque" & x > 1700 ~ "out",
+    group == "mohk" & x > 2100 ~ "out",
+    TRUE ~ "keep"
+  )) |> 
+  filter(keep == "keep") |> 
+  rename(site = group) |> 
+  ggplot(aes(x = x,
+             y = predicted)) +
+  geom_ribbon(aes(x = x,
+                  y = predicted,
+                  ymin = conf.low,
+                  ymax = conf.high),
+              fill = "grey",
+              alpha = 0.4) + 
+  geom_line(aes(color = site)) +
+  geom_point(data = benthics_fd_metrics,
+             aes(x = total_kelp_biomass,
+                 y = total_biomass,
+                 color = site),
+             shape = 21) +
+  facet_wrap(~ site, scales = "free_x",
+             labeller = labeller(
+               site = site_names
+             )) +
+  scale_color_manual(values = calecopal::cal_palette("kelp1", n = 9, type = "continuous")) +
+  labs(x = "Total kelp biomass (dry g/\U00B2)",
+       y = "Total understory biomass (dry g/\U00B2)") +
+  theme(legend.position = "none",
+        axis.text = element_text(size = 6)) +
+  transparent_theme()
+
+ggsave(
+  filename = here("figures", "talk-figures",
+                  paste0("site-specific-all-sites_", today(), ".png")),
+  bg = "transparent",
+  width = 14,
+  height = 14,
+  units = "cm",
+  dpi = 300
+)
+
+site_specific_fig <- ggpredict(site_specific,
           terms = c("total_kelp_biomass", "site")) |> 
   filter(group %in% c("carp", "ivee", "napl")) |> 
   as_tibble() |> 
@@ -826,7 +932,8 @@ ggpredict(site_specific,
              shape = 21) +
   geom_ribbon(aes(ymin = conf.low,
                   ymax = conf.high),
-              alpha = 0.1) +
+              alpha = 0.3,
+              fill = "grey") +
   geom_line(aes(color = site),
             linewidth = 2) +
   scale_color_manual(values = c("carp" = carp_col,
@@ -839,8 +946,22 @@ ggpredict(site_specific,
   theme(legend.position = "none",
         text = element_text(size = 18),
         strip.background = element_blank()) +
+  transparent_theme() +
   labs(x = "Total kelp biomass (g/m\U00B2)",
        y = "Understory macroalgal biomass (g/m\U00B2)") 
+
+site_specific_fig
+
+ggsave(
+  filename = here("figures", "talk-figures",
+                  paste0("site-specific-fig_", today(), ".png")),
+  plot = site_specific_fig,
+  bg = "transparent",
+  width = 16,
+  height = 8,
+  units = "cm",
+  dpi = 300
+)
  
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # --------------------------- 7. cluster biomass --------------------------
