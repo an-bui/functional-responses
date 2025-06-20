@@ -119,6 +119,8 @@ more_than_25_sites
 # ⟞ b. excluded surveys ---------------------------------------------------
 
 # What is the distribution of species number across surveys?
+# thank you juljo for this solution for replacing NAs with 0: 
+# https://stackoverflow.com/questions/63970216/using-replace-na-with-across-in-mutate
 
 survey_spp_count <- comm_df |> 
   # algae only
