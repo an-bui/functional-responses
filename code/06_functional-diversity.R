@@ -85,7 +85,7 @@ more_than_25_sites <- excluded_count |>
   # filter only for sites where > 25% of species are excluded
   filter(more_than_25 == "more") |> 
   select(sample_ID) |> 
-  left_join(., comm_meta, by = "sample_ID") |> 
+  left_join(comm_meta, by = "sample_ID") |> 
   group_by(site_full, exp_dates, treatment) |> 
   count() |> 
   ungroup() |> 
@@ -119,6 +119,7 @@ more_than_25_sites
 # ⟞ b. excluded surveys ---------------------------------------------------
 
 # What is the distribution of species number across surveys?
+# thank you juljo for this solution for replacing NAs with 0: https://stackoverflow.com/questions/63970216/using-replace-na-with-across-in-mutate
 
 survey_spp_count <- comm_df |> 
   # algae only
@@ -130,7 +131,7 @@ survey_spp_count <- comm_df |>
   # get into wide format for community analysis
   pivot_wider(names_from = scientific_name, values_from = dry_gm2) |> 
   # replace NAs with 0
-  replace(is.na(.), 0) |> 
+  mutate(across(where(is.numeric), ~replace_na(., 0))) |> 
   # changing to occurrences
   mutate_if(is.numeric, ~1 * (. > 0)) |> 
   mutate(spp_sum = rowSums(across(where(is.numeric)))) 
@@ -157,7 +158,7 @@ ggplot(data = survey_count,
 few_spp_surveys <- survey_spp_count |> 
   filter(spp_sum < 3) |> 
   select(sample_ID, spp_sum) |> 
-  left_join(., comm_meta, by = "sample_ID")
+  left_join(comm_meta, by = "sample_ID")
 # 47 surveys with 0-1 species
 # 28 surveys with 2 species
 # 23 surveys with 3 species
@@ -222,8 +223,8 @@ prop_inertia_plot <- ggplot(data = proportion_inertia,
 spp_pcoa_scores <- trait_pcoa$vectors |> 
   as_tibble(rownames = NA) |> 
   rownames_to_column("scientific_name") |> 
-  left_join(., algae_taxa, by = "scientific_name") |> 
-  left_join(., traits_clean, by = "scientific_name")
+  left_join(algae_taxa, by = "scientific_name") |> 
+  left_join(traits_clean, by = "scientific_name")
 
 axes_12_attachment <- ggplot(data = spp_pcoa_scores,
                   aes(x = Axis.1,
@@ -330,7 +331,7 @@ algae_shannon <- vegan::diversity(x = comm_mat_algae,
 ll_group_biomass <- biomass |> 
   filter(new_group == "algae") |> 
   filter(!(sp_code %in% pull(excluded_spp, sp_code))) |>
-  left_join(., coarse_traits, by = "scientific_name") |> 
+  left_join(coarse_traits, by = "scientific_name") |> 
   group_by(year, season, site, treatment, ll_func_form) |> 
   summarize(group_bio = sum(dry_gm2, na.rm = TRUE)) |> 
   ungroup() |> 
@@ -341,7 +342,7 @@ ll_group_biomass <- biomass |>
 sd_group_biomass <- biomass |> 
   filter(new_group == "algae") |> 
   filter(!(sp_code %in% pull(excluded_spp, sp_code))) |>
-  left_join(., coarse_traits, by = "scientific_name") |> 
+  left_join(coarse_traits, by = "scientific_name") |> 
   group_by(year, season, site, treatment, sd_growth_form) |> 
   summarize(group_bio = sum(dry_gm2, na.rm = TRUE)) |> 
   ungroup() |> 
@@ -372,21 +373,29 @@ fd_metrics_reduced <- algae_fd_reduced$nbsp |>
   enframe() |> 
   rename(sample_ID = name,
          spp_rich = value) |> 
-  left_join(., enframe(algae_fd_reduced$FRic), by = c("sample_ID" = "name")) |> 
+  left_join(enframe(algae_fd_reduced$FRic), by = c("sample_ID" = "name")) |> 
   rename(fric = value) |> 
-  left_join(., enframe(algae_fd_reduced$RaoQ), by = c("sample_ID" = "name")) |> 
+  left_join(enframe(algae_fd_reduced$RaoQ), by = c("sample_ID" = "name")) |> 
   rename(raoq = value) |> 
-  left_join(., enframe(algae_fd_reduced$FDis), by = c("sample_ID" = "name")) |> 
+  left_join(enframe(algae_fd_reduced$FDis), by = c("sample_ID" = "name")) |> 
   rename(fdis = value) |>  
-  left_join(., enframe(algae_fd_reduced$FEve), by = c("sample_ID" = "name")) |> 
+  left_join(enframe(algae_fd_reduced$FEve), by = c("sample_ID" = "name")) |> 
   rename(feve = value) |> 
-  left_join(., algae_div, by = c("sample_ID" = "name")) |> 
+  left_join(algae_div, by = c("sample_ID" = "name")) |> 
   mutate(redund = simpson - raoq) |> 
-  left_join(., algae_shannon, by = c("sample_ID" = "name")) |> 
-  left_join(., comm_meta, by = "sample_ID") |> 
-  left_join(., npp, by = "season_ID") |> 
-  left_join(., ll_group_biomass, by = "season_ID") |> 
-  left_join(., sd_group_biomass, by = "season_ID") 
+  left_join(algae_shannon, by = c("sample_ID" = "name")) |> 
+  left_join(comm_meta, by = "sample_ID") |> 
+  left_join(npp, by = "season_ID") |> 
+  left_join(ll_group_biomass, by = "season_ID") |> 
+  left_join(sd_group_biomass, by = "season_ID") |> 
+  mutate(treatment = fct_relevel(
+    as.factor(treatment),
+    "Removal", "Reference"
+  ),
+  exp_dates = fct_relevel(
+    as.factor(exp_dates),
+    "during", "after"
+  ))
 
 # ⟞ ⟞ ii. models ----------------------------------------------------------
 
@@ -507,7 +516,10 @@ spp_rich_plot <- ggplot() +
         strip.background = element_blank(),
         strip.text = element_text(hjust = 0)) +
   labs(x = "Time since start of experiment (years)",
-       y = "Species richness")
+       y = "Species richness",
+       color = "Treatment",
+       linetype = "Treatment",
+       fill = "Treatment")
 
 spp_rich_plot
 

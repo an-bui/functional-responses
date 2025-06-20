@@ -155,7 +155,9 @@ benthics_fd_metrics <- benthics_fd$nbsp |>
     "aque" ~ "Arroyo Quemado",
     "ivee" ~ "Isla Vista",
     "mohk" ~ "Mohawk"
-  ))
+  )) |> 
+  mutate(comm_biomass = total_biomass + total_kelp_biomass) |> 
+  mutate(kelp_rel_biomass = total_kelp_biomass/comm_biomass)
   
 
 # ⟞ c. exploratory visualization ------------------------------------------
@@ -601,6 +603,7 @@ comp_model2 <- update(comp_model, spp_rich %~~% log(total_biomass))
 comp_model3 <- update(comp_model2, fric %~~% log(total_biomass))
 
 summary(comp_model)
+summary(comp_model2)
 summary(comp_model3)
 
 coefs(comp_model3)
@@ -713,6 +716,28 @@ save_as_docx(coefs_all,
                page_size = page_size(
                  orient = "landscape"
              )))
+
+
+
+# ⟞ d. community biomass vs dominant species ------------------------------
+
+ggplot(data = benthics_fd_metrics,
+       aes(x = log(total_kelp_biomass),
+           y = log(comm_biomass))) +
+  geom_point()
+
+ggplot(data = benthics_fd_metrics,
+       aes(x = log(kelp_rel_biomass),
+           y = log(comm_biomass))) +
+  geom_point()
+
+comm_mod <- glmmTMB(
+  comm_biomass ~ total_kelp_biomass + (1|site/transect) + (1|year),
+  data = benthics_fd_metrics,
+  family = Gamma(link = "inverse")
+)
+
+plot(simulateResiduals(comm_mod))
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
