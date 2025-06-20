@@ -608,7 +608,7 @@ fric_mod <- glmmTMB(
   fric ~ time_since_zero*treatment*exp_dates + (1|site) + (1|year),
   # family = beta_family(link = "logit"),
   na.action = na.omit,
-  data = fd_metrics_reduced
+  data = fd_metrics_reduced 
 )
 
 plot(simulateResiduals(fric_mod))
