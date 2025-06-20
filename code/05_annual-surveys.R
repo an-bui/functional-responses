@@ -130,7 +130,7 @@ benthics_fd_metrics <- benthics_fd$nbsp |>
   left_join(benthics_substrate, by = "sample_ID") |> 
   # filter out the 4 surveys that have too few species to calculate FRic
   # Hondo 2020, Hondo 2018, SCTW 2005, SCTW 2023
-  drop_na(fric) |> 
+  #drop_na(fric) |> 
   # calculating variation in kelp
   group_by(site) |> 
   mutate(mean_kelp = mean(total_kelp_biomass),
@@ -360,7 +360,8 @@ ggplot(data = benthics_fd_metrics,
 # model
 comp_fric_model <- lmer(
   fric ~ total_kelp_biomass + spp_rich + (1|site/transect) + (1|year),
-  data = benthics_fd_metrics
+  data = benthics_fd_metrics,
+  na.action = na.omit
 )
 
 # DHARMa residuals
