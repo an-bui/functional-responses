@@ -603,21 +603,6 @@ ggplot(data = fd_metrics_reduced,
                  fill = "cornflowerblue") +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
 
-fd_metrics_reduced |> 
-  filter(treatment == "Reference") |> 
-  filter(exp_dates == "after" & time_since_zero < 2) |> 
-  group_by(treatment, exp_dates) |> 
-  summarize(mean = mean(fric, na.rm = TRUE)) |> 
-  ungroup()
-
-ggplot(data = fd_metrics_reduced |> filter(treatment == "Reference"),
-       aes(x = time_since_end,
-           y = fric,
-           color = treatment)) +
-  geom_point() +
-  geom_smooth(se = FALSE,
-              method = "lm") +
-  facet_wrap(~ exp_dates, scales = "free_x")
 
 fric_mod <- glmmTMB(
   fric ~ time_since_zero*treatment*exp_dates + (1|site) + (1|year),
@@ -2344,8 +2329,12 @@ ggplot() +
   facet_wrap(~quality) +
   labs(title = "Species richness")
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# --------------------------- 4. timeseries plots -------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# ⟞ f. species change through time ----------------------------------------
+
+# ⟞ a. species change through time ----------------------------------------
 
 # column 1: species
 # column 2: treatment
@@ -2496,7 +2485,7 @@ free(pa_plot | my_table_plot) +
   plot_layout(heights = c(1, 0.4))
 
 
-# ⟞ g. species timeseries -------------------------------------------------
+# ⟞ b. species timeseries -------------------------------------------------
 
 spp_timeseries <- comm_df |> 
   # algae only
@@ -2604,3 +2593,136 @@ ggsave(here("figures",
 #          dpi = 300,
 #          units = "cm")
 # }
+
+# ⟞ c. richness timeseries ------------------------------------------------
+
+# fd_metrics_reduced |> 
+#   filter(treatment == "Reference") |> 
+#   filter(exp_dates == "during" & time_since_zero > 6) |> 
+#   group_by(treatment, exp_dates) |> 
+#   summarize(mean = mean(fric, na.rm = TRUE)) |> 
+#   ungroup()
+# 
+# fd_metrics_reduced |> 
+#   filter(treatment == "Reference") |> 
+#   filter(exp_dates == "after" & time_since_zero < 1) |> 
+#   group_by(treatment, exp_dates) |> 
+#   summarize(mean = mean(fric, na.rm = TRUE)) |> 
+#   ungroup()
+
+fric_plots <- fd_metrics_reduced |> 
+  # drop_na(fric) |> 
+  nest(.by = "site",
+       data = everything()) |> 
+  mutate(fric_data = map(
+    data,
+    ~ . |> drop_na(fric)
+    )) |> 
+  mutate(label = case_match(
+    site,
+    "aque" ~ "(a) Arroyo Quemado",
+    "napl" ~ "(b) Naples",
+    "mohk" ~ "(c) Mohawk",
+    "carp" ~ "(d) Carpinteria"
+  )) |> 
+  mutate(fric_plots = pmap(
+    list(x = fric_data, y = label),
+    function(x, y) ggplot(data = x,
+           aes(x = time_since_zero,
+               y = fric,
+               color = treatment,
+               fill = treatment,
+               group = treatment,
+               linetype = treatment)) +
+      model_preds_aesthetics +
+      geom_line(linewidth = 1) +
+      scale_y_continuous(breaks = seq(from = 0, to = 0.4, by = 0.1),
+                         limits = c(0, 0.35)) +
+      labs(x = "Time since zero",
+           y = "Functional richness",
+           color = "Treatment",
+           linetype = "Treatment",
+           title = y) +
+      facet_grid(~ exp_dates,
+                 labeller = labeller(exp_dates = c("during" = "Experimental removal",
+                                                   "after" = "Recovery"))) +
+      theme(legend.position = "inside",
+            legend.position.inside = c(0.9, 0.75),
+            legend.title = element_blank(),
+            legend.background = element_blank(),
+            strip.background = element_blank(),
+            plot.title.position = "plot") 
+  )) |> 
+  mutate(spp_rich_plots = pmap(
+    list(x = data, y = label),
+    function(x, y) ggplot(data = x,
+                          aes(x = time_since_zero,
+                              y = spp_rich,
+                              color = treatment,
+                              fill = treatment,
+                              group = treatment,
+                              linetype = treatment)) +
+      model_preds_aesthetics +
+      geom_line(linewidth = 1) +
+      scale_y_continuous(breaks = seq(from = 0, to = 18, by = 3),
+                         limits = c(0, 18)) +
+      labs(x = "Time since zero",
+           y = "Species richness",
+           color = "Treatment",
+           linetype = "Treatment",
+           title = y) +
+      facet_grid(~ exp_dates,
+                 labeller = labeller(exp_dates = c("during" = "Experimental removal",
+                                                   "after" = "Recovery"))) +
+      theme(legend.position = "inside",
+            legend.position.inside = c(0.9, 0.75),
+            legend.title = element_blank(),
+            legend.background = element_blank(),
+            strip.background = element_blank(),
+            plot.title.position = "plot") 
+  )) 
+
+aque_fric_timeseries <- fric_plots[[5]][[1]]
+
+carp_fric_timeseries <- fric_plots[[5]][[2]] +
+  theme(legend.position = "none")
+
+mohk_fric_timeseries <- fric_plots[[5]][[3]] +
+  theme(legend.position = "none")
+
+napl_fric_timeseries <- fric_plots[[5]][[4]] +
+  theme(legend.position = "none")
+
+fric_timeseries_together <- aque_fric_timeseries / napl_fric_timeseries / mohk_fric_timeseries / carp_fric_timeseries
+
+ggsave(
+  filename = here("figures", "LTE-richness-timeseries", paste0("fric-timeseries_", today(), ".png")),
+  plot = fric_timeseries_together,
+  units = "cm",
+  height = 24,
+  width = 18,
+  dpi = 300
+)
+
+aque_spp_rich_timeseries <- fric_plots[[6]][[1]]
+
+carp_spp_rich_timeseries <- fric_plots[[6]][[2]] +
+  theme(legend.position = "none")
+
+mohk_spp_rich_timeseries <- fric_plots[[6]][[3]] +
+  theme(legend.position = "none")
+
+napl_spp_rich_timeseries <- fric_plots[[6]][[4]] +
+  theme(legend.position = "none")
+
+spp_rich_timeseries_together <- aque_spp_rich_timeseries / napl_spp_rich_timeseries / mohk_spp_rich_timeseries / carp_spp_rich_timeseries
+
+ggsave(
+  filename = here("figures", "LTE-richness-timeseries", paste0("spp-rich-timeseries_", today(), ".png")),
+  plot = spp_rich_timeseries_together,
+  units = "cm",
+  height = 24,
+  width = 18,
+  dpi = 300
+)
+
