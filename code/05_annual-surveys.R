@@ -603,9 +603,19 @@ comp_model3 <- update(comp_model2, fric %~~% log(total_biomass))
 
 summary(comp_model)
 
-coefs(comp_model3)
+coefs(comp_model)
 
 plot(comp_model)
+
+comp_boot <- bootEff(comp_model, 
+                     R = 1000, 
+                     seed = 666, 
+                     type = "nonparametric", 
+                     ran.eff = "site")
+
+comp_semeff <- semEff(comp_boot)
+
+summary(comp_semeff)
 
 # ⟞ b. selection effect ---------------------------------------------------
 
